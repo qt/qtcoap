@@ -61,8 +61,8 @@ public:
     QCoapConnection *connection = nullptr;
     QThread *workerThread = nullptr;
 
-    QCoapReply *sendRequest(QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
+    QCoapReply *sendRequest(const QCoapRequest &request);
+    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
     bool send(QCoapReply *reply);
 
     Q_DECLARE_PUBLIC(QCoapClient)

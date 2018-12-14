@@ -87,10 +87,10 @@ void tst_QCoapReply::updateReply()
     QFETCH(QtCoap::ResponseCode, responseCode);
     QFETCH(QtCoap::Error, error);
 
-    QByteArray token = "\xAF\x01\xC2";
-    int id = 645;
+    const QByteArray token = "\xAF\x01\xC2";
+    const quint16 id = 645;
 
-    QCoapReply reply((QCoapRequest()));
+    QCoapReply reply(QCoapRequest{});
     QCoapMessage message;
     message.setToken(token);
     message.setMessageId(id);

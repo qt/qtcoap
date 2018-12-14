@@ -35,7 +35,6 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qiodevice.h>
 #include <QtNetwork/qabstractsocket.h>
 
 QT_BEGIN_NAMESPACE
@@ -45,6 +44,7 @@ class QCoapDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
 class QCoapConnection;
+class QIODevice;
 
 class QCoapClientPrivate;
 class Q_COAP_EXPORT QCoapClient : public QObject

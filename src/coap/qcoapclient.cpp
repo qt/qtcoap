@@ -32,6 +32,7 @@
 #include "qcoapreply.h"
 #include "qcoapdiscoveryreply.h"
 #include "qcoapnamespace.h"
+#include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtNetwork/qudpsocket.h>
 
@@ -562,7 +563,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
     Sends the CoAP \a request to its own URL and returns a new QCoapReply
     object.
 */
-QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
+QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
@@ -583,7 +584,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
     Sends the CoAP \a request to its own URL and returns a
     new QCoapDiscoveryReply object.
 */
-QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(QCoapRequest &request)
+QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 

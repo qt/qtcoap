@@ -132,7 +132,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     Explicitly casts \a value to a char and appends it to the \a buffer.
 */
 template<typename T>
-void appendByte(QByteArray *buffer, T value) {
+static void appendByte(QByteArray *buffer, T value) {
     buffer->append(static_cast<char>(value));
 }
 
@@ -173,13 +173,13 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
     // Insert Options
     if (!d->message.options().isEmpty()) {
-        // Sort options by ascending order
-        // TODO: sort at insertion time in QCoapMessage, and assert that options are sorted here
         QVector<QCoapOption> options = d->message.options();
-        std::sort(options.begin(), options.end(),
-            [](const QCoapOption &a, const QCoapOption &b) -> bool {
-                return a.name() < b.name();
-        });
+
+        // Options should be sorted in order of their option numbers
+        Q_ASSERT(std::is_sorted(d->message.options().cbegin(), d->message.options().cend(),
+                                [](const QCoapOption &a, const QCoapOption &b) -> bool {
+                                    return a.name() < b.name();
+                 }));
 
         quint8 lastOptionNumber = 0;
         for (const QCoapOption &option : qAsConst(options)) {
@@ -336,10 +336,10 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     QByteArray optionValue;
     Q_ASSERT(!(optionData >> 24));
     if (optionData > 0xFFFF)
-        optionValue.append(static_cast<char>(optionData >> 16));
+        appendByte(&optionValue, optionData >> 16);
     if (optionData > 0xFF)
-        optionValue.append(static_cast<char>((optionData >> 8) & 0xFF));
-    optionValue.append(static_cast<char>(optionData & 0xFF));
+        appendByte(&optionValue, (optionData >> 8) & 0xFF);
+    appendByte(&optionValue, optionData & 0xFF);
 
     return QCoapOption(name, optionValue);
 }

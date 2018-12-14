@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 
     Indicates the name of an option.
     The value of each ID is as specified by the CoAP standard, with the
-    exception of Invalid. You can refer to the
+    exception of Invalid. You can refer to
     \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} and
     \l{https://tools.ietf.org/html/rfc7959#section-2.1}{RFC 7959} for more details.
 

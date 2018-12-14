@@ -442,7 +442,7 @@ void tst_QCoapClient::timeout()
     client.protocol()->setAckTimeout(timeout);
     client.protocol()->setAckRandomFactor(1);
     client.protocol()->setMaxRetransmit(maxRetransmit);
-    QUrl url = QUrl("coap://240.0.0.0:5683/"); // Need an url that returns nothing
+    QUrl url = QUrl("coap://192.0.2.0:5683/"); // Need an url that returns nothing
 
     QElapsedTimer timeoutTimer;
     timeoutTimer.start();

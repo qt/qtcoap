@@ -47,7 +47,7 @@ class Q_COAP_EXPORT QCoapReply : public QIODevice
 public:
 
     explicit QCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
-    ~QCoapReply();
+    ~QCoapReply() override;
 
     QtCoap::ResponseCode responseCode() const;
     QCoapMessage message() const;

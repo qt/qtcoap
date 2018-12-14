@@ -132,7 +132,15 @@ void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &val
 void QCoapMessage::addOption(const QCoapOption &option)
 {
     Q_D(QCoapMessage);
-    d->options.push_back(option);
+
+    // Sort options by ascending order while inserting
+    d->options.insert(
+                std::upper_bound(d->options.begin(), d->options.end(), option,
+                                 [](const QCoapOption &a, const QCoapOption &b) -> bool {
+                                     return a.name() < b.name();
+                                 }),
+                option
+            );
 }
 
 /*!
