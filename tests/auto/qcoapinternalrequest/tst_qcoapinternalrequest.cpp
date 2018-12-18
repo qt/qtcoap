@@ -45,6 +45,10 @@ private Q_SLOTS:
     void requestToFrame();
     void parseUri_data();
     void parseUri();
+    void urlOptions_data();
+    void urlOptions();
+    void invalidUrls_data();
+    void invalidUrls();
 };
 
 void tst_QCoapInternalRequest::requestToFrame_data()
@@ -213,6 +217,77 @@ void tst_QCoapInternalRequest::parseUri()
         QVERIFY2(internalRequest.message()->options().contains(opt), "Missing option");
 
     QCOMPARE(options.count(), internalRequest.message()->optionCount());
+}
+
+void tst_QCoapInternalRequest::urlOptions_data()
+{
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<QVector<QCoapOption>>("options");
+
+    QVector<QCoapOption> options = {
+        { QCoapOption::UriHost, "example.com" },
+        { QCoapOption::UriPath, "~sensors" },
+        { QCoapOption::UriPath, "temp.xml" }
+    };
+
+    QTest::newRow("url_with_default_port")
+            << "coap://example.com:5683/~sensors/temp.xml"
+            << options;
+
+    QTest::newRow("url_percent_encoding_uppercase")
+            << "coap://EXAMPLE.com/%7Esensors/temp.xml"
+            << options;
+
+    QTest::newRow("url_with_no_port_uppercase")
+            << "coap://EXAMPLE.com:/%7esensors/temp.xml"
+            << options;
+
+    QTest::newRow("url_with_dot_segments")
+            << "coap://exaMPLE.com/%7esensors/../%7esensors//./temp.xml"
+            << options;
+
+    //! TODO Add more test URLs
+}
+
+void tst_QCoapInternalRequest::urlOptions()
+{
+    QFETCH(QString, url);
+    QFETCH(QVector<QCoapOption>, options);
+
+    const QCoapRequest request(url);
+    const QCoapInternalRequest internalRequest(request);
+
+    auto requestOptions = internalRequest.message()->options();
+    for (const auto& option : options)
+        QVERIFY2(requestOptions.removeAll(option) > 0, "Missing option");
+
+    QVERIFY2(requestOptions.isEmpty(), "Fewer options were expected");
+}
+
+void tst_QCoapInternalRequest::invalidUrls_data()
+{
+    QTest::addColumn<QString>("url");
+
+    QTest::newRow("url_with_non_ascii")
+            << QString("coap://example.com:5683/~sensors/%1temp.xml").arg(QChar(0x00A3));
+
+    QTest::newRow("url_no_scheme")
+            << "example.com:5683/~sensors/temp.xml";
+
+    QTest::newRow("url_wrong_scheme")
+            << "http://example.com:5683/~sensors/temp.xml";
+
+    //! TODO Add more test URLs
+}
+
+void tst_QCoapInternalRequest::invalidUrls()
+{
+    QFETCH(QString, url);
+    const QCoapRequest request(url);
+    const QCoapInternalRequest internalRequest(request);
+
+    QVERIFY(!internalRequest.isValid());
+    QVERIFY(internalRequest.message()->options().empty());
 }
 
 #else

@@ -294,6 +294,21 @@ const QVector<QCoapOption> &QCoapMessage::options() const
 }
 
 /*!
+    Finds and returns the list of options with the given \a name.
+*/
+QVector<QCoapOption> QCoapMessage::options(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+
+    QVector<QCoapOption> result;
+    std::copy_if(d->options.cbegin(), d->options.cend(), std::back_inserter(result),
+                 [name](const QCoapOption &option) {
+                            return option.name() == name;
+                 });
+    return result;
+}
+
+/*!
     Returns the number of options.
 */
 int QCoapMessage::optionCount() const

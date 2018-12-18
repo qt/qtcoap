@@ -72,11 +72,11 @@ public:
     void setPayload(const QByteArray &payload);
 
     QCoapOption option(int index) const;
-    //! TODO: Add the possibility to retrieve multiple QCoapOption with the same OptionName.
     QCoapOption option(QCoapOption::OptionName name) const;
     QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
     bool hasOption(QCoapOption::OptionName name) const;
     const QVector<QCoapOption> &options() const;
+    QVector<QCoapOption> options(QCoapOption::OptionName name) const;
     int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     virtual void addOption(const QCoapOption &option);

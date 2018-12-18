@@ -402,11 +402,20 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         return true;
     }
 
+    uri = uri.adjusted(QUrl::NormalizePathSegments);
+
     // 1/3/4. Fails if URL is relative, has no 'coap' scheme or has a fragment
     if (!isUrlValid(uri))
         return false;
 
-    // 2. TODO Ensure encoding matches CoAP standard (= no % in options)
+    // 2. Ensure encoding matches CoAP standard (i.e. uri is in ASCII encoding)
+    const auto uriStr = uri.toString();
+    bool isAscii = std::all_of(uriStr.cbegin(), uriStr.cend(),
+                               [](const QChar &ch) {
+                                   return (ch.unicode() < 128);
+                               });
+    if (!isAscii)
+        return false;
 
     // 5. Add Uri-Host option if not a plain IP
     QCoapOption uriHost = uriHostOption(uri);
@@ -422,7 +431,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         addOption(QCoapOption::UriPort, static_cast<quint32>(uri.port()));
 
     // 8. Add path segments to options
-    QString path = uri.path();
+    const auto path = uri.path();
     const auto listPath = path.splitRef('/');
     for (const QStringRef &pathPart : listPath) {
         if (!pathPart.isEmpty())

@@ -41,11 +41,16 @@ private Q_SLOTS:
     void copyAndDetach();
     void setMessageType_data();
     void setMessageType();
+    void addOption();
+    void addOption_string_data();
     void addOption_string();
     void addOption_uint_data();
     void addOption_uint();
+    void removeOption_data();
     void removeOption();
-    void urlOptions();
+    void removeOptionByName_data();
+    void removeOptionByName();
+    void removeAll();
 };
 
 void tst_QCoapMessage::copyAndDetach()
@@ -87,13 +92,73 @@ void tst_QCoapMessage::setMessageType()
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);
+}
 
-    //! TODO extend QCoapMessage tests
+void tst_QCoapMessage::addOption()
+{
+    QCoapMessage message;
+
+    QList<QCoapOption::OptionName> optionNames = {
+        QCoapOption::ProxyUri,
+        QCoapOption::UriHost,
+        QCoapOption::LocationQuery,
+        QCoapOption::ProxyUri,
+        QCoapOption::UriHost,
+        QCoapOption::UriQuery
+    };
+    QVERIFY(!std::is_sorted(optionNames.cbegin(), optionNames.cend()));
+
+    const QByteArray value("\xAF\x01\xC2");
+    for (const auto& name : optionNames)
+        message.addOption(name, value);
+
+    QCOMPARE(message.optionCount(), optionNames.size());
+    QVERIFY(std::is_sorted(message.options().cbegin(), message.options().cend(),
+                           [](const QCoapOption &a, const QCoapOption &b) -> bool {
+                               return a.name() < b.name();
+           }));
+
+    for (const auto& name : optionNames)
+        QVERIFY2(message.hasOption(name), qPrintable(QString("Missing option %1").arg(name)));
+
+    QVERIFY(std::all_of(message.options().cbegin(), message.options().cend(),
+                        [value](const QCoapOption opt) -> bool {
+                            return opt.value() == value;
+           }));
+}
+
+void tst_QCoapMessage::addOption_string_data()
+{
+    QTest::addColumn<QVector<QCoapOption>>("options");
+
+    QVector<QCoapOption> single_char_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> single_ba_option = {
+        { QCoapOption::LocationPath, QByteArray("\xAF\x01\xC2") }
+    };
+    QVector<QCoapOption> multiple_string_options = {
+        { QCoapOption::LocationPath, QString("str_path2") },
+        { QCoapOption::LocationPath, QString("str_path3") }
+    };
+
+    QTest::newRow("single_char_option") << single_char_option;
+    QTest::newRow("single_ba_option") << single_ba_option;
+    QTest::newRow("multiple_string_options") << multiple_string_options;
 }
 
 void tst_QCoapMessage::addOption_string()
 {
-    //! TODO with one and more than one identical options
+    QFETCH(QVector<QCoapOption>, options);
+
+    QCoapMessage message;
+    for (const auto& option : options)
+        message.addOption(option);
+
+    QCOMPARE(message.optionCount(), options.size());
+    for (const auto& option : options)
+    {
+        const auto it = std::find(message.options().cbegin(), message.options().cend(), option);
+        QVERIFY(it != message.options().cend());
+    }
 }
 
 void tst_QCoapMessage::addOption_uint_data()
@@ -101,10 +166,10 @@ void tst_QCoapMessage::addOption_uint_data()
     QTest::addColumn<quint32>("value");
     QTest::addColumn<int>("size");
 
-    QTest::newRow("4 bytes") << (quint32)0xF0aF0010 << 4;
-    QTest::newRow("3 bytes") << (quint32)0x300010 << 3;
-    QTest::newRow("2 bytes") << (quint32)0x5010 << 2;
-    QTest::newRow("1 byte")  << (quint32)0x80 << 1;
+    QTest::newRow("4 bytes") << static_cast<quint32>(0xF0aF0010) << 4;
+    QTest::newRow("3 bytes") << static_cast<quint32>(0x300010) << 3;
+    QTest::newRow("2 bytes") << static_cast<quint32>(0x5010) << 2;
+    QTest::newRow("1 byte")  << static_cast<quint32>(0x80) << 1;
 }
 
 void tst_QCoapMessage::addOption_uint()
@@ -112,25 +177,88 @@ void tst_QCoapMessage::addOption_uint()
     QFETCH(quint32, value);
     QFETCH(int, size);
 
-    QCoapOption option(QCoapOption::Block1, value);
+    const auto name = QCoapOption::Block1;
+    const QCoapOption option(name, value);
 
-    QCOMPARE(option.valueToInt(), value);
+    QCoapMessage message;
+    message.addOption(option);
+
+    QCOMPARE(message.options(name).size(), 1);
+    QCOMPARE(message.option(name).valueToInt(), value);
     QCOMPARE(option.value().size(), size);
+}
+
+void tst_QCoapMessage::removeOption_data()
+{
+    QTest::addColumn<QVector<QCoapOption>>("options");
+
+    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> multiple_options = {
+        { QCoapOption::LocationPath, "path2" },
+        { QCoapOption::LocationPath, "path3" }
+    };
+
+    QTest::newRow("single_option") << single_option;
+    QTest::newRow("multiple_options") << multiple_options;
 }
 
 void tst_QCoapMessage::removeOption()
 {
-    //! TODO with one and more than one identical options
+    QFETCH(QVector<QCoapOption>, options);
+
+    QCoapMessage message;
+    for (const auto& option : options)
+        message.addOption(option);
+
+    for (const auto& option : options)
+    {
+        // Make sure option is present before removal
+        auto it = std::find(message.options().cbegin(), message.options().cend(), option);
+        QVERIFY(it != message.options().end());
+
+        message.removeOption(option);
+        it = std::find(message.options().cbegin(), message.options().cend(), option);
+        QVERIFY(it == message.options().end());
+    }
 }
 
-void tst_QCoapMessage::urlOptions()
+void tst_QCoapMessage::removeOptionByName_data()
 {
-    //! TODO Test the following from the RFC:
-    // For example, the following three URIs are equivalent and cause the
-    // same options and option values to appear in the CoAP messages:
-    // coap://example.com:5683/~sensors/temp.xml
-    // coap://EXAMPLE.com/%7Esensors/temp.xml
-    // coap://EXAMPLE.com:/%7esensors/temp.xml
+    QTest::addColumn<QVector<QCoapOption>>("options");
+    QTest::addColumn<QCoapOption::OptionName>("name");
+
+    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> multiple_options = {
+        { QCoapOption::LocationPath, "path2" },
+        { QCoapOption::LocationPath, "path3" }
+    };
+
+    QTest::newRow("remove_single_option") << single_option << single_option.back().name();
+    QTest::newRow("remove_multiple_options") << multiple_options << multiple_options.back().name();
+}
+
+void tst_QCoapMessage::removeOptionByName()
+{
+    QFETCH(QVector<QCoapOption>, options);
+    QFETCH(QCoapOption::OptionName, name);
+
+    QCoapMessage message;
+    for (const auto& option : options)
+        message.addOption(option);
+
+    message.removeOption(name);
+    QVERIFY(!message.hasOption(name));
+}
+
+void tst_QCoapMessage::removeAll()
+{
+    QCoapMessage message;
+    message.addOption(QCoapOption::LocationPath, "path");
+    message.addOption(QCoapOption::ProxyUri, "proxy1");
+    message.addOption(QCoapOption::ProxyUri, "proxy2");
+    message.removeAllOptions();
+
+    QVERIFY(message.options().isEmpty());
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapMessage)
