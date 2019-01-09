@@ -1,0 +1,436 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 Witekio.
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:GPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+#include "qcoapqudpconnection_p.h"
+
+#include <QtNetwork/qnetworkdatagram.h>
+
+#if QT_CONFIG(dtls)
+#include <QtNetwork/QDtls>
+#include <QtNetwork/QSslPreSharedKeyAuthenticator>
+#include <QtNetwork/QSslConfiguration>
+#include <QtNetwork/QSslKey>
+#endif
+
+QT_BEGIN_NAMESPACE
+
+/*!
+    \class QCoapQUdpConnection
+    \brief A QCoapQUdpConnection transfers frames to and from a server.
+
+    \reentrant
+
+    The QCoapQUdpConnection class is used by the QCoapClient class to send
+    requests to a server. It has a socket listening for UDP messages,
+    that is used to send the CoAP frames.
+
+    When a reply is available, the QCoapQUdpConnection object emits a readyRead()
+    signal.
+
+    \sa QCoapClient
+*/
+
+/*!
+    Constructs a new QCoapQUdpConnection for the given \a securityMode and
+    sets \a parent as the parent object.
+
+    \note Since QtCoap::RawPublicKey is not supported yet, the connection
+    will fall back to the QtCoap::NoSec in the QtCoap::RawPublicKey mode.
+    That is, the connection won't be secure in this mode.
+*/
+QCoapQUdpConnection::QCoapQUdpConnection(QtCoap::SecurityMode securityMode, QObject *parent) :
+    QCoapQUdpConnection(*new QCoapQUdpConnectionPrivate(securityMode), parent)
+{
+}
+
+/*!
+    \internal
+
+    Constructs a new QCoapQUdpConnection as a child of \a parent, with \a dd as
+    its \c d_ptr. This constructor must be used when internally subclassing
+    the QCoapQUdpConnection class.
+*/
+QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject *parent) :
+    QCoapConnection(dd, parent)
+{
+    Q_D(QCoapQUdpConnection);
+
+    createSocket();
+
+    if (isSecure()) {
+#if QT_CONFIG(dtls)
+        connect(this, &QCoapConnection::securityConfigurationChanged,
+                [this]() {
+                       Q_D(QCoapQUdpConnection);
+                       d->setSecurityConfiguration(securityConfiguration());
+                });
+
+        auto configuration = QSslConfiguration::defaultDtlsConfiguration();
+
+        switch (d->securityMode) {
+        case QtCoap::RawPublicKey:
+            qWarning("QtCoap: RawPublicKey security is not supported yet, disabling security");
+            d->securityMode = QtCoap::NoSec;
+            break;
+        case QtCoap::PreSharedKey:
+            d->dtls = new QDtls(QSslSocket::SslClientMode, this);
+            configuration.setPeerVerifyMode(QSslSocket::VerifyNone);
+            d->dtls->setDtlsConfiguration(configuration);
+
+            connect(d->dtls, &QDtls::pskRequired, this, &QCoapQUdpConnection::pskRequired);
+            connect(d->dtls, &QDtls::handshakeTimeout, this, &QCoapQUdpConnection::handshakeTimeout);
+            break;
+        case QtCoap::Certificate:
+            d->dtls = new QDtls(QSslSocket::SslClientMode, this);
+            configuration.setPeerVerifyMode(QSslSocket::VerifyPeer);
+            d->dtls->setDtlsConfiguration(configuration);
+
+            connect(d->dtls, &QDtls::handshakeTimeout, this, &QCoapQUdpConnection::handshakeTimeout);
+            break;
+        default:
+            break;
+        }
+#else
+        qWarning("QtCoap: DTLS is disabled, falling back to QtCoap::NoSec mode.");
+        d->securityMode = QtCoap::NoSec;
+#endif
+    }
+}
+
+/*!
+    \internal
+
+    Creates the socket used by the connection and sets it in connection's private
+    class.
+*/
+void QCoapQUdpConnection::createSocket()
+{
+    Q_D(QCoapQUdpConnection);
+
+    d->udpSocket = new QUdpSocket(this);
+
+    connect(d->udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            this, SLOT(_q_socketError(QAbstractSocket::SocketError)));
+    connect(d->udpSocket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
+}
+
+QCoapQUdpConnectionPrivate::QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security)
+    : QCoapConnectionPrivate(security)
+    , udpSocket(nullptr)
+#if QT_CONFIG(dtls)
+    , dtls(nullptr)
+#endif
+{
+}
+
+/*!
+    \internal
+
+    Binds the socket to a random port and returns \c true if it succeeds.
+*/
+bool QCoapQUdpConnectionPrivate::bind()
+{
+    return socket()->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
+}
+
+/*!
+    \internal
+
+    Binds the socket if it is not already done and emits the bound() signal when
+    the socket is ready.
+*/
+void QCoapQUdpConnectionPrivate::bindSocket()
+{
+    Q_Q(QCoapQUdpConnection);
+
+    if (state != QCoapQUdpConnection::Bound && bind())
+        emit q->bound();
+}
+
+/*!
+    \internal
+
+    Prepares the socket for data transmission to the given \a host and
+    \a port by binding the socket. In case of a secure connection also
+    starts the handshake with the server.
+    Emits the bound() signal when the transport is ready.
+*/
+void QCoapQUdpConnection::bind(const QString &host, quint16 port)
+{
+    Q_D(QCoapQUdpConnection);
+
+    if (!isSecure()) {
+        d->bindSocket();
+#if QT_CONFIG(dtls)
+    } else {
+        Q_ASSERT(d->dtls);
+        if (d->dtls->isConnectionEncrypted()) {
+            emit bound();
+        } else if (socket()->state() == QAbstractSocket::UnconnectedState) {
+            socket()->bind();
+            d->dtls->setPeer(QHostAddress(host), port);
+            if (!d->dtls->doHandshake(d->socket()))
+                qWarning() << "QtCoap: handshake error: " << d->dtls->dtlsErrorString();
+        }
+#else
+        Q_UNUSED(host);
+        Q_UNUSED(port);
+#endif
+    }
+}
+
+/*!
+    \internal
+
+    Sends the given \a data frame to the \a host at the \a port.
+*/
+void QCoapQUdpConnection::writeData(const QByteArray &data, const QString &host, quint16 port)
+{
+    Q_D(QCoapQUdpConnection);
+    d->writeToSocket(data, host, port);
+}
+
+/*!
+    Sets the QUdpSocket socket \a option to \a value.
+*/
+void QCoapQUdpConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
+{
+    Q_D(QCoapQUdpConnection);
+    d->socket()->setSocketOption(option, value);
+}
+
+/*!
+    \internal
+
+    Sends the given \a data frame to the \a host at the \a port.
+*/
+void QCoapQUdpConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
+{
+    Q_Q(QCoapQUdpConnection);
+
+    if (!socket()->isWritable()) {
+        bool opened = socket()->open(socket()->openMode() | QIODevice::WriteOnly);
+        if (!opened) {
+            qWarning("QtCoap: Failed to open the UDP socket with write permission");
+            return;
+        }
+    }
+
+    QHostAddress hostAddress(host);
+    if (hostAddress.isNull()) {
+        qWarning() << "QtCoap: Invalid host IP address" << host
+                   << "- only IPv4/IPv6 destination addresses are supported.";
+        return;
+    }
+
+    const qint64 bytesWritten =
+#if QT_CONFIG(dtls)
+            q->isSecure() ? (Q_ASSERT(dtls), dtls->writeDatagramEncrypted(socket(), data)) :
+#endif
+            socket()->writeDatagram(data, hostAddress, port);
+
+    if (bytesWritten < 0)
+        qWarning() << "QtCoap: Failed to write datagram:" << socket()->errorString();
+}
+
+/*!
+    \internal
+
+    This slot reads all data stored in the socket and emits a readyRead()
+    signal for each received datagram.
+*/
+void QCoapQUdpConnectionPrivate::_q_socketReadyRead()
+{
+    Q_Q(QCoapQUdpConnection);
+
+    if (!socket()->isReadable()) {
+        bool opened = socket()->open(socket()->openMode() | QIODevice::ReadOnly);
+        if (!opened) {
+            qWarning("QtCoap: Failed to open the UDP socket with read permission");
+            return;
+        }
+    }
+
+    while (socket()->hasPendingDatagrams()) {
+        if (!q->isSecure()) {
+            const auto &datagram = socket()->receiveDatagram();
+            emit q->readyRead(datagram.data(), datagram.senderAddress());
+#if QT_CONFIG(dtls)
+        } else {
+            handleEncryptedDatagram();
+#endif
+        }
+    }
+}
+
+/*!
+    \internal
+
+    This slot emits the \l{QCoapQUdpConnection::error(QAbstractSocket::SocketError)}
+    {error(QAbstractSocket::SocketError)} signal.
+*/
+void QCoapQUdpConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
+{
+    Q_Q(QCoapQUdpConnection);
+
+    qWarning() << "CoAP UDP socket error" << error << socket()->errorString();
+    emit q->error(error);
+}
+
+/*!
+    Returns the socket.
+*/
+QUdpSocket *QCoapQUdpConnection::socket() const
+{
+    Q_D(const QCoapQUdpConnection);
+    return d->udpSocket;
+}
+
+/*!
+    \internal
+
+    Sets the DTLS configuration.
+*/
+void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
+        const QCoapSecurityConfiguration &configuration)
+{
+#if QT_CONFIG(dtls)
+    Q_ASSERT(dtls);
+    auto dtlsConfig = dtls->dtlsConfiguration();
+
+    if (!configuration.defaultCipherString().isEmpty()) {
+        dtlsConfig.setBackendConfigurationOption("CipherString",
+                                                 configuration.defaultCipherString());
+    }
+
+    if (!configuration.caCertificates().isEmpty())
+        dtlsConfig.setCaCertificates(configuration.caCertificates().toList());
+
+    if (!configuration.localCertificateChain().isEmpty())
+        dtlsConfig.setLocalCertificateChain(configuration.localCertificateChain().toList());
+
+    if (!configuration.privateKey().isEmpty()) {
+        if (configuration.privateKey().algorithm() != QSsl::Opaque) {
+            QSslKey privateKey(configuration.privateKey().key(),
+                               configuration.privateKey().algorithm(),
+                               configuration.privateKey().encodingFormat(),
+                               QSsl::PrivateKey,
+                               configuration.privateKey().passPhrase());
+            dtlsConfig.setPrivateKey(privateKey);
+        } else if (configuration.privateKey().handle()) {
+            QSslKey opaqueKey(configuration.privateKey().handle());
+            dtlsConfig.setPrivateKey(opaqueKey);
+        } else {
+            qWarning("QtCoap: Failed to set private key, the provided key is invalid");
+        }
+    }
+
+    dtls->setDtlsConfiguration(dtlsConfig);
+#else
+    Q_UNUSED(configuration);
+#endif
+}
+
+#if QT_CONFIG(dtls)
+/*!
+    \internal
+
+    This slot is invoked when PSK authentication is required. It is used
+    for setting the identity and pre shared key in order for the TLS handshake
+    to complete.
+*/
+void QCoapQUdpConnection::pskRequired(QSslPreSharedKeyAuthenticator *authenticator)
+{
+    Q_ASSERT(authenticator);
+    authenticator->setIdentity(securityConfiguration().identity());
+    authenticator->setPreSharedKey(securityConfiguration().preSharedKey());
+}
+
+/*!
+    \internal
+
+    This slot handles handshake timeouts.
+*/
+void QCoapQUdpConnection::handshakeTimeout()
+{
+    Q_D(QCoapQUdpConnection);
+
+    qWarning("QtCoap: handshake timeout, trying to re-transmit");
+    if (!d->dtls->handleTimeout(d->udpSocket))
+        qWarning() << "QtCoap: failed to re-transmit" << d->dtls->dtlsErrorString();
+}
+
+/*!
+    \internal
+
+    Returns a decrypted datagram received from a UDP socket.
+*/
+QNetworkDatagram QCoapQUdpConnectionPrivate::receiveDatagramDecrypted() const
+{
+    auto datagram = socket()->receiveDatagram();
+    const QByteArray plainText = dtls->decryptDatagram(socket(), datagram.data());
+    datagram.setData(plainText);
+    return datagram;
+}
+
+/*!
+    \internal
+
+    If the connection is encrypted, emits the readyRead() signal for
+    the pending datagram. Otherwise starts the DTLS handshake and
+    if it is completed, starts to send the pending request.
+*/
+void QCoapQUdpConnectionPrivate::handleEncryptedDatagram()
+{
+    Q_Q(QCoapQUdpConnection);
+
+    Q_ASSERT(dtls);
+
+    if (dtls->isConnectionEncrypted()) {
+        const auto &datagram = receiveDatagramDecrypted();
+        emit q->readyRead(datagram.data(), datagram.senderAddress());
+    } else {
+        if (!dtls->doHandshake(socket(), socket()->receiveDatagram().data())) {
+            qWarning() << "QtCoap: handshake error: " << dtls->dtlsErrorString();
+            return;
+        }
+
+        // The handshake is successfully done, emit the bound() signal to inform
+        // listeners that the socket is ready to start transferring data.
+        if (dtls->isConnectionEncrypted())
+            emit q->bound();
+    }
+}
+
+#endif // dtls
+
+QT_END_NAMESPACE
+
+#include "moc_qcoapqudpconnection.cpp"

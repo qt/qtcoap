@@ -34,7 +34,6 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
-#include <QtCoap/qcoapconnection.h>
 
 class tst_QCoapRequest : public QObject
 {
@@ -43,6 +42,8 @@ class tst_QCoapRequest : public QObject
 private Q_SLOTS:
     void ctor_data();
     void ctor();
+    void adjustUrl_data();
+    void adjustUrl();
     void setUrl_data();
     void setUrl();
     void setMethod_data();
@@ -67,16 +68,57 @@ void tst_QCoapRequest::ctor()
     QCOMPARE(request.url(), url);
 }
 
+void tst_QCoapRequest::adjustUrl_data()
+{
+    QTest::addColumn<QUrl>("inputUrl");
+    QTest::addColumn<QUrl>("expectedUrl");
+    QTest::addColumn<bool>("secure");
+
+    QTest::newRow("empty") << QUrl() << QUrl() << false;
+    QTest::newRow("empty_secure") << QUrl() << QUrl() << true;
+    QTest::newRow("scheme_and_port_known") << QUrl("coap://10.11.12.13:1234/test")
+                                           << QUrl("coap://10.11.12.13:1234/test") << false;
+    QTest::newRow("scheme_and_port_known_secure") << QUrl("coaps://10.11.12.13:1234/test")
+                                                  << QUrl("coaps://10.11.12.13:1234/test") << true;
+    QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test")
+                             << QUrl("coap://vs0.inf.ethz.ch:5683/test") << false;
+    QTest::newRow("no_port_secure") << QUrl("coaps://vs0.inf.ethz.ch/test")
+                                    << QUrl("coaps://vs0.inf.ethz.ch:5684/test") << true;
+    QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test")
+                                       << QUrl("coap://vs0.inf.ethz.ch:5683/test") << false;
+    QTest::newRow("no_scheme_no_port_secure") << QUrl("vs0.inf.ethz.ch/test")
+                                              << QUrl("coaps://vs0.inf.ethz.ch:5684/test") << true;
+}
+
+void tst_QCoapRequest::adjustUrl()
+{
+    QFETCH(QUrl, inputUrl);
+    QFETCH(QUrl, expectedUrl);
+    QFETCH(bool, secure);
+
+    QCoapRequest request(inputUrl);
+    request.adjustUrl(secure);
+    QCOMPARE(request.url(), expectedUrl);
+}
+
 void tst_QCoapRequest::setUrl_data()
 {
     QTest::addColumn<QUrl>("inputUrl");
     QTest::addColumn<QUrl>("expectedUrl");
 
     QTest::newRow("empty") << QUrl() << QUrl();
-    QTest::newRow("coap") << QUrl("coap://10.11.12.13:5683/test") << QUrl("coap://10.11.12.13:5683/test");
-    QTest::newRow("other_port") << QUrl("coap://10.11.12.13:8888/test") << QUrl("coap://10.11.12.13:8888/test");
-    QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
-    QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("coap") << QUrl("coap://10.11.12.13:5683/test")
+                          << QUrl("coap://10.11.12.13:5683/test");
+    QTest::newRow("coaps") << QUrl("coaps://10.11.12.13:5683/test")
+                           << QUrl("coaps://10.11.12.13:5683/test");
+    QTest::newRow("other_port") << QUrl("coap://10.11.12.13:8888/test")
+                                << QUrl("coap://10.11.12.13:8888/test");
+    QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test")
+                             << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("no_port_scure") << QUrl("coaps://vs0.inf.ethz.ch/test")
+                                   << QUrl("coaps://vs0.inf.ethz.ch:5684/test");
+    QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test")
+                                       << QUrl("vs0.inf.ethz.ch/test");
     QTest::newRow("incorrect_scheme") << QUrl("http://vs0.inf.ethz.ch:5683/test") << QUrl();
     QTest::newRow("invalid") << QUrl("-coap://vs0.inf.ethz.ch:5683/test") << QUrl();
 }

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Witekio.
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCoap module.
@@ -32,7 +31,7 @@
 #define QCOAPCONNECTION_P_H
 
 #include <QtCoap/qcoapconnection.h>
-#include <QtNetwork/qudpsocket.h>
+
 #include <QtCore/qqueue.h>
 #include <private/qobject_p.h>
 
@@ -58,31 +57,17 @@ struct CoapFrame {
     : currentPdu(pdu), host(hostName), port(portNumber) {}
 };
 
-class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate
+class QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
-    QCoapConnectionPrivate() {}
+    QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
 
-    QCoapConnection::ConnectionState state = QCoapConnection::Unconnected;
+    ~QCoapConnectionPrivate() override = default;
+
+    QCoapSecurityConfiguration securityConfiguration;
+    QtCoap::SecurityMode securityMode;
+    QCoapConnection::ConnectionState state;
     QQueue<CoapFrame> framesToSend;
-
-    virtual bool bind();
-
-    void bindSocket();
-    void writeToSocket(const CoapFrame &frame);
-    QUdpSocket* socket() { return udpSocket; }
-    void setSocket(QUdpSocket *socket);
-    void setState(QCoapConnection::ConnectionState newState);
-
-    void _q_socketBound();
-    void _q_socketReadyRead();
-    void _q_startToSendRequest();
-    void _q_socketError(QAbstractSocket::SocketError);
-
-private:
-    QUdpSocket *udpSocket = nullptr;
-
-    Q_DECLARE_PUBLIC(QCoapConnection)
 };
 
 QT_END_NAMESPACE

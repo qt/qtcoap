@@ -103,9 +103,17 @@ public:
 
     enum Port {
         DefaultPort = 5683,
-        DtlsPort = 5684
+        DefaultSecurePort = 5684
     };
     Q_ENUM(Port)
+
+    enum SecurityMode {
+        NoSec = 0,
+        PreSharedKey,
+        RawPublicKey,
+        Certificate
+    };
+    Q_ENUM(SecurityMode)
 
     static bool isError(ResponseCode code)
     {

@@ -38,7 +38,7 @@
 #include <QtCore/qbuffer.h>
 #include <QtNetwork/qnetworkdatagram.h>
 #include <private/qcoapclient_p.h>
-#include <private/qcoapconnection_p.h>
+#include <private/qcoapqudpconnection_p.h>
 
 #include "../coapnetworksettings.h"
 
@@ -74,7 +74,7 @@ private Q_SLOTS:
     void observe();
 };
 
-class QCoapConnectionSocketTestsPrivate : public QCoapConnectionPrivate
+class QCoapQUdpConnectionSocketTestsPrivate : public QCoapQUdpConnectionPrivate
 {
     bool bind() override
     {
@@ -85,30 +85,30 @@ class QCoapConnectionSocketTestsPrivate : public QCoapConnectionPrivate
     }
 };
 
-class QCoapConnectionSocketTests : public QCoapConnection
+class QCoapQUdpConnectionSocketTests : public QCoapQUdpConnection
 {
 public:
-    QCoapConnectionSocketTests() :
-        QCoapConnection(*new QCoapConnectionSocketTestsPrivate)
+    QCoapQUdpConnectionSocketTests() :
+        QCoapQUdpConnection(*new QCoapQUdpConnectionSocketTestsPrivate)
     {
         createSocket();
     }
 
 private:
-    Q_DECLARE_PRIVATE(QCoapConnectionSocketTests)
+    Q_DECLARE_PRIVATE(QCoapQUdpConnectionSocketTests)
 };
 
 class QCoapClientForSocketErrorTests : public QCoapClient
 {
 public:
     QCoapClientForSocketErrorTests() :
-        QCoapClient(new QCoapProtocol, new QCoapConnectionSocketTests)
+        QCoapClient(new QCoapProtocol, new QCoapQUdpConnectionSocketTests)
     {}
 
-    QCoapConnection *connection()
+    QCoapQUdpConnection *connection()
     {
         QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
-        return privateClient->connection;
+        return qobject_cast<QCoapQUdpConnection*>(privateClient->connection);
     }
 };
 
@@ -116,7 +116,7 @@ class QCoapClientForTests : public QCoapClient
 {
 public:
     QCoapClientForTests() {}
-    QCoapClientForTests(QCoapProtocol *protocol, QCoapConnection *connection) :
+    QCoapClientForTests(QCoapProtocol *protocol, QCoapQUdpConnection *connection) :
         QCoapClient(protocol, connection)
     {}
 
@@ -125,10 +125,10 @@ public:
         QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
         return privateClient->protocol;
     }
-    QCoapConnection *connection()
+    QCoapQUdpConnection *connection()
     {
         QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
-        return privateClient->connection;
+        return qobject_cast<QCoapQUdpConnection*>(privateClient->connection);
     }
 };
 
@@ -409,7 +409,9 @@ void tst_QCoapClient::socketError()
     QCoapClientForSocketErrorTests client;
     QUrl url = QUrl(testServerResource());
 
-    QUdpSocket *socket = client.connection()->socket();
+    const auto connection = client.connection();
+    QVERIFY2(connection, "Failed to get coap connection!");
+    QUdpSocket *socket = connection->socket();
     QVERIFY2(socket, "Socket not properly created with connection");
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QScopedPointer<QCoapReply> reply(client.get(url));

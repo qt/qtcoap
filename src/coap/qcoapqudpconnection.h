@@ -28,46 +28,55 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPCLIENT_P_H
-#define QCOAPCLIENT_P_H
+#ifndef QCOAPQUDPCONNECTION_H
+#define QCOAPQUDPCONNECTION_H
 
 #include <QtCoap/qcoapconnection.h>
-#include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qpointer.h>
-#include <private/qobject_p.h>
+#include <QtCoap/qcoapnamespace.h>
+#include <QtCoap/qcoapglobal.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API. It exists purely as an
-// implementation detail. This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#include <QtCore/qglobal.h>
+#include <QtCore/qstring.h>
+#include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
+class QCoapQUdpConnectionPrivate;
+class QSslPreSharedKeyAuthenticator;
+class Q_COAP_EXPORT QCoapQUdpConnection : public QCoapConnection
 {
+    Q_OBJECT
+
 public:
-    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
-    ~QCoapClientPrivate();
+    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::NoSec,
+                                 QObject *parent = nullptr);
 
-    QCoapProtocol *protocol = nullptr;
-    QCoapConnection *connection = nullptr;
-    QThread *workerThread = nullptr;
+    ~QCoapQUdpConnection() override = default;
 
-    QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
-    bool send(QCoapReply *reply);
+    QUdpSocket *socket() const;
 
-    Q_DECLARE_PUBLIC(QCoapClient)
+public Q_SLOTS:
+    void setSocketOption(QAbstractSocket::SocketOption, const QVariant &value);
+
+#if QT_CONFIG(dtls)
+private Q_SLOTS:
+    void pskRequired(QSslPreSharedKeyAuthenticator *authenticator);
+    void handshakeTimeout();
+#endif
+
+protected:
+    explicit QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject *parent = nullptr);
+
+    void bind(const QString &host, quint16 port) override;
+    void writeData(const QByteArray &data, const QString &host, quint16 port) override;
+
+    void createSocket();
+
+    Q_DECLARE_PRIVATE(QCoapQUdpConnection)
+    Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
+    Q_PRIVATE_SLOT(d_func(), void _q_socketError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE
 
-#endif // QCOAPCLIENT_P_H
+#endif // QCOAPQUDPCONNECTION_H

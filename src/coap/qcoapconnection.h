@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Witekio.
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCoap module.
@@ -31,10 +30,11 @@
 #ifndef QCOAPCONNECTION_H
 #define QCOAPCONNECTION_H
 
-#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
-#include <QtCore/qstring.h>
-#include <QtNetwork/qudpsocket.h>
+#include <QtCoap/qcoapnamespace.h>
+#include <QtCoap/qcoapsecurityconfiguration.h>
+
+#include <QtNetwork/QAbstractSocket>
 
 QT_BEGIN_NAMESPACE
 
@@ -42,38 +42,42 @@ class QCoapConnectionPrivate;
 class Q_COAP_EXPORT QCoapConnection : public QObject
 {
     Q_OBJECT
-
 public:
     enum ConnectionState {
         Unconnected,
         Bound
     };
 
-    explicit QCoapConnection(QObject *parent = nullptr);
+    explicit QCoapConnection(QtCoap::SecurityMode securityMode = QtCoap::NoSec,
+                             QObject *parent = nullptr);
+    virtual ~QCoapConnection();
 
     void sendRequest(const QByteArray &request, const QString &host, quint16 port);
 
-    QUdpSocket *socket() const;
-    ConnectionState state() const;
+    bool isSecure() const;
+    QtCoap::SecurityMode securityMode() const;
+    QCoapConnection::ConnectionState state() const;
+
+    QCoapSecurityConfiguration securityConfiguration() const;
+public Q_SLOTS:
+    void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
 
 Q_SIGNALS:
+    void error(QAbstractSocket::SocketError error);
+    void readyRead(const QByteArray &data, const QHostAddress &sender);
     void bound();
-    void error(QAbstractSocket::SocketError);
-    void readyRead(const QNetworkDatagram &datagram);
+    void securityConfigurationChanged();
 
-public Q_SLOTS:
-    void setSocketOption(QAbstractSocket::SocketOption, const QVariant &value);
+private:
+    void startToSendRequest();
 
 protected:
-    explicit QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent = nullptr);
+    QCoapConnection(QObjectPrivate &dd, QObject *parent = nullptr);
 
-    virtual void createSocket();
+    virtual void bind(const QString &host, quint16 port) = 0;
+    virtual void writeData(const QByteArray &data, const QString &host, quint16 port) = 0;
 
     Q_DECLARE_PRIVATE(QCoapConnection)
-    Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
-    Q_PRIVATE_SLOT(d_func(), void _q_socketBound())
-    Q_PRIVATE_SLOT(d_func(), void _q_startToSendRequest())
-    Q_PRIVATE_SLOT(d_func(), void _q_socketError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE

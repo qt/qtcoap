@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Witekio.
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCoap module.
@@ -29,97 +28,108 @@
 ****************************************************************************/
 
 #include "qcoapconnection_p.h"
-#include <QtNetwork/qnetworkdatagram.h>
 
 QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapConnection
-    \brief The QCoapConnection class handles the transfer of a frame to a
-    server.
 
-    \reentrant
+    \brief The QCoapConnection class defines an interface for
+    handling transfers of frames to a server.
 
-    The QCoapConnection class is used by the QCoapClient class to send
-    requests to a server. It has a socket listening for UDP messages,
-    that is used to send the CoAP frames.
-
-    When a reply is available, the QCoapConnection object emits a
-    \l{QCoapConnection::readyRead(const QNetworkDatagram&)}
-    {readyRead(const QNetworkDatagram&)} signal.
-
-    \sa QCoapClient
+    It isolates CoAP clients from the transport in use, so that any
+    client can be used with any supported transport.
 */
 
 /*!
-    Constructs a new QCoapConnection and sets \a parent as the parent object.
+    \fn void QCoapConnection::error(QAbstractSocket::SocketError error)
+
+    This signal is emitted when a connection error occurs. The \a error
+    parameter describes the type of error that occurred.
 */
-QCoapConnection::QCoapConnection(QObject *parent) :
-    QCoapConnection(*new QCoapConnectionPrivate, parent)
+
+/*!
+    \fn void QCoapConnection::readyRead(const QByteArray &data, const QHostAddress &sender)
+
+    This signal is emitted when a network reply is available. The \a data
+    parameter supplies the received data, and the \sender parameter supplies
+    the sender address.
+*/
+
+/*!
+    \fn void QCoapConnection::bound()
+
+    This signal is emitted when the underlying transport is ready for data transmission.
+    Derived implementations must emit this signal whenever they are ready to start
+    transferring data frames to and from the server.
+
+    \sa bind()
+*/
+
+/*!
+    \fn void QCoapConnection::securityConfigurationChanged()
+
+    This signal is emitted when the security configuration is changed.
+*/
+
+/*!
+    \fn void QCoapConnection::bind(const QString &host, quint16 port)
+
+    Prepares the underlying transport for data transmission to to the given \a host
+    address on \a port. Emits the bound() signal when the transport is ready.
+
+    This is a pure virtual method.
+
+    \sa bound()
+*/
+
+/*!
+    \fn void QCoapConnection::writeData(const QByteArray &data, const QString &host, quint16 port)
+
+    Sends the given \a data frame to the host address \a host at port \a port.
+
+    This is a pure virtual method.
+*/
+
+QCoapConnectionPrivate::QCoapConnectionPrivate(QtCoap::SecurityMode security)
+    : securityMode(security)
+    , state(QCoapConnection::Unconnected)
+{}
+
+/*!
+    Constructs a new QCoapConnection object and sets \a parent as the parent object.
+*/
+QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *parent)
+    : QCoapConnection(*new QCoapConnectionPrivate(securityMode), parent)
 {
 }
 
 /*!
     \internal
 
-    Constructs a new QCoapConnection with \a dd as the d_ptr.
-    This constructor must be used when internally subclassing
+    Constructs a new QCoapConnection as a child of \a parent, with \a dd
+    as its \c d_ptr. This constructor must be used when internally subclassing
     the QCoapConnection class.
 */
-QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
-    QObject(dd, parent)
+QCoapConnection::QCoapConnection(QObjectPrivate &dd, QObject *parent)
+    : QObject(dd, parent)
 {
-    createSocket();
-    qRegisterMetaType<QNetworkDatagram>();
 }
 
 /*!
-    \internal
-
-    Creates the socket used by the connection and set it in connection's private
-    class
+    Releases any resources held by QCoapConnection.
 */
-void QCoapConnection::createSocket()
+QCoapConnection::~QCoapConnection()
 {
-    Q_D(QCoapConnection);
-
-    //! TODO Create DTLS socket here when available
-    d->setSocket(new QUdpSocket(this));
 }
 
 /*!
-    \internal
+    Prepares the underlying transport for data transmission and sends the given
+    \a request frame to the given \a host at the given \a port when the transport
+    is ready.
 
-    Binds the socket to a random port and returns \c true if it succeeds.
-*/
-bool QCoapConnectionPrivate::bind()
-{
-    return socket()->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
-}
-
-/*!
-    \internal
-
-    Binds the socket and call the socketBound() slot.
-*/
-void QCoapConnectionPrivate::bindSocket()
-{
-    Q_Q(QCoapConnection);
-
-    if (socket()->state() == QUdpSocket::ConnectedState)
-        socket()->disconnectFromHost();
-
-    q->connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-               q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
-    q->connect(udpSocket, SIGNAL(readyRead()), q, SLOT(_q_socketReadyRead()));
-
-    if (bind())
-        _q_socketBound();
-}
-
-/*!
-    Binds the socket if it is not already done and sends the given
-    \a request frame to the given \a host and \a port.
+    The preparation of the transport is done by calling the pure virtual bind() method,
+    which needs to be implemented by derived classes.
 */
 void QCoapConnection::sendRequest(const QByteArray &request, const QString &host, quint16 port)
 {
@@ -128,124 +138,35 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
     CoapFrame frame(request, host, port);
     d->framesToSend.enqueue(frame);
 
-    if (d->state == Bound) {
-        QMetaObject::invokeMethod(this, "_q_startToSendRequest", Qt::QueuedConnection);
-    } else if (d->state == Unconnected) {
-        connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()), Qt::QueuedConnection);
-        d->bindSocket();
+    if (d->state == ConnectionState::Unconnected) {
+        connect(this, &QCoapConnection::bound, this,
+                [&]() {
+                    Q_D(QCoapConnection);
+                    d->state = ConnectionState::Bound;
+                    startToSendRequest();
+                });
+        bind(host, port);
+    } else {
+        startToSendRequest();
     }
 }
 
 /*!
-    Sets the QUdpSocket socket \a option to \a value.
+    Returns \c true if security is used, returns \c false otherwise.
 */
-void QCoapConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
-{
-    Q_D(QCoapConnection);
-    d->socket()->setSocketOption(option, value);
-}
-
-/*!
-    \internal
-
-    Writes the given \a data frame to the socket to the stored \a host and \a port.
-*/
-void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
-{
-    if (!socket()->isWritable()) {
-        bool opened = socket()->open(socket()->openMode() | QIODevice::WriteOnly);
-        if (!opened) {
-            qWarning() << "QtCoap: Failed to open the UDP socket with write permission";
-            return;
-        }
-    }
-
-    QHostAddress host(frame.host);
-    if (host.isNull()) {
-        qWarning() << "QtCoap: Invalid host IP address" << frame.host
-                   << "- only IPv4/IPv6 destination addresses are supported.";
-        return;
-    }
-
-    qint64 bytesWritten = socket()->writeDatagram(frame.currentPdu,
-                                                  QHostAddress(frame.host), frame.port);
-    if (bytesWritten < 0)
-        qWarning() << "QtCoap: Failed to write datagram:" << socket()->errorString();
-}
-
-/*!
-    \internal
-
-    This slot changes the connection state to "Bound" and emits the
-    \l{QCoapConnection::bound()}{bound()} signal.
-*/
-void QCoapConnectionPrivate::_q_socketBound()
-{
-    Q_Q(QCoapConnection);
-
-    if (state == QCoapConnection::Bound)
-        return;
-
-    setState(QCoapConnection::Bound);
-    emit q->bound();
-}
-
-/*!
-    \internal
-
-    This slot writes the current stored frame to the socket.
-*/
-void QCoapConnectionPrivate::_q_startToSendRequest()
-{
-    const CoapFrame frame = framesToSend.dequeue();
-    writeToSocket(frame);
-}
-
-/*!
-    \internal
-
-    This slot reads all data stored in the socket and emits
-    \l{QCoapConnection::readyRead(const QNetworkDatagram&)}
-    {readyRead(const QNetworkDatagram&)} signal for each received datagram.
-*/
-void QCoapConnectionPrivate::_q_socketReadyRead()
-{
-    Q_Q(QCoapConnection);
-
-    if (!socket()->isReadable()) {
-        bool opened = socket()->open(socket()->openMode() | QIODevice::ReadOnly);
-        if (!opened) {
-            qWarning() << "QtCoap: Failed to open the UDP socket with read permission";
-            return;
-        }
-    }
-
-    while (socket()->hasPendingDatagrams()) {
-        emit q->readyRead(socket()->receiveDatagram());
-    }
-}
-
-/*!
-    \internal
-
-    This slot emits the \l{QCoapConnection::error(QAbstractSocket::SocketError)}
-    {error(QAbstractSocket::SocketError)} signal.
-*/
-void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
-{
-    Q_Q(QCoapConnection);
-
-    qWarning() << "CoAP UDP socket error" << error << socket()->errorString();
-    emit q->error(error);
-}
-
-/*!
-    Returns the socket.
-*/
-QUdpSocket *QCoapConnection::socket() const
+bool QCoapConnection::isSecure() const
 {
     Q_D(const QCoapConnection);
-    return d->udpSocket;
+    return d->securityMode != QtCoap::NoSec;
+}
+
+/*!
+    Returns the security mode.
+*/
+QtCoap::SecurityMode QCoapConnection::securityMode() const
+{
+    Q_D(const QCoapConnection);
+    return d->securityMode;
 }
 
 /*!
@@ -260,27 +181,44 @@ QCoapConnection::ConnectionState QCoapConnection::state() const
 /*!
     \internal
 
-    Sets the socket.
-
-    \sa socket()
+    Sends the last stored frame to the server by calling the pure virtual
+    writeData() method.
 */
-void QCoapConnectionPrivate::setSocket(QUdpSocket *socket)
+void QCoapConnection::startToSendRequest()
 {
-    udpSocket = socket;
+    Q_D(QCoapConnection);
+
+    Q_ASSERT(!d->framesToSend.isEmpty());
+    const CoapFrame frame = d->framesToSend.dequeue();
+    writeData(frame.currentPdu, frame.host, frame.port);
 }
 
 /*!
-    \internal
+    Sets the security configuration parameters from the \a configuration.
+    The security configuration will be ignored if the QtCoap::NoSec mode is used
+    for connection.
 
-    Sets the connection state.
-
-    \sa state()
+    \note This method must be called before the handshake starts.
 */
-void QCoapConnectionPrivate::setState(QCoapConnection::ConnectionState newState)
+void QCoapConnection::setSecurityConfiguration(const QCoapSecurityConfiguration &configuration)
 {
-    state = newState;
+    Q_D(QCoapConnection);
+
+    if (isSecure()) {
+        d->securityConfiguration = configuration;
+        emit securityConfigurationChanged();
+    } else {
+        qWarning("QtCoap: Security is disabled, security configuration will be ignored");
+    }
+}
+
+/*!
+    Returns the security configuration.
+*/
+QCoapSecurityConfiguration QCoapConnection::securityConfiguration() const
+{
+    Q_D(const QCoapConnection);
+    return d->securityConfiguration;
 }
 
 QT_END_NAMESPACE
-
-#include "moc_qcoapconnection.cpp"

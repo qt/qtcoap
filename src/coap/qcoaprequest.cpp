@@ -29,12 +29,20 @@
 ****************************************************************************/
 
 #include "qcoaprequest_p.h"
+
 #include <QtCore/qmath.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type, const QUrl &proxyUrl) :
+namespace {
+const auto CoapScheme = QLatin1String("coap");
+const auto CoapSecureScheme = QLatin1String("coaps");
+}
+
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type,
+                                         const QUrl &proxyUrl) :
     QCoapMessagePrivate(type),
     proxyUri(proxyUrl)
 {
@@ -65,18 +73,20 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
         return;
     }
 
+    // If the port is unknown, try to set it based on scheme
     QUrl finalizedUrl = url;
-    if (url.isRelative())
-        finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
-    else if (url.scheme().isEmpty())
-        finalizedUrl.setScheme(QLatin1String("coap"));
-
-    if (url.port() == -1)
-        finalizedUrl.setPort(QtCoap::DefaultPort);
-
-    if (!QCoapRequest::isUrlValid(finalizedUrl)) {
-        qWarning() << "QCoapRequest: Invalid CoAP url" << finalizedUrl.toString();
-        return;
+    if (!url.scheme().isEmpty()) {
+        if (url.scheme() == CoapScheme) {
+            if (url.port() == -1)
+                finalizedUrl.setPort(QtCoap::DefaultPort);
+        } else if (url.scheme() == CoapSecureScheme) {
+            if (url.port() == -1)
+                finalizedUrl.setPort(QtCoap::DefaultSecurePort);
+        } else {
+            qWarning() << "QCoapRequest: Request URL's scheme" << url.scheme()
+                       << "isn't valid for CoAP";
+            return;
+        }
     }
 
     uri = finalizedUrl;
@@ -98,9 +108,6 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
 /*!
     Constructs a QCoapRequest object with the target \a url,
     the proxy URL \a proxyUrl and the \a type of the message.
-
-    If not indicated, the scheme of the URL will default to 'coap', and its
-    port will default to 5683.
 */
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
@@ -171,7 +178,7 @@ QtCoap::Method QCoapRequest::method() const
 }
 
 /*!
-    Returns true if the request is an observe request.
+    Returns \c true if the request is an observe request.
 
     \sa enableObserve()
 */
@@ -217,7 +224,7 @@ void QCoapRequest::setMethod(QtCoap::Method method)
 }
 
 /*!
-    Sets the observe to true to make an observe request.
+    Sets the observe to \c true to make an observe request.
 
     \sa isObserve()
 */
@@ -227,6 +234,36 @@ void QCoapRequest::enableObserve()
         return;
 
     addOption(QCoapOption::Observe);
+}
+
+/*!
+    Adjusts the request URL by setting the correct default scheme and port
+    (if not indicated) based on the \a secure parameter.
+
+    In non-secure mode the scheme of request URL will default to \c coap, and
+    its port will default to \e 5683. In secure mode the scheme will default to
+    \c coaps, and the port will default to \e 5684.
+*/
+void QCoapRequest::adjustUrl(bool secure)
+{
+    Q_D(QCoapRequest);
+
+    if (d->uri.isEmpty() || !d->uri.isValid())
+        return;
+
+    QUrl finalizedUrl = d->uri;
+    const auto scheme = secure ? CoapSecureScheme : CoapScheme;
+    if (d->uri.isRelative())
+        finalizedUrl = d->uri.toString().prepend(scheme + QLatin1String("://"));
+    else if (d->uri.scheme().isEmpty())
+        finalizedUrl.setScheme(scheme);
+
+    if (d->uri.port() == -1) {
+        const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;
+        finalizedUrl.setPort(port);
+    }
+
+    d->uri = finalizedUrl;
 }
 
 /*!
@@ -247,12 +284,12 @@ bool QCoapRequest::isValid() const
 }
 
 /*!
-    Returns true if the \a url is a valid CoAP URL.
+    Returns \c true if the \a url is a valid CoAP URL.
 */
 bool QCoapRequest::isUrlValid(const QUrl &url)
 {
     return (url.isValid() && !url.isLocalFile() && !url.isRelative()
-            && url.scheme() == QLatin1String("coap")
+            && (url.scheme() == CoapScheme || url.scheme() == CoapSecureScheme)
             && !url.hasFragment());
 }
 

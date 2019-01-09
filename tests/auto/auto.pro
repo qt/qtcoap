@@ -4,7 +4,7 @@ SUBDIRS += \
     cmake \
 #    TODO: enable the tests below, when CI is configured properly
 #    qcoapclient \
-#    qcoapconnection \
+#    qcoapqudpconnection \
     qcoapinternalreply \
     qcoapinternalrequest \
     qcoapmessage \

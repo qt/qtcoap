@@ -28,11 +28,13 @@
 **
 ****************************************************************************/
 
+#include "qcoaprequest.h"
+#include "qcoapinternalrequest_p.h"
+
 #include <QtCore/qmath.h>
 #include <QtCore/qrandom.h>
 #include <QtCore/qregularexpression.h>
-#include "qcoapinternalrequest_p.h"
-#include "qcoaprequest.h"
+#include <QtNetwork/QHostAddress>
 
 QT_BEGIN_NAMESPACE
 
@@ -280,7 +282,7 @@ void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
 
 /*!
     \internal
-    Returns \c true if the block number is valid, false otherwise.
+    Returns \c true if the block number is valid, \c false otherwise.
     If the block number is not valid, logs a warning message.
 */
 bool QCoapInternalRequest::checkBlockNumber(int blockNumber)
@@ -422,12 +424,11 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
     if (uriHost.isValid())
         addOption(uriHost);
 
-    // 6. Set default port
-    if (uri.port() == -1)
-        uri.setPort(QtCoap::DefaultPort);
+    // 6. Port should be set at this point
+    Q_ASSERT(uri.port() != -1);
 
     // 7. Add port to options if it is not the default port
-    if (uri.port() != QtCoap::DefaultPort)
+    if (uri.port() != QtCoap::DefaultPort && uri.port() != QtCoap::DefaultSecurePort)
         addOption(QCoapOption::UriPort, static_cast<quint32>(uri.port()));
 
     // 8. Add path segments to options

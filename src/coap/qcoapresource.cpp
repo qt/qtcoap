@@ -116,7 +116,7 @@ QString QCoapResource::title() const
 }
 
 /*!
-    Returns true if the resource is observable
+    Returns \c true if the resource is observable
 
     \sa setObservable()
  */
@@ -210,7 +210,7 @@ void QCoapResource::setTitle(const QString &title)
 }
 
 /*!
-    Set it to true to indicate that the resource
+    Set it to \c true to indicate that the resource
     is observable.
 
     \sa observable()

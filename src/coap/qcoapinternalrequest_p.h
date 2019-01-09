@@ -31,14 +31,16 @@
 #ifndef QCOAPINTERNALREQUEST_H
 #define QCOAPINTERNALREQUEST_H
 
-#include <QtCore/qglobal.h>
+#include <private/qcoapinternalmessage_p.h>
+
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapinternalmessage.h>
 #include <QtCoap/qcoapconnection.h>
+
+#include <QtCore/qglobal.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qurl.h>
-#include <private/qcoapinternalmessage_p.h>
 
 //
 //  W A R N I N G

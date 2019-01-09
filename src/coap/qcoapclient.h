@@ -44,6 +44,7 @@ class QCoapDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
 class QCoapConnection;
+class QCoapSecurityConfiguration;
 class QIODevice;
 
 class QCoapClientPrivate;
@@ -51,7 +52,9 @@ class Q_COAP_EXPORT QCoapClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit QCoapClient(QObject *parent = nullptr);
+    explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::NoSec,
+                         QObject *parent = nullptr);
+    explicit QCoapClient(QCoapConnection *connection, QObject *parent = nullptr);
     ~QCoapClient();
 
     QCoapReply *get(const QCoapRequest &request);
@@ -75,6 +78,7 @@ public:
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
+    void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     void setBlockSize(quint16 blockSize);
     void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
 

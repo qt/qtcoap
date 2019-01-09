@@ -32,6 +32,8 @@
 #include "qcoapreply.h"
 #include "qcoapdiscoveryreply.h"
 #include "qcoapnamespace.h"
+#include "qcoapsecurityconfiguration.h"
+#include "qcoapqudpconnection.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtNetwork/qudpsocket.h>
@@ -40,10 +42,10 @@ QT_BEGIN_NAMESPACE
 
 QRandomGenerator QtCoap::randomGenerator = QRandomGenerator::securelySeeded();
 
-QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection) :
-    protocol(protocol),
-    connection(connection),
-    workerThread(new QThread)
+QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection)
+    : protocol(protocol)
+    , connection(connection)
+    , workerThread(new QThread)
 {
     protocol->moveToThread(workerThread);
     connection->moveToThread(workerThread);
@@ -59,6 +61,23 @@ QCoapClientPrivate::~QCoapClientPrivate()
     delete connection;
 }
 
+/*!
+  \enum QtCoap::SecurityMode
+
+  Specifies the security mode used for securing a CoAP connection, as defined in
+  \l{https://tools.ietf.org/html/rfc7252#section-9}{RFC 7252}.
+
+  \value NoSec              There is no protocol-level security (DTLS is disabled).
+
+  \value PreSharedKey       DTLS is enabled, PSK authentication will be used for security.
+
+  \value RawPublicKey       DTLS is enabled, an asymmetric key pair without a certificate
+                            (a raw public key) will be used for security. This mode is not
+                            supported yet.
+
+  \value Certificate        DTLS is enabled, an asymmetric key pair with an X.509 certificate
+                            will be used for security.
+*/
 /*!
     \enum QtCoap::Error
 
@@ -258,10 +277,27 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 */
 
 /*!
-    Constructs a QCoapClient object and sets \a parent as the parent object.
+    Constructs a QCoapClient object for the given \a securityMode and
+    sets \a parent as the parent object.
+
+    The default for \a securityMode is SecurityMode::NoSec, which
+    disables security.
+
+    This connects using a QCoapQUdpConnection; to use a custom transport,
+    sub-class QCoapConnection and pass an instance to one of the other
+    constructors.
 */
-QCoapClient::QCoapClient(QObject *parent) :
-    QCoapClient(new QCoapProtocol, new QCoapConnection, parent)
+QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
+    QCoapClient(new QCoapProtocol, new QCoapQUdpConnection(securityMode), parent)
+{
+}
+
+/*!
+    Constructs a QCoapClient object with the given \a connection and
+    sets \a parent as the parent object.
+*/
+QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
+    QCoapClient(new QCoapProtocol, connection, parent)
 {
 }
 
@@ -286,8 +322,8 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
     qRegisterMetaType<QAbstractSocket::SocketOption>();
 
-    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram &)),
-            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram &)));
+    connect(d->connection, SIGNAL(readyRead(const QByteArray &, const QHostAddress &)),
+            d->protocol, SLOT(onFrameReceived(const QByteArray &, const QHostAddress &)));
     connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
             d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
 
@@ -324,6 +360,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
     }
 
     QCoapRequest copyRequest(request, QtCoap::Get);
+    copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
 }
@@ -359,6 +396,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
+    copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
 }
@@ -410,6 +448,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
+    copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
 }
@@ -463,6 +502,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
     }
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
+    copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
 }
@@ -500,6 +540,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 
     QCoapRequest request(discoveryUrl);
     request.setMethod(QtCoap::Get);
+    request.adjustUrl(d->connection->isSecure());
 
     return d->sendDiscovery(request);
 }
@@ -608,6 +649,12 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 {
     Q_Q(QCoapClient);
 
+    const auto scheme = connection->isSecure() ? QLatin1String("coaps") : QLatin1String("coap");
+    if (reply->request().url().scheme() != scheme) {
+        qWarning("QCoapClient: Failed to send request, URL has an incorrect scheme.");
+        return false;
+    }
+
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
         qWarning("QCoapClient: Failed to send request for an invalid URL.");
         return false;
@@ -621,6 +668,20 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
                               Q_ARG(QCoapConnection *, connection));
 
     return true;
+}
+
+/*!
+    Sets the security configuration parameters from \a configuration.
+    Configuration will be ignored if the QtCoap::NoSec mode is used.
+
+    \note This method must be called before the handshake starts.
+*/
+void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &configuration)
+{
+    Q_D(QCoapClient);
+
+    QMetaObject::invokeMethod(d->connection, "setSecurityConfiguration", Qt::QueuedConnection,
+                              Q_ARG(QCoapSecurityConfiguration, configuration));
 }
 
 /*!

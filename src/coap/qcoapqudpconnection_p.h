@@ -28,15 +28,15 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPCLIENT_P_H
-#define QCOAPCLIENT_P_H
+#ifndef QCOAPQUDPCONNECTION_P_H
+#define QCOAPQUDPCONNECTION_P_H
 
-#include <QtCoap/qcoapconnection.h>
-#include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qpointer.h>
-#include <private/qobject_p.h>
+#include <QtCoap/qcoapqudpconnection.h>
+#include <QtCoap/qcoapsecurityconfiguration.h>
+#include <private/qcoapconnection_p.h>
+
+#include <QtNetwork/qudpsocket.h>
+#include <QtCore/qqueue.h>
 
 //
 //  W A R N I N G
@@ -51,23 +51,37 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
+class QDtls;
+class QSslPreSharedKeyAuthenticator;
+class Q_AUTOTEST_EXPORT QCoapQUdpConnectionPrivate : public QCoapConnectionPrivate
 {
 public:
-    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
-    ~QCoapClientPrivate();
+    QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
 
-    QCoapProtocol *protocol = nullptr;
-    QCoapConnection *connection = nullptr;
-    QThread *workerThread = nullptr;
+    virtual bool bind();
 
-    QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
-    bool send(QCoapReply *reply);
+    void bindSocket();
+    void writeToSocket(const QByteArray &data, const QString &host, quint16 port);
+    QUdpSocket* socket() const { return udpSocket; }
 
-    Q_DECLARE_PUBLIC(QCoapClient)
+    void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
+
+#if QT_CONFIG(dtls)
+    QNetworkDatagram receiveDatagramDecrypted() const;
+    void handleEncryptedDatagram();
+#endif
+
+    void _q_socketReadyRead();
+    void _q_socketError(QAbstractSocket::SocketError);
+
+    QPointer<QUdpSocket> udpSocket;
+#if QT_CONFIG(dtls)
+    QPointer<QDtls> dtls;
+#endif
+
+    Q_DECLARE_PUBLIC(QCoapQUdpConnection)
 };
 
 QT_END_NAMESPACE
 
-#endif // QCOAPCLIENT_P_H
+#endif // QCOAPQUDPCONNECTION_P_H

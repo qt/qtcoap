@@ -5,4 +5,5 @@ include(../coaptestserver.pri)
 
 HEADERS += ../coapnetworksettings.h
 
-SOURCES += tst_qcoapconnection.cpp
+SOURCES += \
+    tst_qcoapqudpconnection.cpp

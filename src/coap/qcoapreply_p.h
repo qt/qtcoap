@@ -48,6 +48,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QHostAddress;
 class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 {
 public:

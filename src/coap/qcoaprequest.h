@@ -34,7 +34,7 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapmessage.h>
-#include <QtCoap/qcoapconnection.h>
+
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 
@@ -64,6 +64,7 @@ public:
     void setProxyUrl(const QUrl &proxyUrl);
     void setMethod(QtCoap::Method method);
     void enableObserve();
+    void adjustUrl(bool secure);
 
     bool isValid() const;
     static bool isUrlValid(const QUrl &url);

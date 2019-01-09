@@ -37,15 +37,15 @@
 #include <QtNetwork/qudpsocket.h>
 #include <QtNetwork/qnetworkdatagram.h>
 #include <QtCoap/qcoapglobal.h>
-#include <QtCoap/qcoapconnection.h>
+#include <QtCoap/qcoapqudpconnection.h>
 #include <QtCoap/qcoaprequest.h>
-#include <private/qcoapconnection_p.h>
+#include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapinternalrequest_p.h>
 #include "../coapnetworksettings.h"
 
 using namespace QtCoapNetworkSettings;
 
-class tst_QCoapConnection : public QObject
+class tst_QCoapQUdpConnection : public QObject
 {
     Q_OBJECT
 
@@ -56,45 +56,46 @@ private Q_SLOTS:
     void sendRequest();
 };
 
-class QCoapConnectionForTest : public QCoapConnection
+class QCoapQUdpConnectionForTest : public QCoapQUdpConnection
 {
     Q_OBJECT
 public:
-    QCoapConnectionForTest(QObject *parent = nullptr) :
-        QCoapConnection(parent)
+    QCoapQUdpConnectionForTest(QObject *parent = nullptr) :
+        QCoapQUdpConnection(QtCoap::NoSec, parent)
     {}
 
     void bindSocketForTest() { d_func()->bindSocket(); }
 };
 
-void tst_QCoapConnection::ctor()
+void tst_QCoapQUdpConnection::ctor()
 {
-    QCoapConnection connection;
+    QCoapQUdpConnection connection;
     QVERIFY(connection.socket());
 }
 
-void tst_QCoapConnection::connectToHost()
+void tst_QCoapQUdpConnection::connectToHost()
 {
 #ifdef QT_BUILD_INTERNAL
-    QCoapConnectionForTest connection;
+    QCoapQUdpConnectionForTest connection;
 
     QUdpSocket *socket = qobject_cast<QUdpSocket*>(connection.socket());
     QSignalSpy spyConnectionBound(&connection, SIGNAL(bound()));
     QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
-    QCOMPARE(connection.state(), QCoapConnection::Unconnected);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::Unconnected);
 
-    connection.bindSocketForTest();
+    // This will trigger connection.bind()
+    connection.sendRequest(QByteArray(), QString(), 0);
 
     QTRY_COMPARE(spySocketStateChanged.count(), 1);
     QTRY_COMPARE(spyConnectionBound.count(), 1);
-    QCOMPARE(connection.state(), QCoapConnection::Bound);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
 }
 
-void tst_QCoapConnection::sendRequest_data()
+void tst_QCoapQUdpConnection::sendRequest_data()
 {
     QTest::addColumn<QString>("protocol");
     QTest::addColumn<QString>("host");
@@ -143,7 +144,7 @@ void tst_QCoapConnection::sendRequest_data()
         << "61626364";
 }
 
-void tst_QCoapConnection::sendRequest()
+void tst_QCoapQUdpConnection::sendRequest()
 {
 #ifdef QT_BUILD_INTERNAL
     QFETCH(QString, protocol);
@@ -154,10 +155,10 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
-    QCoapConnectionForTest connection;
+    QCoapQUdpConnectionForTest connection;
 
     QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
-    QSignalSpy spyConnectionReadyRead(&connection, &QCoapConnection::readyRead);
+    QSignalSpy spyConnectionReadyRead(&connection, &QCoapQUdpConnection::readyRead);
 
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
@@ -170,16 +171,14 @@ void tst_QCoapConnection::sendRequest()
     QTRY_COMPARE(spySocketReadyRead.count(), 1);
     QTRY_COMPARE(spyConnectionReadyRead.count(), 1);
 
-    QNetworkDatagram datagram = spyConnectionReadyRead.first()
-                                    .first().value<QNetworkDatagram>();
-
-    QVERIFY(QString(datagram.data().toHex()).startsWith(dataHexaHeader));
-    QVERIFY(QString(datagram.data().toHex()).endsWith(dataHexaPayload));
+    QByteArray data = spyConnectionReadyRead.first().first().value<QByteArray>();
+    QVERIFY(QString(data.toHex()).startsWith(dataHexaHeader));
+    QVERIFY(QString(data.toHex()).endsWith(dataHexaPayload));
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
 }
 
-QTEST_MAIN(tst_QCoapConnection)
+QTEST_MAIN(tst_QCoapQUdpConnection)
 
-#include "tst_qcoapconnection.moc"
+#include "tst_qcoapqudpconnection.moc"

@@ -338,7 +338,7 @@ QCoapRequest QCoapReply::request() const
 }
 
 /*!
-    Returns true if the request is finished.
+    Returns \c true if the request is finished.
 
     \sa finished()
 */
@@ -349,7 +349,7 @@ bool QCoapReply::isFinished() const
 }
 
 /*!
-    Returns true if the request is running.
+    Returns \c true if the request is running.
 */
 bool QCoapReply::isRunning() const
 {
@@ -358,7 +358,7 @@ bool QCoapReply::isRunning() const
 }
 
 /*!
-    Returns true if the request has been aborted.
+    Returns \c true if the request has been aborted.
 */
 bool QCoapReply::isAborted() const
 {
@@ -367,7 +367,7 @@ bool QCoapReply::isAborted() const
 }
 
 /*!
-    Returns true if the request finished with no error.
+    Returns \c true if the request finished with no error.
 */
 bool QCoapReply::isSuccessful() const
 {

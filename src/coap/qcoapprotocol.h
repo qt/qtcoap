@@ -32,7 +32,6 @@
 #define QCOAPPROTOCOL_H
 
 #include <QtCoap/qcoapglobal.h>
-#include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qobject.h>
@@ -44,6 +43,7 @@ QT_BEGIN_NAMESPACE
 class QCoapInternalRequest;
 class QCoapInternalReply;
 class QCoapProtocolPrivate;
+class QCoapConnection;
 class Q_COAP_EXPORT QCoapProtocol : public QObject
 {
     Q_OBJECT
@@ -69,19 +69,21 @@ Q_SIGNALS:
     void error(QCoapReply *reply, QtCoap::Error error);
 
 public Q_SLOTS:
-    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
     void cancelObserve(QPointer<QCoapReply> reply);
     void setAckTimeout(int ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
     void setMaxRetransmit(int maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
+private Q_SLOTS:
+    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
+
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
     Q_PRIVATE_SLOT(d_func(), void onRequestTimeout(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void onRequestMaxTransmissionSpanReached(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QNetworkDatagram&))
+    Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QByteArray&, const QHostAddress&))
     Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
     Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
 };

@@ -67,8 +67,8 @@ public:
     QCoapToken generateUniqueToken() const;
 
     QByteArray encode(QCoapInternalRequest *request);
-    void onFrameReceived(const QNetworkDatagram &frame);
-    QCoapInternalReply *decode(const QNetworkDatagram &frame);
+    void onFrameReceived(const QByteArray &data, const QHostAddress &sender);
+    QCoapInternalReply *decode(const QByteArray &data, const QHostAddress &sender);
 
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);

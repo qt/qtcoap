@@ -28,12 +28,14 @@
 **
 ****************************************************************************/
 
-#include <QtCore/qrandom.h>
-#include <QtCore/qthread.h>
-#include <QtNetwork/qnetworkdatagram.h>
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
+#include "qcoapconnection.h"
+
+#include <QtCore/qrandom.h>
+#include <QtCore/qthread.h>
+#include <QtNetwork/qnetworkdatagram.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -71,6 +73,8 @@ QCoapProtocol::~QCoapProtocol()
 }
 
 /*!
+    \internal
+
     Creates and sets up a new QCoapInternalRequest related to the request
     associated to the \a reply. The request will then be sent to the server
     using the given \a connection.
@@ -222,14 +226,14 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
 /*!
     \internal
 
-    Decode and process the given \a frame after reception.
+    Decode and process the given \a data received from the \a sender.
 */
-void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
+void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAddress &sender)
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    QSharedPointer<QCoapInternalReply> reply(decode(frame));
+    QSharedPointer<QCoapInternalReply> reply(decode(data, sender));
     const QCoapMessage *messageReceived = reply->message();
 
     QCoapInternalRequest *request = nullptr;
@@ -245,9 +249,9 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     }
 
     QHostAddress originalTarget(request->targetUri().host());
-    if (!originalTarget.isMulticast() && !originalTarget.isEqual(frame.senderAddress())) {
+    if (!originalTarget.isMulticast() && !originalTarget.isEqual(sender)) {
         qDebug().nospace() << "QtCoap: Answer received from incorrect host ("
-                           << frame.senderAddress() << " instead of "
+                           << sender << " instead of "
                            << originalTarget << ")";
         return;
     }
@@ -563,14 +567,13 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 /*!
     \internal
 
-    Decodes the \a frame and returns a new unmanaged
-    QCoapInternalReply object.
+    Returns a new unmanaged QCoapInternalReply based on \a data and \a sender.
 */
-QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
+QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &data, const QHostAddress &sender)
 {
     Q_Q(QCoapProtocol);
-    QCoapInternalReply *reply = QCoapInternalReply::createFromFrame(frame.data(), q);
-    reply->setSenderAddress(frame.senderAddress());
+    QCoapInternalReply *reply = QCoapInternalReply::createFromFrame(data, q);
+    reply->setSenderAddress(sender);
 
     return reply;
 }
@@ -595,7 +598,7 @@ void QCoapProtocolPrivate::onRequestAborted(const QCoapToken &token)
 /*!
     \internal
 
-    Triggered when an error occurs in the QCoapConnection.
+    Triggered in case of a connection error.
 */
 void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socketError)
 {
@@ -740,7 +743,7 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 /*!
     \internal
 
-    Returns \c true if the \a token is reserved or in use; returns false if
+    Returns \c true if the \a token is reserved or in use; returns \c false if
     this token can be used to identify a new exchange.
 */
 bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token) const
