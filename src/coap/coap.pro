@@ -3,6 +3,8 @@ TARGET = QtCoap
 QT = core-private
 QT_FOR_PRIVATE = network
 
+QMAKE_DOCS = $$PWD/doc/qtcoap.qdocconf
+
 PUBLIC_HEADERS += \
     qcoapclient.h \
     qcoapconnection.h \
