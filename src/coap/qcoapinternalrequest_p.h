@@ -107,8 +107,6 @@ protected:
 
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)
-    Q_PRIVATE_SLOT(d_func(), void _q_timeout())
-    Q_PRIVATE_SLOT(d_func(), void _q_maxTransmissionSpanReached())
 };
 
 class Q_AUTOTEST_EXPORT QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
@@ -128,9 +126,6 @@ public:
 
     bool observeCancelled = false;
     bool transmissionInProgress = false;
-
-    void _q_timeout();
-    void _q_maxTransmissionSpanReached();
 
     Q_DECLARE_PUBLIC(QCoapInternalRequest)
 };

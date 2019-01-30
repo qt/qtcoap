@@ -80,12 +80,8 @@ private Q_SLOTS:
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
-    Q_PRIVATE_SLOT(d_func(), void onRequestTimeout(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void onRequestMaxTransmissionSpanReached(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QByteArray&, const QHostAddress&))
-    Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
-    Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
+
+    friend class QCoapClient;
 };
 
 QT_END_NAMESPACE

@@ -73,8 +73,6 @@ protected:
     void createSocket();
 
     Q_DECLARE_PRIVATE(QCoapQUdpConnection)
-    Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
-    Q_PRIVATE_SLOT(d_func(), void _q_socketError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE

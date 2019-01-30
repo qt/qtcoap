@@ -60,10 +60,11 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
 {
     Q_D(QCoapInternalRequest);
     d->timeoutTimer = new QTimer(this);
-    connect(d->timeoutTimer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
+    connect(d->timeoutTimer, &QTimer::timeout, [this]() { emit timeout(this); });
 
     d->maxTransmitWaitTimer = new QTimer(this);
-    connect(d->maxTransmitWaitTimer, SIGNAL(timeout()), this, SLOT(_q_maxTransmissionSpanReached()));
+    connect(d->maxTransmitWaitTimer, &QTimer::timeout,
+            [this]() { emit maxTransmissionSpanReached(this); });
 }
 
 /*!
@@ -494,29 +495,6 @@ void QCoapInternalRequest::stopTransmission()
     d->retransmissionCounter = 0;
     d->maxTransmitWaitTimer->stop();
     d->timeoutTimer->stop();
-}
-
-/*!
-    \internal
-    This slot emits a \l{QCoapInternalRequest::timeout(QCoapInternalRequest*)}
-    {timeout(QCoapInternalRequest*)} signal, which gets forwarded to
-    QCoapProtocolPrivate::onRequestTimeout().
-*/
-void QCoapInternalRequestPrivate::_q_timeout()
-{
-    Q_Q(QCoapInternalRequest);
-    emit q->timeout(q);
-}
-
-/*!
-    \internal
-    This slot emits a \l{QCoapInternalRequest::maxTransmissionSpanReached(QCoapInternalRequest*)}
-    {timeout(QCoapInternalRequest*)} signal.
-*/
-void QCoapInternalRequestPrivate::_q_maxTransmissionSpanReached()
-{
-    Q_Q(QCoapInternalRequest);
-    emit q->maxTransmissionSpanReached(q);
 }
 
 /*!

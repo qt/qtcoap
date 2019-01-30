@@ -67,7 +67,6 @@ public:
     QCoapToken generateUniqueToken() const;
 
     QByteArray encode(QCoapInternalRequest *request);
-    void onFrameReceived(const QByteArray &data, const QHostAddress &sender);
     QCoapInternalReply *decode(const QByteArray &data, const QHostAddress &sender);
 
     void sendAcknowledgment(QCoapInternalRequest *request);
@@ -75,13 +74,15 @@ public:
     void sendRequest(QCoapInternalRequest *request);
 
     void onLastMessageReceived(QCoapInternalRequest *request);
-    void onConnectionError(QAbstractSocket::SocketError error);
-    void onRequestAborted(const QCoapToken &token);
-    void onRequestTimeout(QCoapInternalRequest *request);
-    void onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request);
     void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);
+
+    void onRequestTimeout(QCoapInternalRequest *request);
+    void onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request);
+    void onFrameReceived(const QByteArray &data, const QHostAddress &sender);
+    void onConnectionError(QAbstractSocket::SocketError error);
+    void onRequestAborted(const QCoapToken &token);
 
     bool isMessageIdRegistered(quint16 id) const;
     bool isTokenRegistered(const QCoapToken &token) const;

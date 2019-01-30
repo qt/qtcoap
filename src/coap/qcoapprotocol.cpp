@@ -87,6 +87,11 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
+    connect(reply, &QCoapReply::aborted, this, [this](const QCoapToken &token) {
+        Q_D(QCoapProtocol);
+        d->onRequestAborted(token);
+    });
+
     auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
@@ -114,11 +119,16 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     else
         internalRequest->setTimeout(maxTimeout());
 
-    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest *)),
-            this, SLOT(onRequestTimeout(QCoapInternalRequest *)));
-    connect(internalRequest.data(), SIGNAL(maxTransmissionSpanReached(QCoapInternalRequest *)),
-            this, SLOT(onRequestMaxTransmissionSpanReached(QCoapInternalRequest *)));
-
+    connect(internalRequest.data(), &QCoapInternalRequest::timeout,
+            [this](QCoapInternalRequest *request) {
+                    Q_D(QCoapProtocol);
+                    d->onRequestTimeout(request);
+            });
+    connect(internalRequest.data(), &QCoapInternalRequest::maxTransmissionSpanReached,
+            [this](QCoapInternalRequest *request) {
+                    Q_D(QCoapProtocol);
+                    d->onRequestMaxTransmissionSpanReached(request);
+            });
     d->sendRequest(internalRequest.data());
 }
 
@@ -223,6 +233,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
     forgetExchange(request);
     emit q->error(userReply.data(), error);
 }
+
 /*!
     \internal
 

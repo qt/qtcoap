@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qcoapclient_p.h"
+#include "qcoapprotocol_p.h"
 #include "qcoapreply.h"
 #include "qcoapdiscoveryreply.h"
 #include "qcoapnamespace.h"
@@ -322,10 +323,16 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
     qRegisterMetaType<QAbstractSocket::SocketOption>();
 
-    connect(d->connection, SIGNAL(readyRead(const QByteArray &, const QHostAddress &)),
-            d->protocol, SLOT(onFrameReceived(const QByteArray &, const QHostAddress &)));
-    connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
-            d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
+    connect(d->connection, &QCoapConnection::readyRead, d->protocol,
+            [this](const QByteArray &data, const QHostAddress &sender) {
+                    Q_D(QCoapClient);
+                    d->protocol->d_func()->onFrameReceived(data, sender);
+            });
+    connect(d->connection, &QCoapConnection::error, d->protocol,
+            [this](QAbstractSocket::SocketError socketError) {
+                    Q_D(QCoapClient);
+                    d->protocol->d_func()->onConnectionError(socketError);
+            });
 
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
@@ -647,8 +654,6 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &reque
 */
 bool QCoapClientPrivate::send(QCoapReply *reply)
 {
-    Q_Q(QCoapClient);
-
     const auto scheme = connection->isSecure() ? QLatin1String("coaps") : QLatin1String("coap");
     if (reply->request().url().scheme() != scheme) {
         qWarning("QCoapClient: Failed to send request, URL has an incorrect scheme.");
@@ -659,9 +664,6 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         qWarning("QCoapClient: Failed to send request for an invalid URL.");
         return false;
     }
-
-    q->connect(reply, SIGNAL(aborted(const QCoapToken &)),
-               protocol, SLOT(onRequestAborted(const QCoapToken &)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),

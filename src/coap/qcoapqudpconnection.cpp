@@ -136,17 +136,23 @@ void QCoapQUdpConnection::createSocket()
 
     d->udpSocket = new QUdpSocket(this);
 
-    connect(d->udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(_q_socketError(QAbstractSocket::SocketError)));
-    connect(d->udpSocket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
+    connect(d->udpSocket, &QUdpSocket::readyRead, [this]() {
+        Q_D(QCoapQUdpConnection);
+        d->socketReadyRead();
+    });
+    connect(d->udpSocket, QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
+            [this](QAbstractSocket::SocketError socketError) {
+                    qWarning() << "CoAP UDP socket error" << socketError << socket()->errorString();
+                    emit error(socketError);
+            });
 }
 
 QCoapQUdpConnectionPrivate::QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security)
     : QCoapConnectionPrivate(security)
-    , udpSocket(nullptr)
 #if QT_CONFIG(dtls)
     , dtls(nullptr)
 #endif
+    , udpSocket(nullptr)
 {
 }
 
@@ -266,7 +272,7 @@ void QCoapQUdpConnectionPrivate::writeToSocket(const QByteArray &data, const QSt
     This slot reads all data stored in the socket and emits a readyRead()
     signal for each received datagram.
 */
-void QCoapQUdpConnectionPrivate::_q_socketReadyRead()
+void QCoapQUdpConnectionPrivate::socketReadyRead()
 {
     Q_Q(QCoapQUdpConnection);
 
@@ -288,20 +294,6 @@ void QCoapQUdpConnectionPrivate::_q_socketReadyRead()
 #endif
         }
     }
-}
-
-/*!
-    \internal
-
-    This slot emits the \l{QCoapQUdpConnection::error(QAbstractSocket::SocketError)}
-    {error(QAbstractSocket::SocketError)} signal.
-*/
-void QCoapQUdpConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
-{
-    Q_Q(QCoapQUdpConnection);
-
-    qWarning() << "CoAP UDP socket error" << error << socket()->errorString();
-    emit q->error(error);
 }
 
 /*!

@@ -63,21 +63,17 @@ public:
     void bindSocket();
     void writeToSocket(const QByteArray &data, const QString &host, quint16 port);
     QUdpSocket* socket() const { return udpSocket; }
+    void socketReadyRead();
 
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
 
 #if QT_CONFIG(dtls)
     QNetworkDatagram receiveDatagramDecrypted() const;
     void handleEncryptedDatagram();
-#endif
 
-    void _q_socketReadyRead();
-    void _q_socketError(QAbstractSocket::SocketError);
-
-    QPointer<QUdpSocket> udpSocket;
-#if QT_CONFIG(dtls)
     QPointer<QDtls> dtls;
 #endif
+    QPointer<QUdpSocket> udpSocket;
 
     Q_DECLARE_PUBLIC(QCoapQUdpConnection)
 };
