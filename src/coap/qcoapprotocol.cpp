@@ -137,7 +137,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     Encodes and sends the given \a request to the server.
 */
-void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request) const
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
@@ -148,7 +148,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
     }
 
     request->restartTransmission();
-    QByteArray requestFrame = encode(request);
+    QByteArray requestFrame = request->toQByteArray();
     QUrl uri = request->targetUri();
     request->connection()->sendRequest(requestFrame, uri.host(), static_cast<quint16>(uri.port()));
 }
@@ -303,7 +303,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
 
     Returns the internal request for the given \a token.
 */
-QCoapInternalRequest *QCoapProtocolPrivate::requestForToken(const QByteArray &token)
+QCoapInternalRequest *QCoapProtocolPrivate::requestForToken(const QCoapToken &token) const
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
@@ -317,7 +317,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::requestForToken(const QByteArray &to
 
     Returns the QCoapReply instance of the given \a token.
 */
-QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &token)
+QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &token) const
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
@@ -331,8 +331,8 @@ QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &t
 
     Returns the replies for the exchange identified by \a token.
 */
-QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForToken(
-    const QCoapToken &token)
+QVector<QSharedPointer<QCoapInternalReply>>
+QCoapProtocolPrivate::repliesForToken(const QCoapToken &token) const
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
@@ -346,7 +346,7 @@ QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForTok
 
     Returns the last reply for the exchange identified by \a token.
 */
-QCoapInternalReply *QCoapProtocolPrivate::lastReplyForToken(const QCoapToken &token)
+QCoapInternalReply *QCoapProtocolPrivate::lastReplyForToken(const QCoapToken &token) const
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
@@ -360,7 +360,7 @@ QCoapInternalReply *QCoapProtocolPrivate::lastReplyForToken(const QCoapToken &to
 
     Finds an internal request matching the given \a reply.
 */
-QCoapInternalRequest *QCoapProtocolPrivate::findRequestByUserReply(const QCoapReply *reply)
+QCoapInternalRequest *QCoapProtocolPrivate::findRequestByUserReply(const QCoapReply *reply) const
 {
     for (auto it = exchangeMap.constBegin(); it != exchangeMap.constEnd(); ++it) {
         if (it->userReply == reply)
@@ -375,7 +375,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByUserReply(const QCoapRe
 
     Finds an internal request containing the message id \a messageId.
 */
-QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messageId)
+QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messageId) const
 {
     for (auto it = exchangeMap.constBegin(); it != exchangeMap.constEnd(); ++it) {
         if (it->request->message()->messageId() == messageId)
@@ -464,7 +464,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     Sends an internal request acknowledging the given \a request, reusing its
     URI and connection.
 */
-void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request) const
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
@@ -486,7 +486,7 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
     \a request. A Reset message indicates that a specific message has been
     received, but cannot be properly processed.
 */
-void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request) const
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
@@ -501,6 +501,8 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 }
 
 /*!
+    \internal
+
     Cancels resource observation. The QCoapReply::notified() signal will not
     be emitted after cancellation.
 
@@ -563,16 +565,6 @@ QCoapToken QCoapProtocolPrivate::generateUniqueToken() const
     }
 
     return token;
-}
-
-/*!
-    \internal
-
-    Encodes the \a request to a QByteArray frame.
-*/
-QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
-{
-    return request->toQByteArray();
 }
 
 /*!

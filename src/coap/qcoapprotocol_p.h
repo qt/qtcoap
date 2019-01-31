@@ -66,12 +66,11 @@ public:
     quint16 generateUniqueMessageId() const;
     QCoapToken generateUniqueToken() const;
 
-    QByteArray encode(QCoapInternalRequest *request);
     QCoapInternalReply *decode(const QByteArray &data, const QHostAddress &sender);
 
-    void sendAcknowledgment(QCoapInternalRequest *request);
-    void sendReset(QCoapInternalRequest *request);
-    void sendRequest(QCoapInternalRequest *request);
+    void sendAcknowledgment(QCoapInternalRequest *request) const;
+    void sendReset(QCoapInternalRequest *request) const;
+    void sendRequest(QCoapInternalRequest *request) const;
 
     void onLastMessageReceived(QCoapInternalRequest *request);
     void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
@@ -88,12 +87,12 @@ public:
     bool isTokenRegistered(const QCoapToken &token) const;
     bool isRequestRegistered(const QCoapInternalRequest *request) const;
 
-    QCoapInternalRequest *requestForToken(const QCoapToken &token);
-    QPointer<QCoapReply> userReplyForToken(const QCoapToken &token);
-    QVector<QSharedPointer<QCoapInternalReply> > repliesForToken(const QCoapToken &token);
-    QCoapInternalReply *lastReplyForToken(const QCoapToken &token);
-    QCoapInternalRequest *findRequestByMessageId(quint16 messageId);
-    QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply);
+    QCoapInternalRequest *requestForToken(const QCoapToken &token) const;
+    QPointer<QCoapReply> userReplyForToken(const QCoapToken &token) const;
+    QVector<QSharedPointer<QCoapInternalReply>> repliesForToken(const QCoapToken &token) const;
+    QCoapInternalReply *lastReplyForToken(const QCoapToken &token) const;
+    QCoapInternalRequest *findRequestByMessageId(quint16 messageId) const;
+    QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply) const;
 
     void registerExchange(const QCoapToken &token, QCoapReply *reply,
                           QSharedPointer<QCoapInternalRequest> request);
