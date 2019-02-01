@@ -599,10 +599,23 @@ QCoapReply *QCoapClient::observe(const QUrl &url)
 */
 void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
-    // TODO: Plan to add an override to cancel observe with an URL
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
+}
+
+/*!
+    \overload
+
+    Cancels the observation of a resource identified by the \a url.
+
+    \sa observe()
+*/
+void QCoapClient::cancelObserve(const QUrl &url)
+{
+    Q_D(QCoapClient);
+    const auto adjustedUrl = QCoapRequest::adjustedUrl(url, d->connection->isSecure());
+    QMetaObject::invokeMethod(d->protocol, "cancelObserve", Q_ARG(QUrl, adjustedUrl));
 }
 
 /*!

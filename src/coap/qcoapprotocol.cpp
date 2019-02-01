@@ -508,9 +508,9 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request) const
 
     A Reset (RST) message will be sent at the reception of the next message.
 */
-void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
+void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply) const
 {
-    Q_D(QCoapProtocol);
+    Q_D(const QCoapProtocol);
 
     if (reply.isNull())
         return;
@@ -526,6 +526,25 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 
     // Set as cancelled even if request is not tracked anymore
     QMetaObject::invokeMethod(reply, "_q_setObserveCancelled", Qt::QueuedConnection);
+}
+
+/*!
+    \internal
+
+    Cancels resource observation for the given \a url. The QCoapReply::notified()
+    signal will not be emitted after cancellation.
+
+    A Reset (RST) message will be sent at the reception of the next message.
+*/
+void QCoapProtocol::cancelObserve(const QUrl &url) const
+{
+    Q_D(const QCoapProtocol);
+
+    for (const auto &exchange : d->exchangeMap) {
+        Q_ASSERT(exchange.userReply);
+        if (exchange.userReply->url() == url)
+            cancelObserve(exchange.userReply);
+    }
 }
 
 /*!

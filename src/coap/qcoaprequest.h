@@ -68,6 +68,7 @@ public:
 
     bool isValid() const;
     static bool isUrlValid(const QUrl &url);
+    static QUrl adjustedUrl(const QUrl &url, bool secure);
 
 private:
     // Q_DECLARE_PRIVATE equivalent for shared data pointers

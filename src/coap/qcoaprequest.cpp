@@ -247,23 +247,7 @@ void QCoapRequest::enableObserve()
 void QCoapRequest::adjustUrl(bool secure)
 {
     Q_D(QCoapRequest);
-
-    if (d->uri.isEmpty() || !d->uri.isValid())
-        return;
-
-    QUrl finalizedUrl = d->uri;
-    const auto scheme = secure ? CoapSecureScheme : CoapScheme;
-    if (d->uri.isRelative())
-        finalizedUrl = d->uri.toString().prepend(scheme + QLatin1String("://"));
-    else if (d->uri.scheme().isEmpty())
-        finalizedUrl.setScheme(scheme);
-
-    if (d->uri.port() == -1) {
-        const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;
-        finalizedUrl.setPort(port);
-    }
-
-    d->uri = finalizedUrl;
+    d->uri = adjustedUrl(d->uri, secure);
 }
 
 /*!
@@ -291,6 +275,35 @@ bool QCoapRequest::isUrlValid(const QUrl &url)
     return (url.isValid() && !url.isLocalFile() && !url.isRelative()
             && (url.scheme() == CoapScheme || url.scheme() == CoapSecureScheme)
             && !url.hasFragment());
+}
+
+/*!
+    Adjusts the \a url by setting the correct default scheme and port
+    (if not indicated) based on the \a secure parameter. Returns the
+    adjusted URL.
+
+    In non-secure mode the scheme of request URL will default to \c coap, and
+    its port will default to \e 5683. In secure mode the scheme will default to
+    \c coaps, and the port will default to \e 5684.
+*/
+QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
+{
+    if (url.isEmpty() || !url.isValid())
+        return QUrl();
+
+    QUrl finalizedUrl = url;
+    const auto scheme = secure ? CoapSecureScheme : CoapScheme;
+    if (url.isRelative())
+        finalizedUrl = url.toString().prepend(scheme + QLatin1String("://"));
+    else if (url.scheme().isEmpty())
+        finalizedUrl.setScheme(scheme);
+
+    if (url.port() == -1) {
+        const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;
+        finalizedUrl.setPort(port);
+    }
+
+    return finalizedUrl;
 }
 
 /*!

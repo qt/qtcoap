@@ -70,6 +70,7 @@ public:
     QCoapReply *observe(const QCoapRequest &request);
     QCoapReply *observe(const QUrl &request);
     void cancelObserve(QCoapReply *notifiedReply);
+    void cancelObserve(const QUrl &url);
 
 #if 0
     //! TODO Add Multicast discovery in a later submission.
