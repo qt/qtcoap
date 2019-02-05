@@ -196,12 +196,15 @@ void tst_QCoapClient::methods_data()
     QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
     QTest::newRow("post_incorrect_op")      << QUrl(testServerResource()) << QtCoap::Delete;
+    QTest::newRow("post_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Post;
     QTest::newRow("put_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("put")                    << QUrl(testServerResource()) << QtCoap::Put;
     QTest::newRow("put_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Post;
+    QTest::newRow("put_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Put;
     QTest::newRow("delete_no_op")           << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("delete")                 << QUrl(testServerResource()) << QtCoap::Delete;
     QTest::newRow("delete_incorrect_op")    << QUrl(testServerResource()) << QtCoap::Get;
+    QTest::newRow("delete_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Delete;
 }
 
 void tst_QCoapClient::methods()
@@ -232,6 +235,7 @@ void tst_QCoapClient::methods()
     }
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
+    QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
     QTRY_COMPARE(spyClientFinished.count(), 1);
@@ -634,6 +638,8 @@ void tst_QCoapClient::discover_data()
     // Californium test server exposes 29 resources
     QTest::newRow("discover") << QUrl(testServerUrl())
                               << 29;
+    QTest::newRow("discover_no_scheme_no_port") << QUrl(testServerHost())
+                                                << 29;
 }
 
 void tst_QCoapClient::discover()
@@ -648,6 +654,8 @@ void tst_QCoapClient::discover()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
+    const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
+    QCOMPARE(resourcesReply->url(), QCoapRequest::adjustedUrl(discoverUrl, false));
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
 
     //! TODO Test discovery content too
@@ -661,6 +669,10 @@ void tst_QCoapClient::observe_data()
 
     QTest::newRow("observe")
             << QUrl(testServerUrl() + "/obs")
+            << QCoapMessage::NonConfirmable;
+
+    QTest::newRow("observe_no_scheme_no_port")
+            << QUrl(testServerHost() + "/obs")
             << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_confirmable")
@@ -708,6 +720,7 @@ void tst_QCoapClient::observe()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
+    QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
 
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
     QCOMPARE(spyReplyFinished.count(), 1);
