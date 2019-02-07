@@ -31,6 +31,7 @@
 #include <QtTest>
 #include <QtCore/qstring.h>
 #include <QtNetwork/qhostinfo.h>
+#include <QtCoap/qcoapclient.h>
 
 /*!
     \internal
@@ -49,23 +50,77 @@
 */
 namespace QtCoapNetworkSettings
 {
-    QString testServerHost()
-    {
-#if defined(COAP_TEST_SERVER_IP)
-        return QStringLiteral(COAP_TEST_SERVER_IP);
+
+#if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
+#define CHECK_FOR_COAP_SERVER
 #else
-        static_assert(false, "COAP_TEST_SERVER_IP variable must be set");
+#define CHECK_FOR_COAP_SERVER \
+    QSKIP("CoAP server is not setup, skipping the test..."); \
+    return;
 #endif
-    }
 
-    QString testServerUrl()
-    {
-        return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":")
-                + QString::number(QtCoap::DefaultPort);
-    }
+#if defined(QT_TEST_SERVER) && !defined(COAP_TEST_SERVER_IP)
+static QString tryToResolveHostName(const QString &hostName)
+{
+    const auto hostInfo = QHostInfo::fromName(hostName);
+    if (!hostInfo.addresses().empty())
+        return hostInfo.addresses().first().toString();
 
-    QString testServerResource()
-    {
-        return testServerUrl() + QStringLiteral("/test");
+    qWarning() << "Could not resolve the hostname"<< hostName;
+    return hostName;
+}
+#endif
+
+static QString getHostAddress(const QString &serverName)
+{
+#if defined(COAP_TEST_SERVER_IP)
+    Q_UNUSED(serverName);
+    return QStringLiteral(COAP_TEST_SERVER_IP);
+#elif defined(QT_TEST_SERVER_NAME)
+    QString hostname = serverName % "." % QString(QT_TEST_SERVER_DOMAIN);
+    return tryToResolveHostName(hostname);
+#elif defined(QT_TEST_SERVER)
+    Q_UNUSED(serverName);
+    QString hostname = "qt-test-server." % QString(QT_TEST_SERVER_DOMAIN);
+    return tryToResolveHostName(hostname);
+#else
+    Q_UNUSED(serverName);
+    qWarning("This test will fail, "
+             "please set the COAP_TEST_SERVER_IP variable to specify the CoAP server.");
+    return "";
+#endif
+}
+
+QString testServerHost()
+{
+    static QString testServerHostAddress = getHostAddress("californium");
+    return testServerHostAddress;
+}
+
+QString testServerUrl()
+{
+    return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":")
+            + QString::number(QtCoap::DefaultPort);
+}
+
+QString testServerResource()
+{
+    return testServerUrl() + QStringLiteral("/test");
+}
+
+bool waitForHost(const QUrl &url, quint8 retries = 10)
+{
+    while (retries-- > 0) {
+        QCoapClient client;
+        QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
+        client.get(url);
+
+        spyClientFinished.wait(1000);
+
+        if (spyClientFinished.count() == 1)
+            return true;
     }
+    return false;
+}
+
 }

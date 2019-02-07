@@ -1,0 +1,44 @@
+version: '2.1'
+
+# The tag of images is used by docker compose file to launch the corresponding
+# docker containers. The value of tag comes from the provisioning script
+# (coin/provisioning/.../testserver/docker_testserver.sh). The script gets SHA-1
+# of each server context as the tag of docker images. If one of the server
+# contexts gets changes, please make sure to update this compose file as well.
+# You can run command 'docker images' to list all the tag of test server images.
+# For example:
+# REPOSITORY              TAG
+# qt-test-server-apache2  537fe302f61851d1663f41495230d8e3554a4a13
+
+services:
+    californium:
+        extends:
+            file: ${SHARED_DATA}/docker-compose-common.yml
+            service: ${SHARED_SERVICE}
+        container_name: qt-test-server-californium
+        hostname: ${HOST_NAME:-californium}
+        build:
+            context: .
+            args:
+                provisioningImage: qt-test-server-californium:dd4a2ab0b113fbd45c5d6e92b43341f5eb521926
+                serviceDir: ./californium
+        ports:
+            - "5683:5683/udp"
+            - "5684:5684/udp"
+        entrypoint: ./startup.sh
+        command: service/californium.sh
+    freecoap:
+        extends:
+            file: ${SHARED_DATA}/docker-compose-common.yml
+            service: ${SHARED_SERVICE}
+        container_name: qt-test-server-freecoap
+        hostname: ${HOST_NAME:-freecoap}
+        build:
+            context: .
+            args:
+                provisioningImage: qt-test-server-freecoap:e2d7208ea82e623e2769d9ee1f052b58537d2f35
+                serviceDir: ./freecoap
+        ports:
+            - "5685:5685/udp"
+        entrypoint: ./startup.sh
+        command: service/freecoap.sh

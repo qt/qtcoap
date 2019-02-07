@@ -50,6 +50,7 @@ class tst_QCoapQUdpConnection : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
     void ctor();
     void connectToHost();
     void reconnect();
@@ -71,6 +72,13 @@ public:
         d_func()->sendRequest(request, host, port);
     }
 };
+
+void tst_QCoapQUdpConnection::initTestCase()
+{
+#if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
+    QVERIFY2(waitForHost(testServerHost()), "Failed to connect to Californium plugtest server.");
+#endif
+}
 
 void tst_QCoapQUdpConnection::ctor()
 {
@@ -166,6 +174,8 @@ void tst_QCoapQUdpConnection::sendRequest_data()
 
 void tst_QCoapQUdpConnection::sendRequest()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QString, protocol);
     QFETCH(QString, host);
     QFETCH(QString, path);

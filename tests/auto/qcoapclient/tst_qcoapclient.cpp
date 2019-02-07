@@ -51,6 +51,7 @@ class tst_QCoapClient : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
     void incorrectUrls_data();
     void incorrectUrls();
     void methods_data();
@@ -194,6 +195,13 @@ public slots:
     }
 };
 
+void tst_QCoapClient::initTestCase()
+{
+#if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
+    QVERIFY2(waitForHost(testServerHost()), "Failed to connect to Californium plugtest server.");
+#endif
+}
+
 void tst_QCoapClient::incorrectUrls_data()
 {
     QWARN("Expect warnings here...");
@@ -257,6 +265,8 @@ void tst_QCoapClient::methods_data()
 
 void tst_QCoapClient::methods()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
     QFETCH(QtCoap::Method, method);
 
@@ -312,6 +322,8 @@ void tst_QCoapClient::methods()
 
 void tst_QCoapClient::separateMethod()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QCoapClient client;
     QScopedPointer<QCoapReply> reply(client.get(QUrl(testServerUrl() + "/separate")));
 
@@ -327,6 +339,8 @@ void tst_QCoapClient::separateMethod()
 
 void tst_QCoapClient::removeReply()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QCoapClient client;
     QCoapReply *reply = client.get(QUrl(testServerResource()));
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
@@ -384,6 +398,8 @@ void tst_QCoapClient::requestWithQIODevice_data()
 
 void tst_QCoapClient::requestWithQIODevice()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
 
     QCoapClient client;
@@ -416,6 +432,8 @@ void tst_QCoapClient::requestWithQIODevice()
 
 void tst_QCoapClient::multipleRequests()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QCoapClient client;
     QUrl url = QUrl(testServerResource());
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
@@ -462,6 +480,8 @@ void tst_QCoapClient::multipleRequests()
 void tst_QCoapClient::socketError()
 {
 #ifdef QT_BUILD_INTERNAL
+    CHECK_FOR_COAP_SERVER;
+
     QCoapClientForSocketErrorTests client;
     QUrl url = QUrl(testServerResource());
 
@@ -494,6 +514,8 @@ void tst_QCoapClient::timeout_data()
 void tst_QCoapClient::timeout()
 {
 #ifdef QT_BUILD_INTERNAL
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(uint, timeout);
     QFETCH(uint, maximumRetransmitCount);
 
@@ -542,10 +564,13 @@ void tst_QCoapClient::timeout()
 
 void tst_QCoapClient::abort()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QCoapClient client;
     QUrl url = QUrl(testServerUrl() + "/large");
 
     QScopedPointer<QCoapReply> reply(client.get(url));
+    QVERIFY(!reply.isNull());
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
     QSignalSpy spyReplyAborted(reply.data(), &QCoapReply::aborted);
     QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
@@ -617,6 +642,8 @@ void tst_QCoapClient::blockwiseReply_data()
 
 void tst_QCoapClient::blockwiseReply()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::Type, type);
     QFETCH(QByteArray, replyData);
@@ -629,6 +656,7 @@ void tst_QCoapClient::blockwiseReply()
 
     request.setType(type);
     QScopedPointer<QCoapReply> reply(client.get(request));
+    QVERIFY(!reply.isNull());
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
     QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
     Helper helper;
@@ -666,6 +694,8 @@ void tst_QCoapClient::blockwiseRequest_data()
 
 void tst_QCoapClient::blockwiseRequest()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::Type, type);
     QFETCH(QByteArray, requestData);
@@ -680,6 +710,7 @@ void tst_QCoapClient::blockwiseRequest()
     request.addOption(QCoapOption::ContentFormat);
 
     QScopedPointer<QCoapReply> reply(client.post(request, requestData));
+    QVERIFY(!reply.isNull());
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
@@ -703,12 +734,15 @@ void tst_QCoapClient::discover_data()
 
 void tst_QCoapClient::discover()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
     QFETCH(int, resourceNumber);
 
     QCoapClient client;
 
     QScopedPointer<QCoapResourceDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
+    QVERIFY(!resourcesReply.isNull());
     QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
@@ -768,6 +802,8 @@ void tst_QCoapClient::observe_data()
 
 void tst_QCoapClient::observe()
 {
+    CHECK_FOR_COAP_SERVER;
+
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::Type, type);
 
@@ -777,6 +813,7 @@ void tst_QCoapClient::observe()
     request.setType(type);
     QSharedPointer<QCoapReply> reply(client.observe(request),
                                      &QObject::deleteLater);
+    QVERIFY(!reply.isNull());
     QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
@@ -907,7 +944,7 @@ void tst_QCoapClient::setMinimumTokenSize()
         QScopedPointer<QCoapReply> reply;
         reply.reset(client.get(QCoapRequest("127.0.0.1")));
 
-        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 10);
+        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 100);
         QVERIFY(reply->request().tokenLength() >= expectedMinSize);
         QVERIFY(reply->request().tokenLength() <= maxSize);
     }
