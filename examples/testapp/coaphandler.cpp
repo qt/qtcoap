@@ -76,7 +76,7 @@ bool CoapHandler::runObserve(const QUrl &url)
 bool CoapHandler::runDiscover(const QUrl &url)
 {
     QCoapDiscoveryReply *discoverReply = m_coapClient.discover(url);
-    if (discoverReply)
+    if (!discoverReply)
         return false;
 
     connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
