@@ -45,6 +45,7 @@ class QCoapRequest;
 class QCoapProtocol;
 class QCoapConnection;
 class QCoapSecurityConfiguration;
+class QCoapMessage;
 class QIODevice;
 
 class QCoapClientPrivate;
@@ -90,6 +91,7 @@ public:
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
+    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage& message);
     void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:

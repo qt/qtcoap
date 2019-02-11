@@ -65,6 +65,10 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
     d->maxTransmitWaitTimer = new QTimer(this);
     connect(d->maxTransmitWaitTimer, &QTimer::timeout,
             [this]() { emit maxTransmissionSpanReached(this); });
+
+    d->multicastExpireTimer = new QTimer(this);
+    connect(d->multicastExpireTimer, &QTimer::timeout, this,
+            [this]() { emit multicastRequestExpired(this); });
 }
 
 /*!
@@ -485,16 +489,33 @@ void QCoapInternalRequest::restartTransmission()
 
 /*!
     \internal
-    Marks the transmission as not running, after a successful reception, or an
-    error. It resets the retranmission count and stops all timeout timers.
+
+    Starts the timer for keeping the multicast request \e alive.
+*/
+void QCoapInternalRequest::startMulticastTransmission()
+{
+    Q_ASSERT(isMulticast());
+
+    Q_D(QCoapInternalRequest);
+    d->multicastExpireTimer->start();
+}
+
+/*!
+    \internal
+    Marks the transmission as not running, after a successful reception or an
+    error. It resets the retransmission count if needed and stops all timeout timers.
 */
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
-    d->transmissionInProgress = false;
-    d->retransmissionCounter = 0;
-    d->maxTransmitWaitTimer->stop();
-    d->timeoutTimer->stop();
+    if (isMulticast()) {
+        d->multicastExpireTimer->stop();
+    } else {
+        d->transmissionInProgress = false;
+        d->retransmissionCounter = 0;
+        d->maxTransmitWaitTimer->stop();
+        d->timeoutTimer->stop();
+    }
 }
 
 /*!
@@ -554,6 +575,17 @@ bool QCoapInternalRequest::isObserveCancelled() const
 {
     Q_D(const QCoapInternalRequest);
     return d->observeCancelled;
+}
+
+/*!
+    \internal
+
+    Returns \c true if the request is multicast, returns \c false otherwise.
+*/
+bool QCoapInternalRequest::isMulticast() const
+{
+    const QHostAddress hostAddress(targetUri().host());
+    return hostAddress.isMulticast();
 }
 
 /*!
@@ -636,6 +668,24 @@ void QCoapInternalRequest::setMaxTransmissionWait(int duration)
 {
     Q_D(QCoapInternalRequest);
     d->maxTransmitWaitTimer->setInterval(duration);
+}
+
+/*!
+    \internal
+
+    Sets the timeout interval in milliseconds for keeping the multicast request
+    \e alive.
+
+    In the unicast case, receiving a response means that the request is finished.
+    In the multicast case it is not known how many responses will be received, so
+    the response, along with its token, will be kept for
+    NON_LIFETIME + MAX_LATENCY + MAX_SERVER_RESPONSE_DELAY time, as suggested
+    in \l {RFC 7390 - Section 2.5}.
+*/
+void QCoapInternalRequest::setMulticastTimeout(uint responseDelay)
+{
+    Q_D(QCoapInternalRequest);
+    d->multicastExpireTimer->setInterval(static_cast<int>(responseDelay));
 }
 
 /*!

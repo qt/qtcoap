@@ -72,6 +72,9 @@ private Q_SLOTS:
     void discover();
     void observe_data();
     void observe();
+    void confirmableMulticast();
+    void multicast();
+    void multicast_blockwise();
 };
 
 class QCoapQUdpConnectionSocketTestsPrivate : public QCoapQUdpConnectionPrivate
@@ -131,6 +134,42 @@ public:
         return qobject_cast<QCoapQUdpConnection*>(privateClient->connection);
     }
 };
+
+class QCoapConnectionMulticastTests : public QCoapConnection
+{
+public:
+    ~QCoapConnectionMulticastTests() override = default;
+
+    void bind(const QString &host, quint16 port) override
+    {
+        Q_UNUSED(host);
+        Q_UNUSED(port);
+        // Do nothing
+    }
+
+    void writeData(const QByteArray &data, const QString &host, quint16 port) override
+    {
+        Q_UNUSED(data);
+        Q_UNUSED(host);
+        Q_UNUSED(port);
+        // Do nothing
+    }
+};
+
+class QCoapClientForMulticastTests : public QCoapClient
+{
+public:
+    QCoapClientForMulticastTests() :
+        QCoapClient(new QCoapProtocol, new QCoapConnectionMulticastTests)
+    {}
+
+    QCoapConnection *connection()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
+        return privateClient->connection;
+    }
+};
+
 
 class Helper : public QObject
 {
@@ -731,6 +770,62 @@ void tst_QCoapClient::observe()
         QString error = QString("Invalid payload for 'notified' signal: %1").arg(QString(payload));
         QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
+}
+
+void tst_QCoapClient::confirmableMulticast()
+{
+    QCoapClient client;
+    const auto reply = client.get(QCoapRequest("224.0.1.187", QCoapMessage::Confirmable));
+    QVERIFY2(!reply, "Confirmable multicast request didn't fail as expected.");
+}
+
+void tst_QCoapClient::multicast()
+{
+    QCoapClientForMulticastTests client;
+    QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
+    request.setToken("abc");
+    QCoapReply *reply = client.get(request);
+    QVERIFY(reply);
+
+    // Simulate sending unicast responses to the multicast request
+    emit client.connection()->readyRead("SE\xAD/abc\xC0\xFFReply1", QHostAddress("10.20.30.40"));
+    emit client.connection()->readyRead("SE\xAD/abc\xC0\xFFReply2", QHostAddress("10.20.30.41"));
+
+    QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
+    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+
+    QCoapMessage message1 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
+    QCOMPARE(message1.payload(), "Reply1");
+
+    QCoapMessage message2 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(1).at(1));
+    QCOMPARE(message2.payload(), "Reply2");
+}
+
+void tst_QCoapClient::multicast_blockwise()
+{
+    QCoapClientForMulticastTests client;
+    QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
+    request.setToken("abc");
+    QCoapReply *reply = client.get(request);
+    QVERIFY(reply);
+
+    QHostAddress host1("10.20.30.40");
+    QHostAddress host2("10.20.30.41");
+
+    // Simulate blockwise transfer responses coming from two different hosts
+    emit client.connection()->readyRead("SE#}abc\xC0\xB1\x1D\xFFReply1", host1);
+    emit client.connection()->readyRead("SE#}abc\xC0\xB1\x1D\xFFReply3", host2);
+    emit client.connection()->readyRead("SE#~abc\xC0\xB1%\xFFReply2", host1);
+    emit client.connection()->readyRead("SE#~abc\xC0\xB1%\xFFReply4", host2);
+
+    QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
+    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+
+    QCoapMessage message1 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
+    QCOMPARE(message1.payload(), "Reply1Reply2");
+
+    QCoapMessage message2 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(1).at(1));
+    QCOMPARE(message2.payload(), "Reply3Reply4");
 }
 
 QTEST_MAIN(tst_QCoapClient)

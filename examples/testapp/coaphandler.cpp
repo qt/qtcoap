@@ -39,6 +39,8 @@ CoapHandler::CoapHandler(QObject *parent) : QObject(parent)
 {
     connect(&m_coapClient, &QCoapClient::finished, this, &CoapHandler::onFinished);
     connect(&m_coapClient, &QCoapClient::error, this, &CoapHandler::onError);
+    connect(&m_coapClient, &QCoapClient::responseToMulticastReceived,
+            this, &CoapHandler::onResponseToMulticast);
 }
 
 bool CoapHandler::runGet(const QUrl &url)
@@ -106,6 +108,14 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
 
     for (const QCoapResource &res : qAsConst(resources))
         qDebug() << "Discovered resource: " << res.path() << res.title();
+}
+
+void CoapHandler::onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message)
+{
+    if (reply->errorReceived() == QtCoap::NoError)
+        qDebug() << "Got a response for multicast request: " << message.payload();
+    else
+        qDebug() << "Multicast request failed";
 }
 
 void CoapHandler::onError(QCoapReply *reply, QtCoap::Error error)

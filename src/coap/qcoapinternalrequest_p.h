@@ -85,6 +85,7 @@ public:
     QtCoap::Method method() const;
     bool isObserve() const;
     bool isObserveCancelled() const;
+    bool isMulticast() const;
     QCoapConnection *connection() const;
     int retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
@@ -94,12 +95,15 @@ public:
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
     void setMaxTransmissionWait(int timeout);
+    void setMulticastTimeout(uint responseDelay);
     void restartTransmission();
+    void startMulticastTransmission();
     void stopTransmission();
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
     void maxTransmissionSpanReached(QCoapInternalRequest*);
+    void multicastRequestExpired(QCoapInternalRequest*);
 
 protected:
     QCoapOption uriHostOption(const QUrl &uri) const;
@@ -123,6 +127,7 @@ public:
     int retransmissionCounter = 0;
     QTimer *timeoutTimer = nullptr;
     QTimer *maxTransmitWaitTimer = nullptr;
+    QTimer *multicastExpireTimer = nullptr;
 
     bool observeCancelled = false;
     bool transmissionInProgress = false;

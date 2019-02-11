@@ -269,6 +269,17 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 */
 
 /*!
+    \fn void QCoapClient::responseToMulticastReceived(QCoapReply *reply,
+                                                      const QCoapMessage& message)
+
+    This signal is emitted when a unicast response to a multicast request
+    arrives. The \a reply parameter contains a pointer to the reply that has just
+    been received, and \a message contains the payload and the message details.
+
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
     \fn void QCoapClient::error(QCoapReply *reply, QtCoap::Error error)
 
     This signal is emitted whenever an error occurs. The \a reply parameter
@@ -336,6 +347,8 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
+    connect(d->protocol, &QCoapProtocol::responseToMulticastReceived,
+            this, &QCoapClient::responseToMulticastReceived);
     connect(d->protocol, &QCoapProtocol::error,
             this, &QCoapClient::error);
 }
@@ -675,6 +688,15 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
         qWarning("QCoapClient: Failed to send request for an invalid URL.");
+        return false;
+    }
+
+    // According to https://tools.ietf.org/html/rfc7252#section-8.1,
+    // multicast requests MUST be Non-confirmable.
+    if (QHostAddress(reply->url().host()).isMulticast()
+            && reply->request().type() == QCoapMessage::Confirmable) {
+        qWarning("QCoapClient: Failed to send request, "
+                 "multicast requests must be non-confirmable.");
         return false;
     }
 

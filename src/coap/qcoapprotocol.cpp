@@ -96,6 +96,19 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
+    if (internalRequest->isMulticast()) {
+        connect(internalRequest.data(), &QCoapInternalRequest::multicastRequestExpired, this,
+                [this](QCoapInternalRequest *request) {
+                    Q_D(QCoapProtocol);
+                    d->onMulticastRequestExpired(request);
+                });
+        // The timeout interval is chosen based on
+        // https://tools.ietf.org/html/rfc7390#section-2.5
+        internalRequest->setMulticastTimeout(nonConfirmLifetime()
+                                             + static_cast<uint>(maxLatency())
+                                             + maxServerResponseDelay());
+    }
+
     // Set a unique Message Id and Token
     QCoapMessage *requestMessage = internalRequest->message();
     internalRequest->setMessageId(d->generateUniqueMessageId());
@@ -136,9 +149,11 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 /*!
     \internal
 
-    Encodes and sends the given \a request to the server.
+    Encodes and sends the given \a request to the server. If \a host is not empty,
+    sends the request to \a host, instead of using the host address from the request.
+    The \a host parameter is relevant for multicast blockwise transfers.
 */
-void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request) const
+void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request, const QString& host) const
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
@@ -148,10 +163,15 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request) const
         return;
     }
 
-    request->restartTransmission();
+    if (request->isMulticast())
+        request->startMulticastTransmission();
+    else
+        request->restartTransmission();
+
     QByteArray requestFrame = request->toQByteArray();
     QUrl uri = request->targetUri();
-    request->connection()->sendRequest(requestFrame, uri.host(), static_cast<quint16>(uri.port()));
+    const auto& hostAddress = host.isEmpty() ? uri.host() : host;
+    request->connection()->sendRequest(requestFrame, hostAddress, static_cast<quint16>(uri.port()));
 }
 
 /*!
@@ -189,6 +209,29 @@ void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequ
 
     if (isRequestRegistered(request))
         onRequestError(request, QtCoap::TimeOutError);
+}
+
+/*!
+    \internal
+
+    This slot is called when the multicast request expires, meaning that no
+    more responses are expected for the multicast \a request. As a result of this
+    call, the request token is \e {freed up} and the \l finished() signal is emitted.
+*/
+void QCoapProtocolPrivate::onMulticastRequestExpired(QCoapInternalRequest *request)
+{
+    Q_ASSERT(request->isMulticast());
+
+    request->stopTransmission();
+    QPointer<QCoapReply> userReply = userReplyForToken(request->token());
+    if (userReply) {
+        QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
+                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
+    } else {
+        qWarning().nospace() << "QtCoap: Reply for token '" << request->token()
+                             << "' is not registered, reply is null.";
+    }
+    forgetExchange(request);
 }
 
 /*!
@@ -268,7 +311,8 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
         return;
     }
 
-    request->stopTransmission();
+    if (!request->isMulticast())
+        request->stopTransmission();
     addReply(request->token(), reply);
 
     if (QtCoap::isError(reply->responseCode())) {
@@ -293,9 +337,13 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
     } else if (reply->hasMoreBlocksToReceive()) {
         request->setToRequestBlock(reply->currentBlockNumber() + 1, reply->blockSize());
         request->setMessageId(generateUniqueMessageId());
-        sendRequest(request);
+        // In case of multicast blockwise transfers, according to
+        // https://tools.ietf.org/html/rfc7959#section-2.8, further blocks should be retrieved
+        // via unicast requests. So instead of using the multicast request address, we need
+        // to use the sender address for getting the next blocks.
+        sendRequest(request, sender.toString());
     } else {
-        onLastMessageReceived(request);
+        onLastMessageReceived(request, sender);
     }
 }
 
@@ -395,7 +443,8 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
     associated QCoapReply and emits the
     \l{QCoapProtocol::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 */
-void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
+                                                 const QHostAddress &sender)
 {
     Q_ASSERT(request);
     if (!request || !isRequestRegistered(request))
@@ -423,6 +472,16 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
     // Merge payloads for blockwise transfers
     if (replies.size() > 1) {
+
+        // In multicast case, multiple hosts will reply to the same multicast request.
+        // We are interested only in replies coming from the sender.
+        if (request->isMulticast()) {
+            replies.erase(std::remove_if(replies.begin(), replies.end(),
+                                         [sender](QSharedPointer<QCoapInternalReply> reply) {
+                                            return reply->senderAddress() != sender;
+                                         }), replies.end());
+        }
+
         std::stable_sort(std::begin(replies), std::end(replies),
         [](QSharedPointer<QCoapInternalReply> a, QSharedPointer<QCoapInternalReply> b) -> bool {
             return (a->currentBlockNumber() < b->currentBlockNumber());
@@ -452,6 +511,9 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     if (request->isObserve()) {
         QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
         forgetExchangeReplies(request->token());
+    } else if (request->isMulticast()) {
+        Q_Q(QCoapProtocol);
+        emit q->responseToMulticastReceived(userReply, *lastReply->message());
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
                                   Q_ARG(QtCoap::Error, QtCoap::NoError));

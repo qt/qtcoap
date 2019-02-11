@@ -49,6 +49,8 @@ private Q_SLOTS:
     void urlOptions();
     void invalidUrls_data();
     void invalidUrls();
+    void isMulticast_data();
+    void isMulticast();
 };
 
 void tst_QCoapInternalRequest::requestToFrame_data()
@@ -288,6 +290,28 @@ void tst_QCoapInternalRequest::invalidUrls()
 
     QVERIFY(!internalRequest.isValid());
     QVERIFY(internalRequest.message()->options().empty());
+}
+
+void tst_QCoapInternalRequest::isMulticast_data()
+{
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("ipv4_multicast") << QString("coap://224.0.1.187") << true;
+    QTest::newRow("ipv4_multicast_resource") << QString("coap://224.0.1.187/path") << true;
+    QTest::newRow("ipv6_multicast_link_local") << "coap://[ff02::fd]" << true;
+    QTest::newRow("ipv6_multicast_site_local") << "coap://[ff05::fd]" << true;
+    QTest::newRow("not_multicast") << QString("coap://127.0.0.1") << false;
+}
+
+void tst_QCoapInternalRequest::isMulticast()
+{
+    QFETCH(QString, url);
+    QFETCH(bool, result);
+
+    const QCoapRequest request(url);
+    const QCoapInternalRequest internalRequest(request);
+    QCOMPARE(internalRequest.isMulticast(), result);
 }
 
 #else
