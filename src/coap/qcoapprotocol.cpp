@@ -932,6 +932,33 @@ int QCoapProtocol::maxTimeout() const
 }
 
 /*!
+    Returns the \c NON_LIFETIME in milliseconds, as defined in
+    \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
+
+    It is the time from sending a non-confirmable message to the time its
+    message ID can be safely reused.
+*/
+uint QCoapProtocol::nonConfirmLifetime() const
+{
+    return static_cast<uint>(maxTransmitSpan() + maxLatency());
+}
+
+/*!
+    Returns the \c MAX_SERVER_RESPONSE_DELAY in milliseconds, as defined in
+    \l {RFC 7390 - Section 2.5}.
+
+    It is the expected maximum response delay over all servers that the client
+    can send a multicast request to.
+
+    \sa setMaxServerResponseDelay()
+*/
+uint QCoapProtocol::maxServerResponseDelay() const
+{
+    Q_D(const QCoapProtocol);
+    return d->maxServerResponseDelay;
+}
+
+/*!
     Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds.
     The default is 2000 ms.
 
@@ -1010,6 +1037,21 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
     }
 
     d->blockSize = blockSize;
+}
+
+/*!
+    Sets the \c MAX_SERVER_RESPONSE_DELAY value to \a responseDelay in milliseconds.
+    The default is 250 seconds.
+
+    As defined in \l {RFC 7390 - Section 2.5}, \c MAX_SERVER_RESPONSE_DELAY is the expected
+    maximum response delay over all servers that the client can send a multicast request to.
+
+    \sa maxServerResponseDelay()
+*/
+void QCoapProtocol::setMaxServerResponseDelay(uint responseDelay)
+{
+    Q_D(QCoapProtocol);
+    d->maxServerResponseDelay = responseDelay;
 }
 
 QT_END_NAMESPACE

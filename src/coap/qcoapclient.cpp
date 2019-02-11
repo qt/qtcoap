@@ -725,6 +725,20 @@ void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QV
                               Q_ARG(QVariant, value));
 }
 
+/*!
+    Sets the \c MAX_SERVER_RESPONSE_DELAY value to \a responseDelay in milliseconds.
+    The default is 250 seconds.
+
+    As defined in \l {RFC 7390 - Section 2.5}, \c MAX_SERVER_RESPONSE_DELAY is the expected
+    maximum response delay over all servers that the client can send a multicast request to.
+*/
+void QCoapClient::setMaxServerResponseDelay(uint responseDelay)
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "setMaxServerResponseDelay", Qt::QueuedConnection,
+                              Q_ARG(uint, responseDelay));
+}
+
 #if 0
 //! Disabled until fully supported
 /*!

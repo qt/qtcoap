@@ -82,6 +82,7 @@ public:
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     void setBlockSize(quint16 blockSize);
     void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
+    void setMaxServerResponseDelay(uint responseDelay);
 
 #if 0
     void setProtocol(QCoapProtocol *protocol);

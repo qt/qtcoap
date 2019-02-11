@@ -62,6 +62,9 @@ public:
     int minTimeout() const;
     int maxTimeout() const;
 
+    uint nonConfirmLifetime() const;
+    uint maxServerResponseDelay() const;
+
     static QVector<QCoapResource> resourcesFromCoreLinkList(
             const QHostAddress &sender, const QByteArray &data);
 
@@ -74,6 +77,7 @@ public Q_SLOTS:
     void setAckRandomFactor(double ackRandomFactor);
     void setMaxRetransmit(int maxRetransmit);
     void setBlockSize(quint16 blockSize);
+    void setMaxServerResponseDelay(uint responseDelay);
 
 private Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
