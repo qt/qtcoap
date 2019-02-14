@@ -99,7 +99,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     // Set a unique Message Id and Token
     QCoapMessage *requestMessage = internalRequest->message();
     internalRequest->setMessageId(d->generateUniqueMessageId());
-    internalRequest->setToken(d->generateUniqueToken());
+    if (internalRequest->token().isEmpty())
+        internalRequest->setToken(d->generateUniqueToken());
     internalRequest->setConnection(connection);
 
     d->registerExchange(requestMessage->token(), reply, internalRequest);
