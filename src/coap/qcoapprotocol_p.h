@@ -105,10 +105,10 @@ public:
     CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
-    int maxRetransmit = 4;
-    int ackTimeout = 2000;
-    double ackRandomFactor = 1.5;
+    uint maxRetransmit = 4;
+    uint ackTimeout = 2000;
     uint maxServerResponseDelay = 250 * 1000;
+    double ackRandomFactor = 1.5;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

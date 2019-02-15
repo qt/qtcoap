@@ -250,7 +250,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
     \sa blockOption(), setToSendBlock()
 */
-void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
+void QCoapInternalRequest::setToRequestBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
@@ -260,8 +260,7 @@ void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
     d->message.removeOption(QCoapOption::Block1);
     d->message.removeOption(QCoapOption::Block2);
 
-    addOption(blockOption(QCoapOption::Block2, static_cast<uint>(blockNumber),
-                          static_cast<uint>(blockSize)));
+    addOption(blockOption(QCoapOption::Block2, blockNumber, blockSize));
 }
 
 /*!
@@ -271,18 +270,18 @@ void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
 
     \sa blockOption(), setToRequestBlock()
 */
-void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
+void QCoapInternalRequest::setToSendBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
     if (!checkBlockNumber(blockNumber))
         return;
 
-    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    d->message.setPayload(d->fullPayload.mid(static_cast<int>(blockNumber * blockSize),
+                                             static_cast<int>(blockSize)));
     d->message.removeOption(QCoapOption::Block1);
 
-    addOption(blockOption(QCoapOption::Block1, static_cast<uint>(blockNumber),
-                          static_cast<uint>(blockSize)));
+    addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
 }
 
 /*!
@@ -290,13 +289,8 @@ void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
     Returns \c true if the block number is valid, \c false otherwise.
     If the block number is not valid, logs a warning message.
 */
-bool QCoapInternalRequest::checkBlockNumber(int blockNumber)
+bool QCoapInternalRequest::checkBlockNumber(uint blockNumber)
 {
-    if (blockNumber < 0) {
-        qWarning() << "QtCoap: Invalid block number" << blockNumber;
-        return false;
-    }
-
     if (blockNumber >> 20) {
         qWarning() << "QtCoap: Block number" << blockNumber << "is too large."
                       " It should fit in 20 bits.";
@@ -484,7 +478,7 @@ void QCoapInternalRequest::restartTransmission()
     }
 
     if (d->timeout > 0)
-        d->timeoutTimer->start(d->timeout);
+        d->timeoutTimer->start(static_cast<int>(d->timeout));
 }
 
 /*!
@@ -592,7 +586,7 @@ bool QCoapInternalRequest::isMulticast() const
     \internal
     Returns the value of the retransmission counter.
 */
-int QCoapInternalRequest::retransmissionCounter() const
+uint QCoapInternalRequest::retransmissionCounter() const
 {
     Q_D(const QCoapInternalRequest);
     return d->retransmissionCounter;
@@ -656,7 +650,7 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
-    d->timeout = static_cast<int>(timeout);
+    d->timeout = timeout;
 }
 
 /*!
@@ -664,10 +658,10 @@ void QCoapInternalRequest::setTimeout(uint timeout)
     Sets the maximum transmission span for the request. If the request is
     not finished at the end of the transmission span, the request will timeout.
 */
-void QCoapInternalRequest::setMaxTransmissionWait(int duration)
+void QCoapInternalRequest::setMaxTransmissionWait(uint duration)
 {
     Q_D(QCoapInternalRequest);
-    d->maxTransmitWaitTimer->setInterval(duration);
+    d->maxTransmitWaitTimer->setInterval(static_cast<int>(duration));
 }
 
 /*!
