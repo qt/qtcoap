@@ -60,10 +60,10 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
 {
     Q_D(QCoapInternalRequest);
     d->timeoutTimer = new QTimer(this);
-    connect(d->timeoutTimer, &QTimer::timeout, [this]() { emit timeout(this); });
+    connect(d->timeoutTimer, &QTimer::timeout, this, [this]() { emit timeout(this); });
 
     d->maxTransmitWaitTimer = new QTimer(this);
-    connect(d->maxTransmitWaitTimer, &QTimer::timeout,
+    connect(d->maxTransmitWaitTimer, &QTimer::timeout, this,
             [this]() { emit maxTransmissionSpanReached(this); });
 
     d->multicastExpireTimer = new QTimer(this);
