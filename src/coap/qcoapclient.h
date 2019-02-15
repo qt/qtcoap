@@ -73,10 +73,8 @@ public:
     void cancelObserve(QCoapReply *notifiedReply);
     void cancelObserve(const QUrl &url);
 
-#if 0
-    //! TODO Add Multicast discovery in a later submission.
-    QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
-#endif
+    QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::AllCoapNodesIPv4,
+                                  const QString &discoveryPath = QLatin1String("/.well-known/core"));
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 

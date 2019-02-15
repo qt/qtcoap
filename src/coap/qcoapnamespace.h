@@ -115,6 +115,13 @@ public:
     };
     Q_ENUM(SecurityMode)
 
+    enum MulticastGroup {
+        AllCoapNodesIPv4,
+        AllCoapNodesIPv6LinkLocal,
+        AllCoapNodesIPv6SiteLocal
+    };
+    Q_ENUM(MulticastGroup)
+
     static bool isError(ResponseCode code)
     {
         return static_cast<int>(code) >= 0x80;

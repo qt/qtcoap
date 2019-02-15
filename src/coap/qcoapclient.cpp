@@ -188,6 +188,23 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \l{https://tools.ietf.org/html/rfc7959#section-2.9}{RFC 7959}.
 */
 /*!
+    \enum QtCoap::MulticastGroup
+
+    This enum represents CoAP multicast group addresses defined in
+    \l{https://tools.ietf.org/html/rfc7252#section-12.8}{RFC 7252}.
+
+    \value AllCoapNodesIPv4             IPv4  "All CoAP Nodes" address \e {224.0.1.187}, from
+                                        the "IPv4 Multicast Address Space Registry".
+
+    \value AllCoapNodesIPv6LinkLocal    IPv6 "All CoAP Nodes" link-local scoped address
+                                        \e {FF02::FD}, from the "IPv6 Multicast Address Space
+                                        Registry".
+
+    \value AllCoapNodesIPv6SiteLocal    IPv6 "All CoAP Nodes" site-local scoped address
+                                        \e {FF05::FD}, from the "IPv6 Multicast Address Space
+                                        Registry".
+*/
+/*!
     \class QtCoap
 
     Returns the QtCoap::Error corresponding to the \a code passed to this
@@ -537,6 +554,52 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 QCoapReply *QCoapClient::deleteResource(const QUrl &url)
 {
     return deleteResource(QCoapRequest(url));
+}
+
+/*!
+    \overload
+
+    Discovers the resources available at the endpoints which have joined
+    the \a group. Returns a new QCoapDiscoveryReply object which emits the
+    \l QCoapDiscoveryReply::discovered() signal whenever a response arrives.
+    The \a group is one of the CoAP multicast group addresses and defaults to
+    QtCoap::AllCoapNodesIPv4.
+
+    Discovery path defaults to "/.well-known/core", but can be changed
+    by passing a different path to \a discoveryPath. Discovery is described in
+    \l{https://tools.ietf.org/html/rfc6690#section-1.2.1}{RFC 6690}.
+
+    \sa get(), post(), put(), deleteResource(), observe()
+*/
+QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
+                                           const QString &discoveryPath)
+{
+    Q_D(QCoapClient);
+
+    QString base;
+    switch (group) {
+    case QtCoap::AllCoapNodesIPv4:
+        base = QStringLiteral("224.0.1.187");
+        break;
+    case QtCoap::AllCoapNodesIPv6LinkLocal:
+        base = QStringLiteral("ff02::fd");
+        break;
+    case QtCoap::AllCoapNodesIPv6SiteLocal:
+        base = QStringLiteral("ff05::fd");
+        break;
+    }
+
+    QUrl discoveryUrl;
+    discoveryUrl.setHost(base);
+    QString scheme = d->connection->isSecure() ? QStringLiteral("coaps") : QStringLiteral("coap");
+    discoveryUrl.setScheme(scheme);
+    discoveryUrl.setPath(discoveryPath);
+
+    QCoapRequest request(discoveryUrl);
+    request.setMethod(QtCoap::Get);
+    request.adjustUrl(d->connection->isSecure());
+
+    return d->sendDiscovery(request);
 }
 
 /*!

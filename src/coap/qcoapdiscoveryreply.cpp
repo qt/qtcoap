@@ -80,6 +80,18 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
 */
 
 /*!
+    \fn void QCoapDiscoveryReply::discovered(QCoapDiscoveryReply *reply,
+                                             QVector<QCoapResource> resources);
+
+    This signal is emitted whenever a CoAP resource is discovered.
+
+    The \a reply parameter contains a pointer to the reply that has just been
+    received, and \a resources contains a list of resources that were discovered.
+
+    \sa QCoapReply::finished()
+*/
+
+/*!
     Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
 */
 QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
