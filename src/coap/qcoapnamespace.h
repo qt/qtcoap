@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
     X(BadRequest, 0x80) X(Unauthorized, 0x81) X(BadOption, 0x82) X(Forbidden, 0x83)  \
     X(NotFound, 0x84) X(MethodNotAllowed, 0x85) X(NotAcceptable, 0x86) \
     X(RequestEntityIncomplete, 0x88) X(PreconditionFailed, 0x8C) X(RequestEntityTooLarge, 0x8D) \
-    X(UnsupportedContentFormat, 0x8E) X(InternalServerError, 0xA0) X(NotImplemented, 0xA1) \
+    X(UnsupportedContentFormat, 0x8E) X(InternalServerFault, 0xA0) X(NotImplemented, 0xA1) \
     X(BadGateway, 0xA2) X(ServiceUnavailable, 0xA3) X(GatewayTimeout, 0xA4) \
     X(ProxyingNotSupported, 0xA5)
 
