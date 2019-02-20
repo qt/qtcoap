@@ -129,7 +129,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (requestMessage->type() == QCoapMessage::Confirmable)
-        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
+        internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minTimeout(), maxTimeout()));
     else
         internalRequest->setTimeout(maxTimeout());
 
@@ -621,7 +621,7 @@ quint16 QCoapProtocolPrivate::generateUniqueMessageId() const
     // TODO: Store used message id for the period specified by CoAP spec
     quint16 id = 0;
     while (isMessageIdRegistered(id))
-        id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
+        id = static_cast<quint16>(QtCoap::randomGenerator().bounded(0x10000));
 
     return id;
 }
@@ -638,12 +638,12 @@ QCoapToken QCoapProtocolPrivate::generateUniqueToken() const
     QCoapToken token;
     while (isTokenRegistered(token)) {
         // TODO: Allow setting minimum token size as a security setting
-        quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
+        quint8 length = static_cast<quint8>(QtCoap::randomGenerator().bounded(1, 8));
 
         token.resize(length);
         quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
         for (int i = 0; i < token.size(); ++i)
-            tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
+            tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator().bounded(256));
     }
 
     return token;

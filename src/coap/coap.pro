@@ -44,6 +44,7 @@ SOURCES += \
     qcoapinternalreply.cpp \
     qcoapinternalrequest.cpp \
     qcoapmessage.cpp \
+    qcoapnamespace.cpp \
     qcoapoption.cpp \
     qcoapprotocol.cpp \
     qcoapqudpconnection.cpp \

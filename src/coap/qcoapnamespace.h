@@ -45,14 +45,10 @@ QT_BEGIN_NAMESPACE
     X(BadGateway, 0xA2) X(ServiceUnavailable, 0xA3) X(GatewayTimeout, 0xA4) \
     X(ProxyingNotSupported, 0xA5)
 
-class Q_COAP_EXPORT QtCoap : public QObject
+namespace QtCoap
 {
-    Q_OBJECT
+    Q_COAP_EXPORT Q_NAMESPACE
 
-private:
-    QtCoap() {}
-
-public:
     enum ResponseCode {
         EmptyMessage = 0x00,
         Created = 0x41, // 2.01
@@ -68,7 +64,7 @@ public:
 
         InvalidCode = 0xFF
     };
-    Q_ENUM(ResponseCode)
+    Q_ENUM_NS(ResponseCode)
 
     enum Error {
         NoError,
@@ -82,7 +78,7 @@ public:
 
         UnknownError
     };
-    Q_ENUM(Error)
+    Q_ENUM_NS(Error)
 
     enum Method {
         Invalid,
@@ -99,13 +95,13 @@ public:
 #endif
         Other
     };
-    Q_ENUM(Method)
+    Q_ENUM_NS(Method)
 
     enum Port {
         DefaultPort = 5683,
         DefaultSecurePort = 5684
     };
-    Q_ENUM(Port)
+    Q_ENUM_NS(Port)
 
     enum SecurityMode {
         NoSec = 0,
@@ -113,23 +109,19 @@ public:
         RawPublicKey,
         Certificate
     };
-    Q_ENUM(SecurityMode)
+    Q_ENUM_NS(SecurityMode)
 
     enum MulticastGroup {
         AllCoapNodesIPv4,
         AllCoapNodesIPv6LinkLocal,
         AllCoapNodesIPv6SiteLocal
     };
-    Q_ENUM(MulticastGroup)
+    Q_ENUM_NS(MulticastGroup)
 
-    static bool isError(ResponseCode code)
-    {
-        return static_cast<int>(code) >= 0x80;
-    }
-    static Error responseCodeError(ResponseCode code);
-
-    static QRandomGenerator randomGenerator;
-};
+    Q_COAP_EXPORT bool isError(ResponseCode code);
+    Q_COAP_EXPORT Error responseCodeError(ResponseCode code);
+    Q_COAP_EXPORT QRandomGenerator &randomGenerator();
+}
 
 QT_END_NAMESPACE
 
