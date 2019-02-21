@@ -41,6 +41,8 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapProtocol
+    \inmodule QtCoap
+
     \brief The QCoapProtocol class handles the logical part of the CoAP
     protocol.
 
@@ -52,6 +54,38 @@ QT_BEGIN_NAMESPACE
     lost messages.
 
     \sa QCoapClient
+*/
+
+/*!
+    \fn void QCoapProtocol::finished(QCoapReply *reply)
+
+    This signal is emitted along with the \l QCoapReply::finished() signal
+    whenever a CoAP reply is received, after either a success or an error.
+    The \a reply parameter will contain a pointer to the reply that has just
+    been received.
+
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
+    \fn void QCoapProtocol::responseToMulticastReceived(QCoapReply *reply,
+                                                        const QCoapMessage& message)
+
+    This signal is emitted when a unicast response to a multicast request
+    arrives. The \a reply parameter contains a pointer to the reply that has just
+    been received, and \a message contains the payload and the message details.
+
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
+    \fn void QCoapProtocol::error(QCoapReply *reply, QtCoap::Error error)
+
+    This signal is emitted whenever an error occurs. The \a reply parameter
+    can be \nullptr if the error is not related to a specific QCoapReply. The
+    \a error parameter contains the error code.
+
+    \sa finished(), QCoapReply::error(), QCoapReply::finished()
 */
 
 /*!
@@ -706,8 +740,9 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
 }
 
 /*!
-    Decodes the \a data to a list of QCoapResource objects.
-    The \a data byte array is a frame returned by a discovery request.
+    Decodes the \a data received from the \a sender to a list of QCoapResource
+    objects. The \a data byte array contains the frame returned by the
+    discovery request.
 */
 QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender,
                                                                 const QByteArray &data)

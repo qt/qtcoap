@@ -35,8 +35,8 @@
 QT_BEGIN_NAMESPACE
 
 /*!
-    \class QCoapReplyPrivate
-    \brief Class's constructor
+    \internal
+    Constructor.
 */
 QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
     request(req)
@@ -163,6 +163,8 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 
 /*!
     \class QCoapReply
+    \inmodule QtCoap
+
     \brief The QCoapReply class holds the data of a CoAP reply.
 
     \reentrant
@@ -170,12 +172,11 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     The QCoapReply contains data related to a request sent with the
     QCoapClient.
 
-    The \l{QCoapReply::finished(QCoapReply*)}{finished(QCoapReply*)} signal is
-    emitted when the response is fully received or when the request fails.
+    The finished() signal is emitted when the response is fully
+    received or when the request fails.
 
-    For Observe requests specifically, the
-    \l{QCoapReply::notified(QCoapReply*, const QByteArray&)}{notified(QCoapReply*, const QByteArray&)}
-    signal is emitted whenever a notification is received.
+    For \e Observe requests specifically, the notified() signal is emitted
+    whenever a notification is received.
 
     \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
 */
@@ -237,7 +238,8 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 */
 
 /*!
-    Constructs a QCoapReply object and sets \a parent as the parent object.
+    Constructs a new CoAP reply for the \a request and sets \a parent as
+    its parent.
 */
 QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
     QCoapReply(*new QCoapReplyPrivate(request), parent)
@@ -246,7 +248,7 @@ QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
 
 /*!
     \internal
-    Constructs a new QCoapReply with \a dd as the d_ptr.
+    Constructs a new CoAP reply with \a dd as the d_ptr.
     This constructor must be used when subclassing internally
     the QCoapReply class.
 */
@@ -257,7 +259,7 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject *parent) :
 }
 
 /*!
-    Destroys the QCoapReply object and aborts the request if its response has
+    Destroys the QCoapReply and aborts the request if its response has
     not yet been received.
 */
 QCoapReply::~QCoapReply()
@@ -328,8 +330,6 @@ QCoapMessage QCoapReply::message() const
 
 /*!
     Returns the associated request.
-
-    \sa setRequest()
 */
 QCoapRequest QCoapReply::request() const
 {

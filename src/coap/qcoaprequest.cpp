@@ -94,6 +94,8 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
 
 /*!
     \class QCoapRequest
+    \inmodule QtCoap
+
     \brief The QCoapRequest class holds a CoAP request. This request
     can be sent with QCoapClient.
 

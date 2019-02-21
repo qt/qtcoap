@@ -62,6 +62,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
 /*!
     \class QCoapClient
+    \inmodule QtCoap
+
     \brief The QCoapClient class allows the application to
     send CoAP requests and receive replies.
 
@@ -82,17 +84,16 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    \note After the request has finished, it is the responsibility of the user
-    to delete the QCoapReply object at an appropriate time. Do not directly
-    delete it inside the slot connected to finished(). You can use the
+    \note After processing of the request has finished, it is the responsibility
+    of the user to delete the QCoapReply object at an appropriate time. Do not
+    directly delete it inside the slot connected to finished(). You can use the
     deleteLater() function.
 
-    You can also use an "observe" request. This can be used as above, or more
-    conveniently with the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
-    signal:
+    You can also use an \e observe request. This can be used as above, or more
+    conveniently with the QCoapReply::notified() signal:
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
-        CoapReply *reply = client->observe(request);
+        QCoapReply *reply = client->observe(request);
         connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
     \endcode
 
@@ -101,7 +102,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->cancelObserve(reply);
     \endcode
 
-    When a reply arrives, the QCoapClient emits a finished(QCoapReply *) signal.
+    When a reply arrives, the QCoapClient emits a finished() signal.
 
     \note For a discovery request, the returned object is a QCoapDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
@@ -113,10 +114,10 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \fn void QCoapClient::finished(QCoapReply *reply)
 
-    This signal is emitted along with the \l{QCoapReply::finished()} signal
-    whenever a CoAP reply is finished, after either a success or an error.
+    This signal is emitted along with the \l QCoapReply::finished() signal
+    whenever a CoAP reply is received, after either a success or an error.
     The \a reply parameter will contain a pointer to the reply that has just
-    finished.
+    been received.
 
     \sa error(), QCoapReply::finished(), QCoapReply::error()
 */
@@ -136,7 +137,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \fn void QCoapClient::error(QCoapReply *reply, QtCoap::Error error)
 
     This signal is emitted whenever an error occurs. The \a reply parameter
-    can be null if the error is not related to a specific QCoapReply.
+    can be \nullptr if the error is not related to a specific QCoapReply. The
+    \a error parameter contains the error code.
 
     \sa finished(), QCoapReply::error(), QCoapReply::finished()
 */
@@ -441,7 +443,7 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
 /*!
     Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
-    \l{QCoapReply::discovered()}{discovered()} signal whenever the response
+    \l QCoapDiscoveryReply::discovered() signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed
@@ -466,8 +468,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 
 /*!
     Sends a request to observe the target \a request and returns
-    a new QCoapReply object which emits the
-    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    a new QCoapReply object which emits the \l QCoapReply::notified()
     signal whenever a new notification arrives.
 
     \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
@@ -490,8 +491,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
     \overload
 
     Sends a request to observe the target \a url and returns
-    a new QCoapReply object which emits the
-    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    a new QCoapReply object which emits the \l QCoapReply::notified()
     signal whenever a new notification arrives.
 
     \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
@@ -621,8 +621,9 @@ void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &con
 }
 
 /*!
-    Sets the maximum block size used by the protocol when sending requests
-    and receiving replies. The block size must be a power of two.
+    Sets the maximum block size used by the protocol to \a blockSize
+    when sending requests and receiving replies. The block size must be
+    a power of two.
 
     \sa QCoapProtocol::setBlockSize()
 */

@@ -35,11 +35,19 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapOption
+    \inmodule QtCoap
+
     \brief The QCoapOption class holds data about CoAP options.
 
     \reentrant
 
-    An option contains a name, related to an option id, and a value.
+    CoAP defines a number of options that can be included in a message.
+    Both requests and responses may include a list of one or more
+    options.  For example, the URI in a request is transported in several
+    options, and metadata that would be carried in an HTTP header in HTTP
+    is supplied as options as well.
+
+    An option contains a name, related to an option ID, and a value.
     The name is one of the values from the OptionName enumeration.
 */
 
@@ -52,29 +60,30 @@ QT_BEGIN_NAMESPACE
     \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} and
     \l{https://tools.ietf.org/html/rfc7959#section-2.1}{RFC 7959} for more details.
 
-    \value IfMatchCoapOption        If-Match
-    \value UriHostCoapOption        Uri-Host
-    \value EtagCoapOption           Etag
-    \value IfNoneMatchCoapOption    If-None-Match
-    \value ObserveCoapOption        Observe
-    \value UriPortCoapOption        Uri-Port
-    \value LocationPathCoapOption   Location-path
-    \value UriPathCoapOption        Uri-Path
-    \value ContentFormatCoapOption  Content-Format
-    \value MaxAgeCoapOption         Max-Age
-    \value UriQueryCoapOption       Uri-Query
-    \value AcceptCoapOption         Accept
-    \value LocationQueryCoapOption  Location-Query
-    \value Block2CoapOption         Block2
-    \value Block1CoapOption         Block1
-    \value Size2CoapOption          Size2
-    \value ProxyUriCoapOption       Proxy-Uri
-    \value ProxySchemeCoapOption    Proxy-Scheme
-    \value Size1CoapOption          Size1
+    \value Invalid                  An invalid option.
+    \value IfMatch                  If-Match option.
+    \value UriHost                  Uri-Host option.
+    \value Etag                     Etag option.
+    \value IfNoneMatch              If-None-Match option.
+    \value Observe                  Observe option.
+    \value UriPort                  Uri-Port option.
+    \value LocationPath             Location-path option.
+    \value UriPath                  Uri-Path option.
+    \value ContentFormat            Content-Format option.
+    \value MaxAge                   Max-Age option.
+    \value UriQuery                 Uri-Query option.
+    \value Accept                   Accept option.
+    \value LocationQuery            Location-Query option.
+    \value Block2                   Block2 option.
+    \value Block1                   Block1 option.
+    \value Size2                    Size2 option.
+    \value ProxyUri                 Proxy-Uri option.
+    \value ProxyScheme              Proxy-Scheme option.
+    \value Size1                    Size1 option.
 */
 
 /*!
-    Constructs a QCoapOption object with the given \a name
+    Constructs a new CoAP option with the given \a name
     and QByteArray \a value.
     If no parameters are passed, constructs an Invalid object.
 
@@ -89,7 +98,7 @@ QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
 }
 
 /*!
-    Constructs a QCoapOption object with the given \a name
+    Constructs a new CoAP option with the given \a name
     and the QStringView \a value.
 
     \sa isValid()
@@ -103,7 +112,7 @@ QCoapOption::QCoapOption(OptionName name, QStringView value) :
 }
 
 /*!
-    Constructs a QCoapOption object with the given \a name
+    Constructs a new CoAP option with the given \a name
     and the string \a value.
 
     \sa isValid()
@@ -117,7 +126,7 @@ QCoapOption::QCoapOption(OptionName name, const char *value) :
 }
 
 /*!
-    Constructs a QCoapOption object with the given \a name
+    Constructs a new CoAP option with the given \a name
     and the unsigned integer \a value.
 
     \sa isValid()
@@ -131,7 +140,8 @@ QCoapOption::QCoapOption(OptionName name, quint32 value) :
 }
 
 /*!
-    Constructs a QCoapOption object by copy from an \a other QCoapOption.
+    Constructs a new CoAP option as a copy of \a other, making the two
+    options identical.
 
     \sa isValid()
  */
@@ -141,7 +151,8 @@ QCoapOption::QCoapOption(const QCoapOption &other) :
 }
 
 /*!
-    QCoapOption move constructor.
+    Move-constructs a QCoapOption, making it point to the same object
+    as \a other was pointing to.
  */
 QCoapOption::QCoapOption(QCoapOption &&other) :
     d_ptr(other.d_ptr)
@@ -150,7 +161,7 @@ QCoapOption::QCoapOption(QCoapOption &&other) :
 }
 
 /*!
-    Destroys QCoapOption object.
+    Destroys the QCoapOption object.
  */
 QCoapOption::~QCoapOption()
 {
@@ -158,7 +169,8 @@ QCoapOption::~QCoapOption()
 }
 
 /*!
-    Assignment operator.
+    Copies \a other into this option, making the two options identical.
+    Returns a reference to this QCoapOption.
  */
 QCoapOption &QCoapOption::operator=(const QCoapOption &other)
 {
@@ -168,7 +180,7 @@ QCoapOption &QCoapOption::operator=(const QCoapOption &other)
 }
 
 /*!
-    Move assignment operator.
+    Move-assignment operator.
  */
 QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
 {
@@ -177,7 +189,7 @@ QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
 }
 
 /*!
-    Swap object with another.
+    Swaps this option with \a other. This operation is very fast and never fails.
  */
 void QCoapOption::swap(QCoapOption &other) Q_DECL_NOTHROW
 {

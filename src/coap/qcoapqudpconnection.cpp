@@ -43,7 +43,10 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapQUdpConnection
-    \brief A QCoapQUdpConnection transfers frames to and from a server.
+    \inmodule QtCoap
+
+    \brief The QCoapQUdpConnection class handles the transfer of frames to
+    and from a server.
 
     \reentrant
 

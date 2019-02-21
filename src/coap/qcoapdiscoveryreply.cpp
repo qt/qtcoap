@@ -66,15 +66,20 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
 
 /*!
     \class QCoapDiscoveryReply
-    \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
-    list of QCoapResources.
+    \inmodule QtCoap
+
+    \brief The QCoapDiscoveryReply class holds the data of a CoAP reply
+    for a resource discovery request.
 
     \reentrant
 
-    This class is used for discovery requests, and emits the discovered()
+    This class is used for discovery requests. It emits the discovered()
     signal if and when resources are discovered. When using a multicast
     address for discovery, the discovered() signal will be emitted once
     for each response received.
+
+    \note A QCoapDiscoveryReply is a QCoapReply that stores also a list
+    of QCoapResources.
 
     \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
 */
@@ -92,7 +97,8 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
 */
 
 /*!
-    Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
+    Constructs a new CoAP discovery reply from the \a request and sets \a parent
+    as its parent.
 */
 QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
     QCoapReply(*new QCoapDiscoveryReplyPrivate(request), parent)

@@ -50,6 +50,8 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 
 /*!
     \class QCoapMessage
+    \inmodule QtCoap
+
     \brief The QCoapMessage class holds information about a CoAP message that
     can be a request or a reply.
 
@@ -62,23 +64,29 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 */
 
 /*!
-    \enum QCoapMessage::QCoapMessageType
+    \enum QCoapMessage::MessageType
 
     Indicates the type of the message.
 
-    \value ConfirmableCoapMessage       A Confirmable message. The destination
+    \value Confirmable                  A Confirmable message. The destination
                                         endpoint needs to acknowledge the
                                         message.
-    \value NonConfirmableCoapMessage    A Non-Confirmable message. The
+    \value NonConfirmable               A Non-Confirmable message. The
                                         destination endpoint does not need to
                                         acknowledge the message.
-    \value AcknowledgmentCoapMessage    An Acknowledgment message. A message
+    \value Acknowledgment               An Acknowledgment message. A message
                                         sent or received in reply to a
                                         Confirmable message.
-    \value ResetCoapMessage             A Reset message. A message sent
-                                        sometimes in case of errors or to stop
-                                        transmissions. (For example, it is used
+    \value Reset                        A Reset message. This message type is used
+                                        in case of errors or to stop the ongoing
+                                        transmission. (For example, it is used
                                         to cancel an observation).
+*/
+
+/*!
+    \fn void QCoapMessage::swap(QCoapMessage &other)
+
+    Swaps this message with \a other. This operation is very fast and never fails.
 */
 
 /*!
@@ -276,7 +284,8 @@ QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::Optio
 }
 
 /*!
-    Returns \c true if option is present at least once.
+    Returns \c true if the message contains at last one option
+    with \a name.
 */
 bool QCoapMessage::hasOption(QCoapOption::OptionName name) const
 {
@@ -318,7 +327,7 @@ int QCoapMessage::optionCount() const
 }
 
 /*!
-    Sets the CoAP version.
+    Sets the CoAP version to \a version.
 
     \sa version()
 */
@@ -329,7 +338,7 @@ void QCoapMessage::setVersion(quint8 version)
 }
 
 /*!
-    Sets the message type.
+    Sets the message type to \a type.
 
     \sa type()
 */
@@ -340,7 +349,7 @@ void QCoapMessage::setType(const MessageType &type)
 }
 
 /*!
-    Sets the token.
+    Sets the message token to \a token.
 
     \sa token()
 */
@@ -351,7 +360,7 @@ void QCoapMessage::setToken(const QByteArray &token)
 }
 
 /*!
-    Sets the message id.
+    Sets the message ID to \a id.
 
     \sa messageId()
 */
@@ -362,7 +371,7 @@ void QCoapMessage::setMessageId(quint16 id)
 }
 
 /*!
-    Sets the payload.
+    Sets the message payload to \a payload.
 
     \sa payload()
 */
@@ -378,7 +387,7 @@ void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
 }
 
 /*!
-    Move assignment operator.
+    Move-assignment operator.
  */
 QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
 {
@@ -387,7 +396,8 @@ QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
 }
 
 /*!
-    Assignment operator.
+    Copies the contents of \a other into this message.
+    Returns a reference to this QCoapMessage.
  */
 QCoapMessage &QCoapMessage::operator=(const QCoapMessage &other)
 {

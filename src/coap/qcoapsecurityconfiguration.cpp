@@ -59,9 +59,20 @@ public:
 
 /*!
     \class QCoapPrivateKey
+    \inmodule QtCoap
 
-    The QCoapPrivateKey class provides an interface for private keys used
-    for CoAP security.
+    \brief The QCoapPrivateKey class provides an interface for managing
+    CoAP security keys.
+
+    A QCoapPrivateKey packages a private key used in negotiating CoAP connections
+    securely. It holds the information required for authentication using
+    \c pre-shared keys and X.509 certificates.
+*/
+
+/*!
+    \fn void QCoapPrivateKey::swap(QCoapPrivateKey &other)
+
+    Swaps this private key with \a other. This operation is very fast and never fails.
 */
 
 /*!
@@ -109,7 +120,8 @@ QCoapPrivateKey::QCoapPrivateKey(const QCoapPrivateKey &other)
 }
 
 /*!
-    Move-constructs a QCoapPrivateKey.
+    Move-constructs a QCoapPrivateKey, making it point to the same
+    object as \a other was pointing to.
 */
 QCoapPrivateKey::QCoapPrivateKey(QCoapPrivateKey &&other) Q_DECL_NOTHROW
     : d(other.d)
@@ -186,11 +198,21 @@ QByteArray QCoapPrivateKey::passPhrase() const
 
 /*!
     \class QCoapSecurityConfiguration
+    \inmodule QtCoap
+
     \brief The QCoapSecurityConfiguration class holds configuration
     options during the authentication process.
 
     It holds information such as client identity, pre shared key, information
-    about certificates and so on.
+    about certificates, and so on.
+*/
+
+
+/*!
+    \fn void QCoapSecurityConfiguration::swap(QCoapSecurityConfiguration &other)
+
+    Swaps this security configuration with \a other. This operation is very fast
+    and never fails.
 */
 
 /*!
@@ -211,7 +233,7 @@ QCoapSecurityConfiguration::QCoapSecurityConfiguration(const QCoapSecurityConfig
 
 /*!
     Move-constructs a QCoapSecurityConfiguration, making it point to the same
-    object that \a other was pointing to.
+    object as \a other was pointing to.
 */
 QCoapSecurityConfiguration::QCoapSecurityConfiguration(
         QCoapSecurityConfiguration &&other) Q_DECL_NOTHROW
@@ -340,7 +362,7 @@ void QCoapSecurityConfiguration::setLocalCertificateChain(const QVector<QSslCert
 /*!
     Returns the certificate chain to be presented to the peer during the handshake.
 
-    \sa setLocalCertificate()
+    \sa setLocalCertificateChain()
 */
 QVector<QSslCertificate> QCoapSecurityConfiguration::localCertificateChain() const
 {
@@ -350,7 +372,7 @@ QVector<QSslCertificate> QCoapSecurityConfiguration::localCertificateChain() con
 /*!
     Sets the connection's private key to \a key.
 
-    \sa privateKey(), setLocalCertificate()
+    \sa privateKey(), setLocalCertificateChain()
 */
 void QCoapSecurityConfiguration::setPrivateKey(const QCoapPrivateKey &key)
 {
@@ -360,7 +382,7 @@ void QCoapSecurityConfiguration::setPrivateKey(const QCoapPrivateKey &key)
 /*!
     Returns the private key assigned to the connection.
 
-    \sa setPrivateKey(), localCertificate()
+    \sa setPrivateKey(), localCertificateChain()
 */
 QCoapPrivateKey QCoapSecurityConfiguration::privateKey() const
 {

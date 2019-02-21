@@ -33,12 +33,26 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapConnection
+    \inmodule QtCoap
 
     \brief The QCoapConnection class defines an interface for
     handling transfers of frames to a server.
 
     It isolates CoAP clients from the transport in use, so that any
     client can be used with any supported transport.
+*/
+
+/*!
+    \enum QCoapConnection::ConnectionState
+
+    This enum specifies the state of the underlying transport.
+
+    \value Unconnected      The underlying transport is not yet ready for data transmission.
+
+    \value Bound            The underlying transport is ready for data transmission. For example,
+                            if QUdpSocket is used for the transport, this corresponds to
+                            QAbstractSocket::BoundState.
+    \sa state(), bound()
 */
 
 /*!
@@ -52,7 +66,7 @@ QT_BEGIN_NAMESPACE
     \fn void QCoapConnection::readyRead(const QByteArray &data, const QHostAddress &sender)
 
     This signal is emitted when a network reply is available. The \a data
-    parameter supplies the received data, and the \sender parameter supplies
+    parameter supplies the received data, and the \a sender parameter supplies
     the sender address.
 */
 
@@ -97,7 +111,8 @@ QCoapConnectionPrivate::QCoapConnectionPrivate(QtCoap::SecurityMode security)
 {}
 
 /*!
-    Constructs a new QCoapConnection object and sets \a parent as the parent object.
+    Constructs a new CoAP connection for the given \a securityMode and
+    sets \a parent as its parent.
 */
 QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *parent)
     : QCoapConnection(*new QCoapConnectionPrivate(securityMode), parent)
@@ -107,7 +122,7 @@ QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *par
 /*!
     \internal
 
-    Constructs a new QCoapConnection as a child of \a parent, with \a dd
+    Constructs a new new CoAP connection as a child of \a parent, with \a dd
     as its \c d_ptr. This constructor must be used when internally subclassing
     the QCoapConnection class.
 */
