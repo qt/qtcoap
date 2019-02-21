@@ -138,103 +138,76 @@ QT_BEGIN_NAMESPACE
 /*!
     \enum QtCoap::Error
 
-    Indicates and error condition found during the processing of the request.
+    Indicates the error condition found during processing of the request.
 
-    \value NoError                  No error condition.
+    \value NoError                          No error condition.
 
-    \value HostNotFoundError        The remote host name was not found.
+    \value HostNotFoundError                The remote host name was not found.
 
-    \value AddressInUseError        The address is already in use.
+    \value AddressInUseError                The address is already in use.
 
-    \value TimeOutError             The response did not arrive in time.
+    \value TimeOutError                     The response did not arrive in time.
 
-    \value BadRequestError          The request was not recognized.
+    \value BadRequestError                  The request was not recognized.
 
-    \value Unauthorized             The client is not authorized to perform
-                                    the requested action.
+    \value UnauthorizedError                The client is not authorized to perform
+                                            the requested action.
 
-    \value BadOption                The request could not be understood by
-                                    the server due to one or more unrecognized
-                                    or malformed options.
+    \value BadOptionError                   The request could not be understood by
+                                            the server due to one or more unrecognized
+                                            or malformed options.
 
-    \value Forbidden                The access to this resource is forbidden.
-                                    This Response Code is like HTTP 403
-                                    "Forbidden".
+    \value ForbiddenError                   Access to this resource is forbidden.
 
-    \value NotFound                 The resource requested was not found.
-                                    This Response Code is like HTTP 404
-                                    "Not Found".
+    \value NotFoundError                    The resource requested was not found.
 
-    \value MethodNotAllowed         The method used is not allowed by the server.
-                                    This Response Code is like HTTP 405
-                                    "Method Not Allowed" but with no parallel
-                                    to the "Allow" header field.
+    \value MethodNotAllowedError            The server does not allow the method used
+                                            for the URL requested.
 
-    \value NotAcceptable            No resource satisfying the request's acceptance
-                                    criteria was found.
-                                    This Response Code is like HTTP 406
-                                    "Not Acceptable", but with no response entity.
+    \value NotAcceptableError               No resource satisfying the request's acceptance
+                                            criteria was found.
 
-    \value RequestEntityIncomplete  The server has not received the blocks of
-                                    the request body that it needs to proceed.
-                                    The client has not sent all blocks,
-                                    not sent them in the order required by the
-                                    server, or has sent them long enough ago
-                                    that the server has already discarded them.
+    \value RequestEntityIncompleteError     The server has not received the blocks of
+                                            the request body that it needs to proceed.
+                                            The client has not sent all blocks,
+                                            has not sent them in the order required by the
+                                            server, or sent them long enough ago
+                                            that the server has already discarded them.
 
-    \value PreconditionFailed       One or more conditions given in the request
-                                    header fields evaluated to false when tested
-                                    on the server.
-                                    This Response Code is like HTTP 412
-                                    "Precondition Failed".
+    \value PreconditionFailedError          One or more conditions given in the request
+                                            header fields evaluated to false when tested
+                                            on the server.
 
-    \value RequestEntityTooLarge    The request payload is larger than the
-                                    server is willing or able to process.
-                                    This Response Code is like HTTP 413
-                                    "Request Entity Too Large".
+    \value RequestEntityTooLargeError       The request payload is larger than the
+                                            server is willing or able to process.
 
-    \value UnsupportedContentFormat The payload is in a format not supported
-                                    by this method on the target resource.
-                                    This Response Code is like HTTP 415
-                                    "Unsupported Media Type".
+    \value UnsupportedContentFormatError    The payload is in a format not supported
+                                            by this method on the target resource.
 
-    \value InternalServerError      The server encountered an unexpected
-                                    condition that prevented it from
-                                    fulfilling the request.
-                                    This Response Code is like HTTP 500
-                                    "Internal Server Error".
+    \value InternalServerFaultError         The server encountered an unexpected
+                                            condition that prevented it from
+                                            fulfilling the request.
 
-    \value NotImplemented           The server does not support the
-                                    functionality required to fulfill the
-                                    request.
-                                    This Response Code is like HTTP 501
-                                    "Not Implemented".
+    \value NotImplementedError              The server does not support the
+                                            functionality required to fulfill the
+                                            request.
 
-    \value BadGateway               An error occurred with an upstream
-                                    server.
-                                    This Response Code is like HTTP 502
-                                    "Bad Gateway".
+    \value BadGatewayError                  An error occurred with an upstream
+                                            server.
 
-    \value ServiceUnavailable       Indicates that the service is currently
-                                    Unavailable.
-                                    This Response Code is like HTTP 503
-                                    "Service Unavailable".
+    \value ServiceUnavailableError          The service is currently unavailable.
 
-    \value GatewayTimeout           The server, while acting as a gateway
-                                    or proxy, did not receive a timely
-                                    response from an upstream server it needed
-                                    to access in order to complete the request.
-                                    This Response Code is like HTTP 504
-                                    "Gateway Timeout".
+    \value GatewayTimeoutError              The server, while acting as a gateway
+                                            or proxy, did not receive a timely
+                                            response from an upstream server it needed
+                                            to access in order to complete the request.
 
-    \value ProxyingNotSupported     The server is unable or unwilling to act
-                                    as a forward-proxy for the URI specified
-                                    in the Proxy-Uri Option or using
-                                    Proxy-Scheme.
+    \value ProxyingNotSupportedError        The server is unable or unwilling to act
+                                            as a forward-proxy for the URI specified
+                                            in the Proxy-Uri Option or using the scheme
+                                            specified in Proxy-Scheme.
 
-    \value UnknownError             An unknown error occurred.
-
-    \sa error()
+    \value UnknownError                     An unknown error occurred.
 */
 
 /*!
