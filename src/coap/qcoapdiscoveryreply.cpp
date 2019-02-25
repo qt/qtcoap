@@ -58,7 +58,7 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
     if (QtCoap::isError(responseCode)) {
         _q_setError(responseCode);
     } else {
-        auto res = QCoapProtocol::resourcesFromCoreLinkList(sender, message.payload());
+        auto res = QCoapDiscoveryReply::resourcesFromCoreLinkList(sender, message.payload());
         resources.append(res);
         emit q->discovered(q, res);
     }
@@ -112,6 +112,49 @@ QVector<QCoapResource> QCoapDiscoveryReply::resources() const
 {
     Q_D(const QCoapDiscoveryReply);
     return d->resources;
+}
+
+/*!
+    Decodes the \a data received from the \a sender to a list of QCoapResource
+    objects. The \a data byte array contains the frame returned by the
+    discovery request.
+*/
+QVector<QCoapResource>
+QCoapDiscoveryReply::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
+{
+    QVector<QCoapResource> resourceList;
+
+    QLatin1String quote = QLatin1String("\"");
+    const QList<QByteArray> links = data.split(',');
+    for (QByteArray link : links) {
+        QCoapResource resource;
+        resource.setHost(sender);
+
+        const QList<QByteArray> parameterList = link.split(';');
+        for (QByteArray parameter : parameterList) {
+            QString parameterString = QString::fromUtf8(parameter);
+            int length = parameterString.length();
+            if (parameter.startsWith('<'))
+                resource.setPath(parameterString.mid(1, length - 2));
+            else if (parameter.startsWith("title="))
+                resource.setTitle(parameterString.mid(6).remove(quote));
+            else if (parameter.startsWith("rt="))
+                resource.setResourceType(parameterString.mid(3).remove(quote));
+            else if (parameter.startsWith("if="))
+                resource.setInterface(parameterString.mid(3).remove(quote));
+            else if (parameter.startsWith("sz="))
+                resource.setMaximumSize(parameterString.mid(3).remove(quote).toInt());
+            else if (parameter.startsWith("ct="))
+                resource.setContentFormat(parameterString.mid(3).remove(quote).toUInt());
+            else if (parameter == "obs")
+                resource.setObservable(true);
+        }
+
+        if (!resource.path().isEmpty())
+            resourceList.push_back(resource);
+    }
+
+    return resourceList;
 }
 
 QT_END_NAMESPACE

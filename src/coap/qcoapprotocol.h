@@ -65,9 +65,6 @@ public:
     uint nonConfirmLifetime() const;
     uint maxServerResponseDelay() const;
 
-    static QVector<QCoapResource> resourcesFromCoreLinkList(
-            const QHostAddress &sender, const QByteArray &data);
-
 Q_SIGNALS:
     void finished(QCoapReply *reply);
     void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage& message);

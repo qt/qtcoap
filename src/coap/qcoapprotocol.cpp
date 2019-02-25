@@ -740,49 +740,6 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
 }
 
 /*!
-    Decodes the \a data received from the \a sender to a list of QCoapResource
-    objects. The \a data byte array contains the frame returned by the
-    discovery request.
-*/
-QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender,
-                                                                const QByteArray &data)
-{
-    QVector<QCoapResource> resourceList;
-
-    QLatin1String quote = QLatin1String("\"");
-    const QList<QByteArray> links = data.split(',');
-    for (QByteArray link : links) {
-        QCoapResource resource;
-        resource.setHost(sender);
-
-        const QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : parameterList) {
-            QString parameterString = QString::fromUtf8(parameter);
-            int length = parameterString.length();
-            if (parameter.startsWith('<'))
-                resource.setPath(parameterString.mid(1, length - 2));
-            else if (parameter.startsWith("title="))
-                resource.setTitle(parameterString.mid(6).remove(quote));
-            else if (parameter.startsWith("rt="))
-                resource.setResourceType(parameterString.mid(3).remove(quote));
-            else if (parameter.startsWith("if="))
-                resource.setInterface(parameterString.mid(3).remove(quote));
-            else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(parameterString.mid(3).remove(quote).toInt());
-            else if (parameter.startsWith("ct="))
-                resource.setContentFormat(parameterString.mid(3).remove(quote).toUInt());
-            else if (parameter == "obs")
-                resource.setObservable(true);
-        }
-
-        if (!resource.path().isEmpty())
-            resourceList.push_back(resource);
-    }
-
-    return resourceList;
-}
-
-/*!
     \internal
 
     Registers a new CoAP exchange using \a token.
