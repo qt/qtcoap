@@ -295,10 +295,13 @@ QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
 
     QUrl finalizedUrl = url;
     const auto scheme = secure ? CoapSecureScheme : CoapScheme;
-    if (url.isRelative())
+    if (url.host().isEmpty() && url.isRelative()) {
+        // In some cases host address is mistaken for part of the relative path,
+        // prepending the scheme fixes this.
         finalizedUrl = url.toString().prepend(scheme + QLatin1String("://"));
-    else if (url.scheme().isEmpty())
+    } else if (url.scheme().isEmpty()) {
         finalizedUrl.setScheme(scheme);
+    }
 
     if (url.port() == -1) {
         const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;

@@ -429,8 +429,6 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
 
     QUrl discoveryUrl;
     discoveryUrl.setHost(base);
-    QString scheme = d->connection->isSecure() ? QStringLiteral("coaps") : QStringLiteral("coap");
-    discoveryUrl.setScheme(scheme);
     discoveryUrl.setPath(discoveryPath);
 
     QCoapRequest request(discoveryUrl);

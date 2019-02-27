@@ -88,6 +88,14 @@ void tst_QCoapRequest::adjustUrl_data()
                                        << QUrl("coap://vs0.inf.ethz.ch:5683/test") << false;
     QTest::newRow("no_scheme_no_port_secure") << QUrl("vs0.inf.ethz.ch/test")
                                               << QUrl("coaps://vs0.inf.ethz.ch:5684/test") << true;
+
+    QUrl ipv6Host;
+    ipv6Host.setHost("::1");
+    ipv6Host.setPath("/path");
+    QTest::newRow("no_scheme_no_port_ipv6") << ipv6Host << QUrl("coap://[::1]:5683/path")
+                                            << false;
+    QTest::newRow("no_scheme_no_port_ipv6_secure") << ipv6Host << QUrl("coaps://[::1]:5684/path")
+                                                   << true;
 }
 
 void tst_QCoapRequest::adjustUrl()
