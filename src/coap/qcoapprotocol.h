@@ -67,7 +67,8 @@ public:
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
-    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage& message);
+    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage& message,
+                                     const QHostAddress &sender);
     void error(QCoapReply *reply, QtCoap::Error error);
 
 public Q_SLOTS:

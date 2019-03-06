@@ -62,7 +62,8 @@ public Q_SLOTS:
     void onFinished(QCoapReply *reply);
     void onNotified(QCoapReply *reply, QCoapMessage message);
     void onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
-    void onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message);
+    void onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message,
+                               const QHostAddress &sender);
     void onError(QCoapReply *reply, QtCoap::Error error);
 
 private:

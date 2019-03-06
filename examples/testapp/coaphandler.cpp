@@ -110,10 +110,12 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
         qDebug() << "Discovered resource: " << res.path() << res.title();
 }
 
-void CoapHandler::onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message)
+void CoapHandler::onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message,
+                                        const QHostAddress &sender)
 {
     if (reply->errorReceived() == QtCoap::NoError)
-        qDebug() << "Got a response for multicast request: " << message.payload();
+        qDebug() << "Got a response for multicast request from:" << sender.toString()
+                 << "with payload:" << message.payload();
     else
         qDebug() << "Multicast request failed";
 }

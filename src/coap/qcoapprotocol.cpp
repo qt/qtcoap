@@ -69,11 +69,13 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \fn void QCoapProtocol::responseToMulticastReceived(QCoapReply *reply,
-                                                        const QCoapMessage& message)
+                                                        const QCoapMessage& message,
+                                                        const QHostAddress &sender)
 
     This signal is emitted when a unicast response to a multicast request
     arrives. The \a reply parameter contains a pointer to the reply that has just
-    been received, and \a message contains the payload and the message details.
+    been received, \a message contains the payload and the message details,
+    and \a sender contains the sender address.
 
     \sa error(), QCoapReply::finished(), QCoapReply::error()
 */
@@ -547,7 +549,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
         forgetExchangeReplies(request->token());
     } else if (request->isMulticast()) {
         Q_Q(QCoapProtocol);
-        emit q->responseToMulticastReceived(userReply, *lastReply->message());
+        emit q->responseToMulticastReceived(userReply, *lastReply->message(), sender);
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
                                   Q_ARG(QtCoap::Error, QtCoap::NoError));

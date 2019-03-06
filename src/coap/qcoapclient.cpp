@@ -124,11 +124,13 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
 /*!
     \fn void QCoapClient::responseToMulticastReceived(QCoapReply *reply,
-                                                      const QCoapMessage& message)
+                                                      const QCoapMessage& message,
+                                                      const QHostAddress &sender)
 
     This signal is emitted when a unicast response to a multicast request
     arrives. The \a reply parameter contains a pointer to the reply that has just
-    been received, and \a message contains the payload and the message details.
+    been received, \a message contains the payload and the message details,
+    and \a sender contains the sender address.
 
     \sa error(), QCoapReply::finished(), QCoapReply::error()
 */
