@@ -53,6 +53,12 @@ private Q_SLOTS:
     void isMulticast();
 };
 
+struct QCoapRequestForTest : public QCoapRequest
+{
+    QCoapRequestForTest(const QUrl& url) : QCoapRequest(url) {}
+    using QCoapRequest::setMethod;
+};
+
 void tst_QCoapInternalRequest::requestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
@@ -147,7 +153,7 @@ void tst_QCoapInternalRequest::requestToFrame()
     QFETCH(QString, pduHeader);
     QFETCH(QString, pduPayload);
 
-    QCoapRequest request(url);
+    QCoapRequestForTest request(url);
     request.setType(type);
     request.setMethod(method);
     request.setPayload(pduPayload.toUtf8());

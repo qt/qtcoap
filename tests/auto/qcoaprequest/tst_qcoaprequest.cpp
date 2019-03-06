@@ -46,10 +46,13 @@ private Q_SLOTS:
     void adjustUrl();
     void setUrl_data();
     void setUrl();
-    void setMethod_data();
-    void setMethod();
     void enableObserve();
     void copyAndDetach();
+};
+
+struct QCoapRequestForTest : public QCoapRequest
+{
+    using QCoapRequest::setMethod;
 };
 
 void tst_QCoapRequest::ctor_data()
@@ -141,26 +144,6 @@ void tst_QCoapRequest::setUrl()
     QCOMPARE(request.url(), expectedUrl);
 }
 
-void tst_QCoapRequest::setMethod_data()
-{
-    QTest::addColumn<QtCoap::Method>("method");
-
-    QTest::newRow("get") << QtCoap::Get;
-    QTest::newRow("put") << QtCoap::Put;
-    QTest::newRow("post") << QtCoap::Post;
-    QTest::newRow("delete") << QtCoap::Delete;
-    QTest::newRow("other") << QtCoap::Other;
-}
-
-void tst_QCoapRequest::setMethod()
-{
-    QFETCH(QtCoap::Method, method);
-
-    QCoapRequest request;
-    request.setMethod(method);
-    QCOMPARE(request.method(), method);
-}
-
 void tst_QCoapRequest::enableObserve()
 {
     QCoapRequest request;
@@ -173,7 +156,7 @@ void tst_QCoapRequest::enableObserve()
 
 void tst_QCoapRequest::copyAndDetach()
 {
-    QCoapRequest a;
+    QCoapRequestForTest a;
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");

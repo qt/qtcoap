@@ -125,14 +125,23 @@ QCoapRequest::QCoapRequest(const char *url, MessageType type) :
 }
 
 /*!
-    Constructs a copy of the \a other QCoapRequest. Optionally allows to
-    overwrite the QtCoap::Method of the request with the \a method
-    argument.
+    Constructs a copy of the \a other QCoapRequest.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(*new QCoapRequestPrivate(*other.d_func()))
+{
+}
+
+/*!
+    \internal
+
+    Constructs a copy of the \a other QCoapRequest and sets the request
+    method to \a method.
+*/
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
+    QCoapRequest(other)
 {
     if (method != QtCoap::Invalid)
         setMethod(method);
@@ -170,8 +179,6 @@ QUrl QCoapRequest::proxyUrl() const
 
 /*!
     Returns the method of the request.
-
-    \sa setMethod()
 */
 QtCoap::Method QCoapRequest::method() const
 {
@@ -215,6 +222,8 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 }
 
 /*!
+    \internal
+
     Sets the method of the request to the given \a method.
 
     \sa method()

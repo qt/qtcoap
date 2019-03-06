@@ -226,23 +226,15 @@ void tst_QCoapClient::methods_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
 
-    QTest::newRow("get_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Get;
-    QTest::newRow("get_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Put;
     QTest::newRow("get_no_port")
                 << QUrl("coap://" + testServerHost() + "/test") << QtCoap::Get;
     QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Get;
-    QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
-    QTest::newRow("post_incorrect_op")      << QUrl(testServerResource()) << QtCoap::Delete;
     QTest::newRow("post_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Post;
-    QTest::newRow("put_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("put")                    << QUrl(testServerResource()) << QtCoap::Put;
-    QTest::newRow("put_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Post;
     QTest::newRow("put_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Put;
-    QTest::newRow("delete_no_op")           << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("delete")                 << QUrl(testServerResource()) << QtCoap::Delete;
-    QTest::newRow("delete_incorrect_op")    << QUrl(testServerResource()) << QtCoap::Get;
     QTest::newRow("delete_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Delete;
 }
 
@@ -252,10 +244,7 @@ void tst_QCoapClient::methods()
     QFETCH(QtCoap::Method, method);
 
     QCoapClient client;
-
     QCoapRequest request(url);
-    if (method != QtCoap::Invalid)
-        request.setMethod(method);
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
@@ -299,6 +288,7 @@ void tst_QCoapClient::methods()
             QFAIL(qPrintable(error));
         }
     }
+    QCOMPARE(reply->request().method(), method);
 }
 
 void tst_QCoapClient::separateMethod()
@@ -696,6 +686,7 @@ void tst_QCoapClient::discover()
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
     QCOMPARE(resourcesReply->url(), QCoapRequest::adjustedUrl(discoverUrl, false));
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
+    QCOMPARE(resourcesReply->request().method(), QtCoap::Get);
 
     //! TODO Test discovery content too
 }
@@ -760,6 +751,7 @@ void tst_QCoapClient::observe()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
     QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
+    QCOMPARE(reply->request().method(), QtCoap::Get);
 
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
     QCOMPARE(spyReplyFinished.count(), 1);

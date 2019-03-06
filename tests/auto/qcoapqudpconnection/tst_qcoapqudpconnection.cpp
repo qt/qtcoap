@@ -45,6 +45,12 @@
 
 using namespace QtCoapNetworkSettings;
 
+struct QCoapRequestForTest : public QCoapRequest
+{
+    QCoapRequestForTest(const QUrl &url) : QCoapRequest(url) {}
+    using QCoapRequest::setMethod;
+};
+
 class tst_QCoapQUdpConnection : public QObject
 {
     Q_OBJECT
@@ -160,7 +166,7 @@ void tst_QCoapQUdpConnection::sendRequest()
     QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
     QSignalSpy spyConnectionReadyRead(&connection, &QCoapQUdpConnection::readyRead);
 
-    QCoapRequest request(protocol + host + path);
+    QCoapRequestForTest request(protocol + host + path);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
     request.setMethod(method);

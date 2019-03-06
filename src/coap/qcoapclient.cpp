@@ -228,12 +228,6 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Get) {
-        qWarning("QCoapClient::get: Overriding method specified on request:"
-                 "using 'Get' instead.");
-    }
-
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.adjustUrl(d->connection->isSecure());
 
@@ -262,12 +256,6 @@ QCoapReply *QCoapClient::get(const QUrl &url)
 QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Put) {
-        qWarning("QCoapClient::put: Overriding method specified on request:"
-                 "using 'Put' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -314,12 +302,6 @@ QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Post) {
-        qWarning("QCoapClient::post: Overriding method specified on request:"
-                 "using 'Post' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -369,12 +351,6 @@ QCoapReply *QCoapClient::post(const QUrl &url, const QByteArray &data)
 QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Delete) {
-        qWarning("QCoapClient::deleteResource: Overriding method specified on request:"
-                 "using 'Delete' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
     copyRequest.adjustUrl(d->connection->isSecure());
@@ -473,12 +449,6 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Get) {
-        qWarning("QCoapClient::observe: Overriding method specified on request:"
-                 "using 'Get' instead.");
-    }
-
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
 
