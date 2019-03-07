@@ -28,10 +28,14 @@
 **
 ****************************************************************************/
 
-#include <QtCore/qdebug.h>
 #include "qcoapoption_p.h"
 
+#include <QtCore/qdebug.h>
+#include <QtCore/qloggingcategory.h>
+
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapOption, "qt.coap.option")
 
 /*!
     \class QCoapOption
@@ -323,7 +327,7 @@ void QCoapOption::setValue(const QByteArray &value)
     }
 
     if (oversized)
-        qWarning() << "QCoapOption::setValue: value is probably too big for option" << d->name;
+        qCWarning(lcCoapOption) << "Value" << value << "is probably too big for option" << d->name;
 
     d->value = value;
 }

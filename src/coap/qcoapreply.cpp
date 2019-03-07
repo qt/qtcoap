@@ -31,8 +31,11 @@
 #include "qcoapreply_p.h"
 #include "qcoapinternalreply_p.h"
 #include <QtCore/qmath.h>
+#include <QtCore/qloggingcategory.h>
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
 
 /*!
     \internal
@@ -286,9 +289,9 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
     size_t len = static_cast<size_t>(maxSize);
     if (sizeof(qint64) > sizeof(size_t)
             && maxSize > static_cast<qint64>(std::numeric_limits<size_t>::max())) {
-        qWarning() << "QCoapReply::readData: Cannot read more than"
-                   << std::numeric_limits<size_t>::max()
-                   << "at a time";
+        qCWarning(lcCoapExchange) << "Cannot read more than"
+                                  << std::numeric_limits<size_t>::max()
+                                  << "at a time";
         len = std::numeric_limits<size_t>::max();
     }
 

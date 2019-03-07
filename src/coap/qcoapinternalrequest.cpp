@@ -34,9 +34,12 @@
 #include <QtCore/qmath.h>
 #include <QtCore/qrandom.h>
 #include <QtCore/qregularexpression.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtNetwork/QHostAddress>
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
 
 /*!
     \internal
@@ -292,8 +295,8 @@ void QCoapInternalRequest::setToSendBlock(uint blockNumber, uint blockSize)
 bool QCoapInternalRequest::checkBlockNumber(uint blockNumber)
 {
     if (blockNumber >> 20) {
-        qWarning() << "QtCoap: Block number" << blockNumber << "is too large."
-                      " It should fit in 20 bits.";
+        qCWarning(lcCoapExchange) << "Block number" << blockNumber
+                                  << "is too large. It should fit in 20 bits.";
         return false;
     }
 

@@ -30,6 +30,7 @@
 
 #include "qcoapqudpconnection_p.h"
 
+#include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qnetworkdatagram.h>
 
 #if QT_CONFIG(dtls)
@@ -40,6 +41,8 @@
 #endif
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
 
 /*!
     \class QCoapQUdpConnection
@@ -99,7 +102,8 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
 
         switch (d->securityMode) {
         case QtCoap::RawPublicKey:
-            qWarning("QtCoap: RawPublicKey security is not supported yet, disabling security");
+            qCWarning(lcCoapConnection, "RawPublicKey security is not supported yet,"
+                                        "disabling security");
             d->securityMode = QtCoap::NoSec;
             break;
         case QtCoap::PreSharedKey:
@@ -121,7 +125,7 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
             break;
         }
 #else
-        qWarning("QtCoap: DTLS is disabled, falling back to QtCoap::NoSec mode.");
+        qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSec mode.");
         d->securityMode = QtCoap::NoSec;
 #endif
     }
@@ -145,7 +149,8 @@ void QCoapQUdpConnection::createSocket()
     });
     connect(d->udpSocket, QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
             [this](QAbstractSocket::SocketError socketError) {
-                    qWarning() << "CoAP UDP socket error" << socketError << socket()->errorString();
+                    qCWarning(lcCoapConnection) << "CoAP UDP socket error" << socketError
+                                                << socket()->errorString();
                     emit error(socketError);
             });
 }
@@ -206,7 +211,7 @@ void QCoapQUdpConnection::bind(const QString &host, quint16 port)
             socket()->bind();
             d->dtls->setPeer(QHostAddress(host), port);
             if (!d->dtls->doHandshake(d->socket()))
-                qWarning() << "QtCoap: handshake error: " << d->dtls->dtlsErrorString();
+                qCWarning(lcCoapConnection) << "Handshake error: " << d->dtls->dtlsErrorString();
         }
 #else
         Q_UNUSED(host);
@@ -247,15 +252,15 @@ void QCoapQUdpConnectionPrivate::writeToSocket(const QByteArray &data, const QSt
     if (!socket()->isWritable()) {
         bool opened = socket()->open(socket()->openMode() | QIODevice::WriteOnly);
         if (!opened) {
-            qWarning("QtCoap: Failed to open the UDP socket with write permission");
+            qCWarning(lcCoapConnection, "Failed to open the UDP socket with write permission");
             return;
         }
     }
 
     QHostAddress hostAddress(host);
     if (hostAddress.isNull()) {
-        qWarning() << "QtCoap: Invalid host IP address" << host
-                   << "- only IPv4/IPv6 destination addresses are supported.";
+        qCWarning(lcCoapConnection) << "Invalid host IP address" << host
+                                    << "- only IPv4/IPv6 destination addresses are supported.";
         return;
     }
 
@@ -266,7 +271,7 @@ void QCoapQUdpConnectionPrivate::writeToSocket(const QByteArray &data, const QSt
             socket()->writeDatagram(data, hostAddress, port);
 
     if (bytesWritten < 0)
-        qWarning() << "QtCoap: Failed to write datagram:" << socket()->errorString();
+        qCWarning(lcCoapConnection) << "Failed to write datagram:" << socket()->errorString();
 }
 
 /*!
@@ -282,7 +287,7 @@ void QCoapQUdpConnectionPrivate::socketReadyRead()
     if (!socket()->isReadable()) {
         bool opened = socket()->open(socket()->openMode() | QIODevice::ReadOnly);
         if (!opened) {
-            qWarning("QtCoap: Failed to open the UDP socket with read permission");
+            qCWarning(lcCoapConnection, "Failed to open the UDP socket with read permission");
             return;
         }
     }
@@ -343,7 +348,7 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
             QSslKey opaqueKey(configuration.privateKey().handle());
             dtlsConfig.setPrivateKey(opaqueKey);
         } else {
-            qWarning("QtCoap: Failed to set private key, the provided key is invalid");
+            qCWarning(lcCoapConnection, "Failed to set private key, the provided key is invalid");
         }
     }
 
@@ -377,9 +382,9 @@ void QCoapQUdpConnection::handshakeTimeout()
 {
     Q_D(QCoapQUdpConnection);
 
-    qWarning("QtCoap: handshake timeout, trying to re-transmit");
+    qCWarning(lcCoapConnection, "Handshake timeout, trying to re-transmit");
     if (!d->dtls->handleTimeout(d->udpSocket))
-        qWarning() << "QtCoap: failed to re-transmit" << d->dtls->dtlsErrorString();
+        qCWarning(lcCoapConnection) << "Failed to re-transmit" << d->dtls->dtlsErrorString();
 }
 
 /*!
@@ -413,7 +418,7 @@ void QCoapQUdpConnectionPrivate::handleEncryptedDatagram()
         emit q->readyRead(datagram.data(), datagram.senderAddress());
     } else {
         if (!dtls->doHandshake(socket(), socket()->receiveDatagram().data())) {
-            qWarning() << "QtCoap: handshake error: " << dtls->dtlsErrorString();
+            qCWarning(lcCoapConnection) << "Handshake error: " << dtls->dtlsErrorString();
             return;
         }
 

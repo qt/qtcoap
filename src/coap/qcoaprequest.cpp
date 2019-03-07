@@ -32,9 +32,12 @@
 
 #include <QtCore/qmath.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
 
 namespace {
 const auto CoapScheme = QLatin1String("coap");
@@ -69,7 +72,7 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     // Make first checks before editing the URL, to avoid editing it
     // in a wrong way (e.g. when adding the scheme)
     if (!url.isValid()) {
-        qWarning() << "QCoapRequest: Invalid CoAP url" << url.toString();
+        qCWarning(lcCoapExchange) << "Invalid CoAP url" << url.toString();
         return;
     }
 
@@ -83,8 +86,8 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
             if (url.port() == -1)
                 finalizedUrl.setPort(QtCoap::DefaultSecurePort);
         } else {
-            qWarning() << "QCoapRequest: Request URL's scheme" << url.scheme()
-                       << "isn't valid for CoAP";
+            qCWarning(lcCoapExchange) << "QCoapRequest: Request URL's scheme" << url.scheme()
+                                      << "isn't valid for CoAP";
             return;
         }
     }

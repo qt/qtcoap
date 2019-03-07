@@ -35,9 +35,12 @@
 
 #include <QtCore/qrandom.h>
 #include <QtCore/qthread.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qnetworkdatagram.h>
 
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 
 /*!
     \class QCoapProtocol
@@ -195,7 +198,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request, const QStr
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     if (!request || !request->connection()) {
-        qWarning("QtCoap: Request null or not bound to any connection: aborted.");
+        qCWarning(lcCoapProtocol, "Request null or not bound to any connection: aborted.");
         return;
     }
 
@@ -264,8 +267,8 @@ void QCoapProtocolPrivate::onMulticastRequestExpired(QCoapInternalRequest *reque
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
                                   Q_ARG(QtCoap::Error, QtCoap::NoError));
     } else {
-        qWarning().nospace() << "QtCoap: Reply for token '" << request->token()
-                             << "' is not registered, reply is null.";
+        qCWarning(lcCoapProtocol).nospace() << "Reply for token '" << request->token()
+                                            << "' is not registered, reply is null.";
     }
     forgetExchange(request);
 }
@@ -341,9 +344,9 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
 
     QHostAddress originalTarget(request->targetUri().host());
     if (!originalTarget.isMulticast() && !originalTarget.isEqual(sender)) {
-        qDebug().nospace() << "QtCoap: Answer received from incorrect host ("
-                           << sender << " instead of "
-                           << originalTarget << ")";
+        qCDebug(lcCoapProtocol).nospace() << "QtCoap: Answer received from incorrect host ("
+                                          << sender << " instead of "
+                                          << originalTarget << ")";
         return;
     }
 
@@ -769,7 +772,8 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
                                     QSharedPointer<QCoapInternalReply> reply)
 {
     if (!isTokenRegistered(token) || !reply) {
-        qWarning() << "QtCoap: Reply token '" << token << "' not registered, or reply is null.";
+        qCWarning(lcCoapProtocol).nospace() << "Reply token '" << token
+                                            << "' not registered, or reply is null.";
         return false;
     }
 
@@ -1036,7 +1040,7 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 {
     Q_D(QCoapProtocol);
     if (ackRandomFactor < 1)
-        qWarning() << "QtCoap: The Ack random factor should be >= 1";
+        qCWarning(lcCoapProtocol, "The acknowledgment random factor should be >= 1");
 
     d->ackRandomFactor = qMax(1., ackRandomFactor);
 }
@@ -1053,7 +1057,7 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
     Q_D(QCoapProtocol);
 
     if (maxRetransmit > 25) {
-        qWarning("QtCoap: Max retransmit count is capped at 25.");
+        qCWarning(lcCoapProtocol, "Max retransmit count is capped at 25.");
         maxRetransmit = 25;
     }
 
@@ -1073,13 +1077,13 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
     Q_D(QCoapProtocol);
 
     if ((blockSize & (blockSize - 1)) != 0) {
-        qWarning("QtCoap: Block size should be a power of 2");
+        qCWarning(lcCoapProtocol, "Block size should be a power of 2");
         return;
     }
 
     if (blockSize != 0 && (blockSize < 16 || blockSize > 1024)) {
-        qWarning("QtCoap: Block size should be set to zero,"
-                 "or to a power of 2 from 16 through 1024");
+        qCWarning(lcCoapProtocol, "Block size should be set to zero,"
+                                  "or to a power of 2 from 16 through 1024");
         return;
     }
 

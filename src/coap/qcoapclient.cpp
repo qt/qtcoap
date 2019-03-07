@@ -37,9 +37,12 @@
 #include "qcoapqudpconnection.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
 QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection)
     : protocol(protocol)
@@ -551,12 +554,12 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 {
     const auto scheme = connection->isSecure() ? QLatin1String("coaps") : QLatin1String("coap");
     if (reply->request().url().scheme() != scheme) {
-        qWarning("QCoapClient: Failed to send request, URL has an incorrect scheme.");
+        qCWarning(lcCoapClient, "Failed to send request, URL has an incorrect scheme.");
         return false;
     }
 
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
-        qWarning("QCoapClient: Failed to send request for an invalid URL.");
+        qCWarning(lcCoapClient, "Failed to send request for an invalid URL.");
         return false;
     }
 
@@ -564,8 +567,8 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     // multicast requests MUST be Non-confirmable.
     if (QHostAddress(reply->url().host()).isMulticast()
             && reply->request().type() == QCoapMessage::Confirmable) {
-        qWarning("QCoapClient: Failed to send request, "
-                 "multicast requests must be non-confirmable.");
+        qCWarning(lcCoapClient, "Failed to send request, "
+                                "multicast requests must be non-confirmable.");
         return false;
     }
 

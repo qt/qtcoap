@@ -29,7 +29,11 @@
 
 #include "qcoapconnection_p.h"
 
+#include <QtCore/qloggingcategory.h>
+
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
 /*!
     \class QCoapConnection
@@ -223,7 +227,7 @@ void QCoapConnection::setSecurityConfiguration(const QCoapSecurityConfiguration 
         d->securityConfiguration = configuration;
         emit securityConfigurationChanged();
     } else {
-        qWarning("QtCoap: Security is disabled, security configuration will be ignored");
+        qCWarning(lcCoapConnection, "Security is disabled, security configuration will be ignored.");
     }
 }
 
