@@ -143,6 +143,8 @@ QCoapConnection::~QCoapConnection()
 }
 
 /*!
+    \internal
+
     Prepares the underlying transport for data transmission and sends the given
     \a request frame to the given \a host at the given \a port when the transport
     is ready.
@@ -150,23 +152,23 @@ QCoapConnection::~QCoapConnection()
     The preparation of the transport is done by calling the pure virtual bind() method,
     which needs to be implemented by derived classes.
 */
-void QCoapConnection::sendRequest(const QByteArray &request, const QString &host, quint16 port)
+void
+QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &host, quint16 port)
 {
-    Q_D(QCoapConnection);
+    Q_Q(QCoapConnection);
 
     CoapFrame frame(request, host, port);
-    d->framesToSend.enqueue(frame);
+    framesToSend.enqueue(frame);
 
-    if (d->state == ConnectionState::Unconnected) {
-        connect(this, &QCoapConnection::bound, this,
+    if (state == QCoapConnection::ConnectionState::Unconnected) {
+        q->connect(q, &QCoapConnection::bound, q,
                 [&]() {
-                    Q_D(QCoapConnection);
-                    d->state = ConnectionState::Bound;
-                    startToSendRequest();
+                    state = QCoapConnection::ConnectionState::Bound;
+                    q->startToSendRequest();
                 });
-        bind(host, port);
+        q->bind(host, port);
     } else {
-        startToSendRequest();
+        q->startToSendRequest();
     }
 }
 

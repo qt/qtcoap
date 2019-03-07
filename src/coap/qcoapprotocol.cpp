@@ -32,6 +32,7 @@
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
 #include "qcoapconnection.h"
+#include "qcoapconnection_p.h"
 
 #include <QtCore/qrandom.h>
 #include <QtCore/qthread.h>
@@ -210,7 +211,8 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request, const QStr
     QByteArray requestFrame = request->toQByteArray();
     QUrl uri = request->targetUri();
     const auto& hostAddress = host.isEmpty() ? uri.host() : host;
-    request->connection()->sendRequest(requestFrame, hostAddress, static_cast<quint16>(uri.port()));
+    request->connection()->d_func()->sendRequest(requestFrame, hostAddress,
+                                                 static_cast<quint16>(uri.port()));
 }
 
 /*!

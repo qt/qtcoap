@@ -57,17 +57,21 @@ struct CoapFrame {
     : currentPdu(pdu), host(hostName), port(portNumber) {}
 };
 
-class QCoapConnectionPrivate : public QObjectPrivate
+class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
     QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
 
     ~QCoapConnectionPrivate() override = default;
 
+    void sendRequest(const QByteArray &request, const QString &host, quint16 port);
+
     QCoapSecurityConfiguration securityConfiguration;
     QtCoap::SecurityMode securityMode;
     QCoapConnection::ConnectionState state;
     QQueue<CoapFrame> framesToSend;
+
+    Q_DECLARE_PUBLIC(QCoapConnection)
 };
 
 QT_END_NAMESPACE

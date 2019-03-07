@@ -71,6 +71,10 @@ public:
     {}
 
     void bindSocketForTest() { d_func()->bindSocket(); }
+    void sendRequest(const QByteArray &request, const QString &host, quint16 port)
+    {
+        d_func()->sendRequest(request, host, port);
+    }
 };
 
 void tst_QCoapQUdpConnection::ctor()
