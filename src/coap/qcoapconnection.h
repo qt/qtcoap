@@ -57,8 +57,7 @@ public:
     QCoapConnection::ConnectionState state() const;
     QCoapSecurityConfiguration securityConfiguration() const;
 
-public Q_SLOTS:
-    void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
+    Q_INVOKABLE void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
 
 Q_SIGNALS:
     void error(QAbstractSocket::SocketError error);

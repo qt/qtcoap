@@ -71,17 +71,17 @@ Q_SIGNALS:
                                      const QHostAddress &sender);
     void error(QCoapReply *reply, QtCoap::Error error);
 
-public Q_SLOTS:
-    void setAckTimeout(uint ackTimeout);
-    void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
-    void setBlockSize(quint16 blockSize);
-    void setMaxServerResponseDelay(uint responseDelay);
+public:
+    Q_INVOKABLE void setAckTimeout(uint ackTimeout);
+    Q_INVOKABLE void setAckRandomFactor(double ackRandomFactor);
+    Q_INVOKABLE void setMaxRetransmit(uint maxRetransmit);
+    Q_INVOKABLE void setBlockSize(quint16 blockSize);
+    Q_INVOKABLE void setMaxServerResponseDelay(uint responseDelay);
 
-private Q_SLOTS:
-    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
-    void cancelObserve(QPointer<QCoapReply> reply) const;
-    void cancelObserve(const QUrl &url) const;
+private:
+    Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
+    Q_INVOKABLE void cancelObserve(QPointer<QCoapReply> reply) const;
+    Q_INVOKABLE void cancelObserve(const QUrl &url) const;
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
