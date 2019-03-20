@@ -52,15 +52,12 @@ public:
                              QObject *parent = nullptr);
     virtual ~QCoapConnection();
 
-    void sendRequest(const QByteArray &request, const QString &host, quint16 port);
-
     bool isSecure() const;
     QtCoap::SecurityMode securityMode() const;
     QCoapConnection::ConnectionState state() const;
-
     QCoapSecurityConfiguration securityConfiguration() const;
-public Q_SLOTS:
-    void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
+
+    Q_INVOKABLE void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
 
 Q_SIGNALS:
     void error(QAbstractSocket::SocketError error);
@@ -76,6 +73,9 @@ protected:
 
     virtual void bind(const QString &host, quint16 port) = 0;
     virtual void writeData(const QByteArray &data, const QString &host, quint16 port) = 0;
+
+private:
+    friend class QCoapProtocolPrivate;
 
     Q_DECLARE_PRIVATE(QCoapConnection)
 };

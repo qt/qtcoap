@@ -70,15 +70,16 @@ public:
 
     void sendAcknowledgment(QCoapInternalRequest *request) const;
     void sendReset(QCoapInternalRequest *request) const;
-    void sendRequest(QCoapInternalRequest *request) const;
+    void sendRequest(QCoapInternalRequest *request, const QString& host = QString()) const;
 
-    void onLastMessageReceived(QCoapInternalRequest *request);
+    void onLastMessageReceived(QCoapInternalRequest *request, const QHostAddress &sender);
     void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);
 
     void onRequestTimeout(QCoapInternalRequest *request);
     void onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request);
+    void onMulticastRequestExpired(QCoapInternalRequest *request);
     void onFrameReceived(const QByteArray &data, const QHostAddress &sender);
     void onConnectionError(QAbstractSocket::SocketError error);
     void onRequestAborted(const QCoapToken &token);
@@ -104,10 +105,10 @@ public:
     CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
-    int maxRetransmit = 4;
-    int ackTimeout = 2000;
-    double ackRandomFactor = 1.5;
+    uint maxRetransmit = 4;
+    uint ackTimeout = 2000;
     uint maxServerResponseDelay = 250 * 1000;
+    double ackRandomFactor = 1.5;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

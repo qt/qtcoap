@@ -31,7 +31,11 @@
 #include "qcoapinternalmessage_p.h"
 #include <QtCoap/qcoaprequest.h>
 
+#include <QtCore/qloggingcategory.h>
+
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapExchange, "qt.coap.exchange")
 
 /*!
     \internal
@@ -132,7 +136,7 @@ void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &opti
     d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
 
     if (d->blockSize > 1024)
-        qWarning("QtCoap: Received a block size larger than 1024, something may be wrong.");
+        qCWarning(lcCoapExchange, "Received a block size larger than 1024, something may be wrong.");
 }
 
 /*!

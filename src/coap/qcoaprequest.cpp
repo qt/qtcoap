@@ -32,9 +32,12 @@
 
 #include <QtCore/qmath.h>
 #include <QtCore/qdatetime.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
 
 namespace {
 const auto CoapScheme = QLatin1String("coap");
@@ -69,7 +72,7 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     // Make first checks before editing the URL, to avoid editing it
     // in a wrong way (e.g. when adding the scheme)
     if (!url.isValid()) {
-        qWarning() << "QCoapRequest: Invalid CoAP url" << url.toString();
+        qCWarning(lcCoapExchange) << "Invalid CoAP url" << url.toString();
         return;
     }
 
@@ -83,8 +86,8 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
             if (url.port() == -1)
                 finalizedUrl.setPort(QtCoap::DefaultSecurePort);
         } else {
-            qWarning() << "QCoapRequest: Request URL's scheme" << url.scheme()
-                       << "isn't valid for CoAP";
+            qCWarning(lcCoapExchange) << "QCoapRequest: Request URL's scheme" << url.scheme()
+                                      << "isn't valid for CoAP";
             return;
         }
     }
@@ -94,6 +97,8 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
 
 /*!
     \class QCoapRequest
+    \inmodule QtCoap
+
     \brief The QCoapRequest class holds a CoAP request. This request
     can be sent with QCoapClient.
 
@@ -123,14 +128,23 @@ QCoapRequest::QCoapRequest(const char *url, MessageType type) :
 }
 
 /*!
-    Constructs a copy of the \a other QCoapRequest. Optionally allows to
-    overwrite the QtCoap::Method of the request with the \a method
-    argument.
+    Constructs a copy of the \a other QCoapRequest.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(*new QCoapRequestPrivate(*other.d_func()))
+{
+}
+
+/*!
+    \internal
+
+    Constructs a copy of the \a other QCoapRequest and sets the request
+    method to \a method.
+*/
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
+    QCoapRequest(other)
 {
     if (method != QtCoap::Invalid)
         setMethod(method);
@@ -168,8 +182,6 @@ QUrl QCoapRequest::proxyUrl() const
 
 /*!
     Returns the method of the request.
-
-    \sa setMethod()
 */
 QtCoap::Method QCoapRequest::method() const
 {
@@ -213,6 +225,8 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 }
 
 /*!
+    \internal
+
     Sets the method of the request to the given \a method.
 
     \sa method()
@@ -293,10 +307,13 @@ QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
 
     QUrl finalizedUrl = url;
     const auto scheme = secure ? CoapSecureScheme : CoapScheme;
-    if (url.isRelative())
+    if (url.host().isEmpty() && url.isRelative()) {
+        // In some cases host address is mistaken for part of the relative path,
+        // prepending the scheme fixes this.
         finalizedUrl = url.toString().prepend(scheme + QLatin1String("://"));
-    else if (url.scheme().isEmpty())
+    } else if (url.scheme().isEmpty()) {
         finalizedUrl.setScheme(scheme);
+    }
 
     if (url.port() == -1) {
         const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;

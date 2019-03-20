@@ -37,11 +37,12 @@
 #include "qcoapqudpconnection.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
+#include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
 
-QRandomGenerator QtCoap::randomGenerator = QRandomGenerator::securelySeeded();
+Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
 QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection)
     : protocol(protocol)
@@ -63,152 +64,9 @@ QCoapClientPrivate::~QCoapClientPrivate()
 }
 
 /*!
-  \enum QtCoap::SecurityMode
-
-  Specifies the security mode used for securing a CoAP connection, as defined in
-  \l{https://tools.ietf.org/html/rfc7252#section-9}{RFC 7252}.
-
-  \value NoSec              There is no protocol-level security (DTLS is disabled).
-
-  \value PreSharedKey       DTLS is enabled, PSK authentication will be used for security.
-
-  \value RawPublicKey       DTLS is enabled, an asymmetric key pair without a certificate
-                            (a raw public key) will be used for security. This mode is not
-                            supported yet.
-
-  \value Certificate        DTLS is enabled, an asymmetric key pair with an X.509 certificate
-                            will be used for security.
-*/
-/*!
-    \enum QtCoap::Error
-
-    Indicates and error condition found during the processing of the request.
-
-    \value NoError                  No error condition.
-
-    \value HostNotFoundError        The remote host name was not found.
-
-    \value AddressInUseError        The address is already in use.
-
-    \value TimeOutError             The response did not arrive in time.
-
-    \value BadRequestError          The request was not recognized.
-
-    \value Unauthorized             The client is not authorized to perform
-                                    the requested action.
-
-    \value BadOption                The request could not be understood by
-                                    the server due to one or more unrecognized
-                                    or malformed options.
-
-    \value Forbidden                The access to this resource is forbidden.
-                                    This Response Code is like HTTP 403
-                                    "Forbidden".
-
-    \value NotFound                 The resource requested was not found.
-                                    This Response Code is like HTTP 404
-                                    "Not Found".
-
-    \value MethodNotAllowed         The method used is not allowed by the server.
-                                    This Response Code is like HTTP 405
-                                    "Method Not Allowed" but with no parallel
-                                    to the "Allow" header field.
-
-    \value NotAcceptable            No resource satisfying the request's acceptance
-                                    criteria was found.
-                                    This Response Code is like HTTP 406
-                                    "Not Acceptable", but with no response entity.
-
-    \value RequestEntityIncomplete  The server has not received the blocks of
-                                    the request body that it needs to proceed.
-                                    The client has not sent all blocks,
-                                    not sent them in the order required by the
-                                    server, or has sent them long enough ago
-                                    that the server has already discarded them.
-
-    \value PreconditionFailed       One or more conditions given in the request
-                                    header fields evaluated to false when tested
-                                    on the server.
-                                    This Response Code is like HTTP 412
-                                    "Precondition Failed".
-
-    \value RequestEntityTooLarge    The request payload is larger than the
-                                    server is willing or able to process.
-                                    This Response Code is like HTTP 413
-                                    "Request Entity Too Large".
-
-    \value UnsupportedContentFormat The payload is in a format not supported
-                                    by this method on the target resource.
-                                    This Response Code is like HTTP 415
-                                    "Unsupported Media Type".
-
-    \value InternalServerError      The server encountered an unexpected
-                                    condition that prevented it from
-                                    fulfilling the request.
-                                    This Response Code is like HTTP 500
-                                    "Internal Server Error".
-
-    \value NotImplemented           The server does not support the
-                                    functionality required to fulfill the
-                                    request.
-                                    This Response Code is like HTTP 501
-                                    "Not Implemented".
-
-    \value BadGateway               An error occurred with an upstream
-                                    server.
-                                    This Response Code is like HTTP 502
-                                    "Bad Gateway".
-
-    \value ServiceUnavailable       Indicates that the service is currently
-                                    Unavailable.
-                                    This Response Code is like HTTP 503
-                                    "Service Unavailable".
-
-    \value GatewayTimeout           The server, while acting as a gateway
-                                    or proxy, did not receive a timely
-                                    response from an upstream server it needed
-                                    to access in order to complete the request.
-                                    This Response Code is like HTTP 504
-                                    "Gateway Timeout".
-
-    \value ProxyingNotSupported     The server is unable or unwilling to act
-                                    as a forward-proxy for the URI specified
-                                    in the Proxy-Uri Option or using
-                                    Proxy-Scheme.
-
-    \value UnknownError             An unknown error occurred.
-
-    \sa error()
-*/
-/*!
-    \enum QtCoap::ResponseCode
-
-    This enum represents the response code from the CoAP protocol, as defined in
-    \l{https://tools.ietf.org/html/rfc7252#section-5.9}{RFC 7252} and
-    \l{https://tools.ietf.org/html/rfc7959#section-2.9}{RFC 7959}.
-*/
-/*!
-    \class QtCoap
-
-    Returns the QtCoap::Error corresponding to the \a code passed to this
-    method.
-*/
-QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
-{
-    if (!isError(code))
-        return QtCoap::NoError;
-
-    switch (code) {
-#define SINGLE_CASE(name, ignored) case name: return name ## Error;
-        FOR_EACH_COAP_ERROR(SINGLE_CASE)
-#undef SINGLE_CASE
-    default:
-        return UnknownError;
-    }
-}
-
-/*!
     \class QCoapClient
+    \inmodule QtCoap
+
     \brief The QCoapClient class allows the application to
     send CoAP requests and receive replies.
 
@@ -229,17 +87,16 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    \note After the request has finished, it is the responsibility of the user
-    to delete the QCoapReply object at an appropriate time. Do not directly
-    delete it inside the slot connected to finished(). You can use the
+    \note After processing of the request has finished, it is the responsibility
+    of the user to delete the QCoapReply object at an appropriate time. Do not
+    directly delete it inside the slot connected to finished(). You can use the
     deleteLater() function.
 
-    You can also use an "observe" request. This can be used as above, or more
-    conveniently with the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
-    signal:
+    You can also use an \e observe request. This can be used as above, or more
+    conveniently with the QCoapReply::notified() signal:
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
-        CoapReply *reply = client->observe(request);
+        QCoapReply *reply = client->observe(request);
         connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
     \endcode
 
@@ -248,7 +105,7 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
         client->cancelObserve(reply);
     \endcode
 
-    When a reply arrives, the QCoapClient emits a finished(QCoapReply *) signal.
+    When a reply arrives, the QCoapClient emits a finished() signal.
 
     \note For a discovery request, the returned object is a QCoapDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
@@ -260,10 +117,23 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 /*!
     \fn void QCoapClient::finished(QCoapReply *reply)
 
-    This signal is emitted along with the \l{QCoapReply::finished()} signal
-    whenever a CoAP reply is finished, after either a success or an error.
+    This signal is emitted along with the \l QCoapReply::finished() signal
+    whenever a CoAP reply is received, after either a success or an error.
     The \a reply parameter will contain a pointer to the reply that has just
-    finished.
+    been received.
+
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
+    \fn void QCoapClient::responseToMulticastReceived(QCoapReply *reply,
+                                                      const QCoapMessage& message,
+                                                      const QHostAddress &sender)
+
+    This signal is emitted when a unicast response to a multicast request
+    arrives. The \a reply parameter contains a pointer to the reply that has just
+    been received, \a message contains the payload and the message details,
+    and \a sender contains the sender address.
 
     \sa error(), QCoapReply::finished(), QCoapReply::error()
 */
@@ -272,7 +142,8 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
     \fn void QCoapClient::error(QCoapReply *reply, QtCoap::Error error)
 
     This signal is emitted whenever an error occurs. The \a reply parameter
-    can be null if the error is not related to a specific QCoapReply.
+    can be \nullptr if the error is not related to a specific QCoapReply. The
+    \a error parameter contains the error code.
 
     \sa finished(), QCoapReply::error(), QCoapReply::finished()
 */
@@ -336,6 +207,8 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
+    connect(d->protocol, &QCoapProtocol::responseToMulticastReceived,
+            this, &QCoapClient::responseToMulticastReceived);
     connect(d->protocol, &QCoapProtocol::error,
             this, &QCoapClient::error);
 }
@@ -359,12 +232,6 @@ QCoapClient::~QCoapClient()
 QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Get) {
-        qWarning("QCoapClient::get: Overriding method specified on request:"
-                 "using 'Get' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.adjustUrl(d->connection->isSecure());
@@ -394,12 +261,6 @@ QCoapReply *QCoapClient::get(const QUrl &url)
 QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Put) {
-        qWarning("QCoapClient::put: Overriding method specified on request:"
-                 "using 'Put' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -446,12 +307,6 @@ QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
-
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Post) {
-        qWarning("QCoapClient::post: Overriding method specified on request:"
-                 "using 'Post' instead.");
-    }
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -502,12 +357,6 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Delete) {
-        qWarning("QCoapClient::deleteResource: Overriding method specified on request:"
-                 "using 'Delete' instead.");
-    }
-
     QCoapRequest copyRequest(request, QtCoap::Delete);
     copyRequest.adjustUrl(d->connection->isSecure());
 
@@ -527,9 +376,53 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
 }
 
 /*!
+    \overload
+
+    Discovers the resources available at the endpoints which have joined
+    the \a group. Returns a new QCoapDiscoveryReply object which emits the
+    \l QCoapDiscoveryReply::discovered() signal whenever a response arrives.
+    The \a group is one of the CoAP multicast group addresses and defaults to
+    QtCoap::AllCoapNodesIPv4.
+
+    Discovery path defaults to "/.well-known/core", but can be changed
+    by passing a different path to \a discoveryPath. Discovery is described in
+    \l{https://tools.ietf.org/html/rfc6690#section-1.2.1}{RFC 6690}.
+
+    \sa get(), post(), put(), deleteResource(), observe()
+*/
+QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
+                                           const QString &discoveryPath)
+{
+    Q_D(QCoapClient);
+
+    QString base;
+    switch (group) {
+    case QtCoap::AllCoapNodesIPv4:
+        base = QStringLiteral("224.0.1.187");
+        break;
+    case QtCoap::AllCoapNodesIPv6LinkLocal:
+        base = QStringLiteral("ff02::fd");
+        break;
+    case QtCoap::AllCoapNodesIPv6SiteLocal:
+        base = QStringLiteral("ff05::fd");
+        break;
+    }
+
+    QUrl discoveryUrl;
+    discoveryUrl.setHost(base);
+    discoveryUrl.setPath(discoveryPath);
+
+    QCoapRequest request(discoveryUrl);
+    request.setMethod(QtCoap::Get);
+    request.adjustUrl(d->connection->isSecure());
+
+    return d->sendDiscovery(request);
+}
+
+/*!
     Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
-    \l{QCoapReply::discovered()}{discovered()} signal whenever the response
+    \l QCoapDiscoveryReply::discovered() signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed
@@ -554,20 +447,13 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 
 /*!
     Sends a request to observe the target \a request and returns
-    a new QCoapReply object which emits the
-    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    a new QCoapReply object which emits the \l QCoapReply::notified()
     signal whenever a new notification arrives.
 
     \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    if (request.method() != QtCoap::Invalid
-            && request.method() != QtCoap::Get) {
-        qWarning("QCoapClient::observe: Overriding method specified on request:"
-                 "using 'Get' instead.");
-    }
-
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
 
@@ -578,8 +464,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
     \overload
 
     Sends a request to observe the target \a url and returns
-    a new QCoapReply object which emits the
-    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    a new QCoapReply object which emits the \l QCoapReply::notified()
     signal whenever a new notification arrives.
 
     \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
@@ -669,12 +554,21 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 {
     const auto scheme = connection->isSecure() ? QLatin1String("coaps") : QLatin1String("coap");
     if (reply->request().url().scheme() != scheme) {
-        qWarning("QCoapClient: Failed to send request, URL has an incorrect scheme.");
+        qCWarning(lcCoapClient, "Failed to send request, URL has an incorrect scheme.");
         return false;
     }
 
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
-        qWarning("QCoapClient: Failed to send request for an invalid URL.");
+        qCWarning(lcCoapClient, "Failed to send request for an invalid URL.");
+        return false;
+    }
+
+    // According to https://tools.ietf.org/html/rfc7252#section-8.1,
+    // multicast requests MUST be Non-confirmable.
+    if (QHostAddress(reply->url().host()).isMulticast()
+            && reply->request().type() == QCoapMessage::Confirmable) {
+        qCWarning(lcCoapClient, "Failed to send request, "
+                                "multicast requests must be non-confirmable.");
         return false;
     }
 
@@ -700,8 +594,9 @@ void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &con
 }
 
 /*!
-    Sets the maximum block size used by the protocol when sending requests
-    and receiving replies. The block size must be a power of two.
+    Sets the maximum block size used by the protocol to \a blockSize
+    when sending requests and receiving replies. The block size must be
+    a power of two.
 
     \sa QCoapProtocol::setBlockSize()
 */

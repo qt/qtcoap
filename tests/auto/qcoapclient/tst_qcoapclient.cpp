@@ -72,6 +72,9 @@ private Q_SLOTS:
     void discover();
     void observe_data();
     void observe();
+    void confirmableMulticast();
+    void multicast();
+    void multicast_blockwise();
 };
 
 class QCoapQUdpConnectionSocketTestsPrivate : public QCoapQUdpConnectionPrivate
@@ -132,6 +135,42 @@ public:
     }
 };
 
+class QCoapConnectionMulticastTests : public QCoapConnection
+{
+public:
+    ~QCoapConnectionMulticastTests() override = default;
+
+    void bind(const QString &host, quint16 port) override
+    {
+        Q_UNUSED(host);
+        Q_UNUSED(port);
+        // Do nothing
+    }
+
+    void writeData(const QByteArray &data, const QString &host, quint16 port) override
+    {
+        Q_UNUSED(data);
+        Q_UNUSED(host);
+        Q_UNUSED(port);
+        // Do nothing
+    }
+};
+
+class QCoapClientForMulticastTests : public QCoapClient
+{
+public:
+    QCoapClientForMulticastTests() :
+        QCoapClient(new QCoapProtocol, new QCoapConnectionMulticastTests)
+    {}
+
+    QCoapConnection *connection()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
+        return privateClient->connection;
+    }
+};
+
+
 class Helper : public QObject
 {
     Q_OBJECT
@@ -187,23 +226,15 @@ void tst_QCoapClient::methods_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
 
-    QTest::newRow("get_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Get;
-    QTest::newRow("get_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Put;
     QTest::newRow("get_no_port")
                 << QUrl("coap://" + testServerHost() + "/test") << QtCoap::Get;
     QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Get;
-    QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
-    QTest::newRow("post_incorrect_op")      << QUrl(testServerResource()) << QtCoap::Delete;
     QTest::newRow("post_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Post;
-    QTest::newRow("put_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("put")                    << QUrl(testServerResource()) << QtCoap::Put;
-    QTest::newRow("put_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Post;
     QTest::newRow("put_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Put;
-    QTest::newRow("delete_no_op")           << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("delete")                 << QUrl(testServerResource()) << QtCoap::Delete;
-    QTest::newRow("delete_incorrect_op")    << QUrl(testServerResource()) << QtCoap::Get;
     QTest::newRow("delete_no_scheme_no_port") << QUrl(testServerHost() + "/test") << QtCoap::Delete;
 }
 
@@ -213,10 +244,7 @@ void tst_QCoapClient::methods()
     QFETCH(QtCoap::Method, method);
 
     QCoapClient client;
-
     QCoapRequest request(url);
-    if (method != QtCoap::Invalid)
-        request.setMethod(method);
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
@@ -260,6 +288,7 @@ void tst_QCoapClient::methods()
             QFAIL(qPrintable(error));
         }
     }
+    QCOMPARE(reply->request().method(), method);
 }
 
 void tst_QCoapClient::separateMethod()
@@ -657,6 +686,7 @@ void tst_QCoapClient::discover()
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
     QCOMPARE(resourcesReply->url(), QCoapRequest::adjustedUrl(discoverUrl, false));
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
+    QCOMPARE(resourcesReply->request().method(), QtCoap::Get);
 
     //! TODO Test discovery content too
 }
@@ -721,6 +751,7 @@ void tst_QCoapClient::observe()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
     QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
+    QCOMPARE(reply->request().method(), QtCoap::Get);
 
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
     QCOMPARE(spyReplyFinished.count(), 1);
@@ -731,6 +762,73 @@ void tst_QCoapClient::observe()
         QString error = QString("Invalid payload for 'notified' signal: %1").arg(QString(payload));
         QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
+}
+
+void tst_QCoapClient::confirmableMulticast()
+{
+    QCoapClient client;
+    const auto reply = client.get(QCoapRequest("224.0.1.187", QCoapMessage::Confirmable));
+    QVERIFY2(!reply, "Confirmable multicast request didn't fail as expected.");
+}
+
+void tst_QCoapClient::multicast()
+{
+    QCoapClientForMulticastTests client;
+    QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
+    request.setToken("abc");
+    QCoapReply *reply = client.get(request);
+    QVERIFY(reply);
+
+    QHostAddress host0("10.20.30.40");
+    QHostAddress host1("10.20.30.41");
+
+    // Simulate sending unicast responses to the multicast request
+    emit client.connection()->readyRead("SE\xAD/abc\xC0\xFFReply0", host0);
+    emit client.connection()->readyRead("SE\xAD/abc\xC0\xFFReply1", host1);
+
+    QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
+    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+
+    QCoapMessage message0 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
+    QCOMPARE(message0.payload(), "Reply0");
+    QHostAddress sender0 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(0).at(2));
+    QCOMPARE(sender0, host0);
+
+    QCoapMessage message1 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(1).at(1));
+    QCOMPARE(message1.payload(), "Reply1");
+    QHostAddress sender1 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(1).at(2));
+    QCOMPARE(sender1, host1);
+}
+
+void tst_QCoapClient::multicast_blockwise()
+{
+    QCoapClientForMulticastTests client;
+    QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
+    request.setToken("abc");
+    QCoapReply *reply = client.get(request);
+    QVERIFY(reply);
+
+    QHostAddress host0("10.20.30.40");
+    QHostAddress host1("10.20.30.41");
+
+    // Simulate blockwise transfer responses coming from two different hosts
+    emit client.connection()->readyRead("SE#}abc\xC0\xB1\x1D\xFFReply1", host0);
+    emit client.connection()->readyRead("SE#}abc\xC0\xB1\x1D\xFFReply3", host1);
+    emit client.connection()->readyRead("SE#~abc\xC0\xB1%\xFFReply2", host0);
+    emit client.connection()->readyRead("SE#~abc\xC0\xB1%\xFFReply4", host1);
+
+    QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
+    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+
+    QCoapMessage message0 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
+    QCOMPARE(message0.payload(), "Reply1Reply2");
+    QHostAddress sender0 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(0).at(2));
+    QCOMPARE(sender0, host0);
+
+    QCoapMessage message1 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(1).at(1));
+    QCOMPARE(message1.payload(), "Reply3Reply4");
+    QHostAddress sender1 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(1).at(2));
+    QCOMPARE(sender1, host1);
 }
 
 QTEST_MAIN(tst_QCoapClient)

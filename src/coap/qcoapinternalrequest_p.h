@@ -72,9 +72,9 @@ public:
     QByteArray toQByteArray() const;
     void setMessageId(quint16);
     void setToken(const QCoapToken&);
-    void setToRequestBlock(int blockNumber, int blockSize);
-    void setToSendBlock(int blockNumber, int blockSize);
-    bool checkBlockNumber(int blockNumber);
+    void setToRequestBlock(uint blockNumber, uint blockSize);
+    void setToSendBlock(uint blockNumber, uint blockSize);
+    bool checkBlockNumber(uint blockNumber);
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
@@ -85,21 +85,25 @@ public:
     QtCoap::Method method() const;
     bool isObserve() const;
     bool isObserveCancelled() const;
+    bool isMulticast() const;
     QCoapConnection *connection() const;
-    int retransmissionCounter() const;
+    uint retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
     void setObserveCancelled();
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
-    void setMaxTransmissionWait(int timeout);
+    void setMaxTransmissionWait(uint timeout);
+    void setMulticastTimeout(uint responseDelay);
     void restartTransmission();
+    void startMulticastTransmission();
     void stopTransmission();
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
     void maxTransmissionSpanReached(QCoapInternalRequest*);
+    void multicastRequestExpired(QCoapInternalRequest*);
 
 protected:
     QCoapOption uriHostOption(const QUrl &uri) const;
@@ -119,10 +123,11 @@ public:
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
 
-    int timeout = 0;
-    int retransmissionCounter = 0;
+    uint timeout = 0;
+    uint retransmissionCounter = 0;
     QTimer *timeoutTimer = nullptr;
     QTimer *maxTransmitWaitTimer = nullptr;
+    QTimer *multicastExpireTimer = nullptr;
 
     bool observeCancelled = false;
     bool transmissionInProgress = false;

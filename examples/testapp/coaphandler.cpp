@@ -31,14 +31,19 @@
 #include "coaphandler.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QCoapClient>
 #include <QCoapReply>
 #include <QCoapDiscoveryReply>
+
+Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
 CoapHandler::CoapHandler(QObject *parent) : QObject(parent)
 {
     connect(&m_coapClient, &QCoapClient::finished, this, &CoapHandler::onFinished);
     connect(&m_coapClient, &QCoapClient::error, this, &CoapHandler::onError);
+    connect(&m_coapClient, &QCoapClient::responseToMulticastReceived,
+            this, &CoapHandler::onResponseToMulticast);
 }
 
 bool CoapHandler::runGet(const QUrl &url)
@@ -74,7 +79,7 @@ bool CoapHandler::runObserve(const QUrl &url)
 bool CoapHandler::runDiscover(const QUrl &url)
 {
     QCoapDiscoveryReply *discoverReply = m_coapClient.discover(url);
-    if (discoverReply)
+    if (!discoverReply)
         return false;
 
     connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
@@ -84,9 +89,9 @@ bool CoapHandler::runDiscover(const QUrl &url)
 void CoapHandler::onFinished(QCoapReply *reply)
 {
     if (reply->errorReceived() == QtCoap::NoError)
-        qDebug() << "Request finished with payload: " << reply->readAll();
+        qCInfo(lcCoapClient) << "Request finished with payload:" << reply->readAll();
     else
-        qDebug() << "Request failed";
+        qCWarning(lcCoapClient, "Request failed");
 
     // Don't forget to remove the reply
     reply->deleteLater();
@@ -97,7 +102,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
     Q_UNUSED(message)
 
     // You can alternatively use `message.payload();`
-    qDebug() << "Received Observe notification with payload: " << reply->readAll();
+    qCInfo(lcCoapClient) << "Received Observe notification with payload:" << reply->readAll();
 }
 
 void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
@@ -105,13 +110,23 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
     Q_UNUSED(reply)
 
     for (const QCoapResource &res : qAsConst(resources))
-        qDebug() << "Discovered resource: " << res.path() << res.title();
+        qCInfo(lcCoapClient) << "Discovered resource:" << res.path() << res.title();
+}
+
+void CoapHandler::onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message,
+                                        const QHostAddress &sender)
+{
+    if (reply->errorReceived() == QtCoap::NoError)
+        qCInfo(lcCoapClient) << "Got a response for multicast request from:" << sender.toString()
+                             << "with payload:" << message.payload();
+    else
+        qCWarning(lcCoapClient, "Multicast request failed");
 }
 
 void CoapHandler::onError(QCoapReply *reply, QtCoap::Error error)
 {
     if (reply)
-        qDebug() << "CoAP reply error: " << reply->errorString();
+        qCInfo(lcCoapClient) << "CoAP reply error:" << reply->errorString();
     else
-        qDebug() << "CoAP error: " << error;
+        qCWarning(lcCoapClient) << "CoAP error:" << error;
 }

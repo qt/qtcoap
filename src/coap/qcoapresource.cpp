@@ -34,6 +34,8 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapResource
+    \inmodule QtCoap
+
     \brief The QCoapResource class holds information about a discovered
     resource.
 
@@ -54,8 +56,9 @@ QCoapResource::QCoapResource() :
 }
 
 /*!
-    Copy constructs a new QCoapResource.
- */
+    Constructs a new CoAP resource as a copy of \a other, making the two
+    resources identical.
+*/
 QCoapResource::QCoapResource(const QCoapResource &other) :
     d(other.d)
 {
@@ -69,16 +72,17 @@ QCoapResource::~QCoapResource()
 }
 
 /*!
-    Assignment operator.
- */
-QCoapResource &QCoapResource::operator =(const QCoapResource &other)
+    Copies \a other into this resource, making the two resources identical.
+    Returns a reference to this QCoapResource.
+*/
+QCoapResource &QCoapResource::operator=(const QCoapResource &other)
 {
     d = other.d;
     return *this;
 }
 
 /*!
-    Swap function for Q_DECLARE_SHARED
+    Swaps this resource with \a other. This operation is very fast and never fails.
  */
 void QCoapResource::swap(QCoapResource &other) Q_DECL_NOTHROW
 {
@@ -180,7 +184,7 @@ uint QCoapResource::contentFormat() const
 }
 
 /*!
-    Sets the host of the resource.
+    Sets the host of the resource to \a host.
 
     \sa host()
  */
@@ -190,7 +194,7 @@ void QCoapResource::setHost(const QHostAddress &host)
 }
 
 /*!
-    Sets the path of the resource.
+    Sets the path of the resource to \a path.
 
     \sa path()
  */
@@ -200,7 +204,7 @@ void QCoapResource::setPath(const QString &path)
 }
 
 /*!
-    Sets the title of the resource.
+    Sets the title of the resource to \a title.
 
     \sa title()
  */
@@ -210,8 +214,8 @@ void QCoapResource::setTitle(const QString &title)
 }
 
 /*!
-    Set it to \c true to indicate that the resource
-    is observable.
+    Makes the resource observable if the \a observable
+    parameter is \c true.
 
     \sa observable()
  */
@@ -221,7 +225,7 @@ void QCoapResource::setObservable(bool observable)
 }
 
 /*!
-    Sets the resource type.
+    Sets the resource type to \a resourceType.
 
     \sa resourceType()
  */
@@ -231,7 +235,7 @@ void QCoapResource::setResourceType(const QString &resourceType)
 }
 
 /*!
-    Sets the interface of the resource.
+    Sets the interface of the resource to \a interface.
 
     \sa interface()
  */
@@ -241,7 +245,7 @@ void QCoapResource::setInterface(const QString &interface)
 }
 
 /*!
-    Sets the maximum size of the resource.
+    Sets the maximum size of the resource to \a maximumSize.
 
     \sa maximumSize()
  */
@@ -251,7 +255,7 @@ void QCoapResource::setMaximumSize(int maximumSize)
 }
 
 /*!
-    Sets the content format of the resource.
+    Sets the content format of the resource to \a contentFormat.
 
     \sa contentFormat()
  */

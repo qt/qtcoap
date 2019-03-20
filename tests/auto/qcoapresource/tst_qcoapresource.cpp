@@ -32,7 +32,7 @@
 #include <QCoreApplication>
 
 #include <QtCoap/qcoapresource.h>
-#include <QtCoap/qcoapprotocol.h>
+#include <QtCoap/qcoapdiscoveryreply.h>
 
 class tst_QCoapResource : public QObject
 {
@@ -144,7 +144,8 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    const QVector<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(QHostAddress(senderAddress), coreLinkList);
+    const QVector<QCoapResource> resourceList =
+            QCoapDiscoveryReply::resourcesFromCoreLinkList(QHostAddress(senderAddress), coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
 

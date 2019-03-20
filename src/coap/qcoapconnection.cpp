@@ -29,16 +29,34 @@
 
 #include "qcoapconnection_p.h"
 
+#include <QtCore/qloggingcategory.h>
+
 QT_BEGIN_NAMESPACE
+
+Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
 /*!
     \class QCoapConnection
+    \inmodule QtCoap
 
     \brief The QCoapConnection class defines an interface for
     handling transfers of frames to a server.
 
     It isolates CoAP clients from the transport in use, so that any
     client can be used with any supported transport.
+*/
+
+/*!
+    \enum QCoapConnection::ConnectionState
+
+    This enum specifies the state of the underlying transport.
+
+    \value Unconnected      The underlying transport is not yet ready for data transmission.
+
+    \value Bound            The underlying transport is ready for data transmission. For example,
+                            if QUdpSocket is used for the transport, this corresponds to
+                            QAbstractSocket::BoundState.
+    \sa state(), bound()
 */
 
 /*!
@@ -52,7 +70,7 @@ QT_BEGIN_NAMESPACE
     \fn void QCoapConnection::readyRead(const QByteArray &data, const QHostAddress &sender)
 
     This signal is emitted when a network reply is available. The \a data
-    parameter supplies the received data, and the \sender parameter supplies
+    parameter supplies the received data, and the \a sender parameter supplies
     the sender address.
 */
 
@@ -97,7 +115,8 @@ QCoapConnectionPrivate::QCoapConnectionPrivate(QtCoap::SecurityMode security)
 {}
 
 /*!
-    Constructs a new QCoapConnection object and sets \a parent as the parent object.
+    Constructs a new CoAP connection for the given \a securityMode and
+    sets \a parent as its parent.
 */
 QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *parent)
     : QCoapConnection(*new QCoapConnectionPrivate(securityMode), parent)
@@ -107,7 +126,7 @@ QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *par
 /*!
     \internal
 
-    Constructs a new QCoapConnection as a child of \a parent, with \a dd
+    Constructs a new new CoAP connection as a child of \a parent, with \a dd
     as its \c d_ptr. This constructor must be used when internally subclassing
     the QCoapConnection class.
 */
@@ -124,6 +143,8 @@ QCoapConnection::~QCoapConnection()
 }
 
 /*!
+    \internal
+
     Prepares the underlying transport for data transmission and sends the given
     \a request frame to the given \a host at the given \a port when the transport
     is ready.
@@ -131,23 +152,23 @@ QCoapConnection::~QCoapConnection()
     The preparation of the transport is done by calling the pure virtual bind() method,
     which needs to be implemented by derived classes.
 */
-void QCoapConnection::sendRequest(const QByteArray &request, const QString &host, quint16 port)
+void
+QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &host, quint16 port)
 {
-    Q_D(QCoapConnection);
+    Q_Q(QCoapConnection);
 
     CoapFrame frame(request, host, port);
-    d->framesToSend.enqueue(frame);
+    framesToSend.enqueue(frame);
 
-    if (d->state == ConnectionState::Unconnected) {
-        connect(this, &QCoapConnection::bound, this,
+    if (state == QCoapConnection::ConnectionState::Unconnected) {
+        q->connect(q, &QCoapConnection::bound, q,
                 [&]() {
-                    Q_D(QCoapConnection);
-                    d->state = ConnectionState::Bound;
-                    startToSendRequest();
+                    state = QCoapConnection::ConnectionState::Bound;
+                    q->startToSendRequest();
                 });
-        bind(host, port);
+        q->bind(host, port);
     } else {
-        startToSendRequest();
+        q->startToSendRequest();
     }
 }
 
@@ -208,7 +229,7 @@ void QCoapConnection::setSecurityConfiguration(const QCoapSecurityConfiguration 
         d->securityConfiguration = configuration;
         emit securityConfigurationChanged();
     } else {
-        qWarning("QtCoap: Security is disabled, security configuration will be ignored");
+        qCWarning(lcCoapConnection, "Security is disabled, security configuration will be ignored.");
     }
 }
 
