@@ -189,6 +189,9 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapConnection *>();
     qRegisterMetaType<QtCoap::Error>();
     qRegisterMetaType<QtCoap::ResponseCode>();
+    qRegisterMetaType<QtCoap::Method>();
+    qRegisterMetaType<QtCoap::SecurityMode>();
+    qRegisterMetaType<QtCoap::MulticastGroup>();
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
