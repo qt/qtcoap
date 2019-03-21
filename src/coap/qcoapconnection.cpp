@@ -162,7 +162,7 @@ QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &ho
 
     if (state == QCoapConnection::ConnectionState::Unconnected) {
         q->connect(q, &QCoapConnection::bound, q,
-                [&]() {
+                [this, q]() {
                     state = QCoapConnection::ConnectionState::Bound;
                     q->startToSendRequest();
                 });
