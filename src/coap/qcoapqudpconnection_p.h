@@ -57,6 +57,7 @@ class Q_AUTOTEST_EXPORT QCoapQUdpConnectionPrivate : public QCoapConnectionPriva
 {
 public:
     QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
+    ~QCoapQUdpConnectionPrivate() override;
 
     virtual bool bind();
 
