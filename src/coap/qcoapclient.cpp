@@ -382,10 +382,10 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
     \overload
 
     Discovers the resources available at the endpoints which have joined
-    the \a group. Returns a new QCoapDiscoveryReply object which emits the
-    \l QCoapDiscoveryReply::discovered() signal whenever a response arrives.
-    The \a group is one of the CoAP multicast group addresses and defaults to
-    QtCoap::AllCoapNodesIPv4.
+    the \a group at the given \a port. Returns a new QCoapDiscoveryReply
+    object which emits the \l QCoapDiscoveryReply::discovered() signal whenever
+    a response arrives. The \a group is one of the CoAP multicast group addresses
+    and defaults to QtCoap::AllCoapNodesIPv4.
 
     Discovery path defaults to "/.well-known/core", but can be changed
     by passing a different path to \a discoveryPath. Discovery is described in
@@ -393,7 +393,7 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
-QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
+QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int port,
                                            const QString &discoveryPath)
 {
     Q_D(QCoapClient);
@@ -414,6 +414,7 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
     QUrl discoveryUrl;
     discoveryUrl.setHost(base);
     discoveryUrl.setPath(discoveryPath);
+    discoveryUrl.setPort(port);
 
     QCoapRequest request(discoveryUrl);
     request.setMethod(QtCoap::Get);

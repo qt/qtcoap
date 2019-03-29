@@ -74,6 +74,7 @@ public:
     void cancelObserve(const QUrl &url);
 
     QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::AllCoapNodesIPv4,
+                                  int port = QtCoap::DefaultPort,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
