@@ -154,6 +154,8 @@ public:
         Q_UNUSED(port);
         // Do nothing
     }
+
+    void close() override {}
 };
 
 class QCoapClientForMulticastTests : public QCoapClient

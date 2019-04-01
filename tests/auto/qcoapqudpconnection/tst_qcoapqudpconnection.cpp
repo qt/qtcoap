@@ -58,6 +58,7 @@ class tst_QCoapQUdpConnection : public QObject
 private Q_SLOTS:
     void ctor();
     void connectToHost();
+    void reconnect();
     void sendRequest_data();
     void sendRequest();
 };
@@ -99,6 +100,29 @@ void tst_QCoapQUdpConnection::connectToHost()
 
     QTRY_COMPARE(spySocketStateChanged.count(), 1);
     QTRY_COMPARE(spyConnectionBound.count(), 1);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
+}
+
+void tst_QCoapQUdpConnection::reconnect()
+{
+#ifdef QT_BUILD_INTERNAL
+    QCoapQUdpConnectionForTest connection;
+
+    // This will trigger connection.bind()
+    QSignalSpy connectionBoundSpy(&connection, SIGNAL(bound()));
+    connection.sendRequest(QByteArray(), QString(), 0);
+    QTRY_COMPARE(connectionBoundSpy.count(), 1);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
+
+    connection.disconnect();
+    QCOMPARE(connection.state(), QCoapQUdpConnection::Unconnected);
+
+    // Make sure that we are able to connect again
+    connection.sendRequest(QByteArray(), QString(), 0);
+    QTRY_COMPARE(connectionBoundSpy.count(), 2);
     QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
 #else
     QSKIP("Not an internal build, skipping this test");

@@ -69,6 +69,7 @@ protected:
 
     void bind(const QString &host, quint16 port) override;
     void writeData(const QByteArray &data, const QString &host, quint16 port) override;
+    void close() override;
 
     void createSocket();
 

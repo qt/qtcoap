@@ -98,7 +98,16 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
     This is a pure virtual method.
 
-    \sa bound()
+    \sa bound(), close()
+*/
+
+/*!
+    \fn void QCoapConnection::close()
+
+    Closes the open sockets and connections to free the underlying transport.
+    This is a pure virtual method.
+
+    \sa bind()
 */
 
 /*!
@@ -133,6 +142,12 @@ QCoapConnection::QCoapConnection(QtCoap::SecurityMode securityMode, QObject *par
 QCoapConnection::QCoapConnection(QObjectPrivate &dd, QObject *parent)
     : QObject(dd, parent)
 {
+    connect(this, &QCoapConnection::bound, this,
+            [this]() {
+                Q_D(QCoapConnection);
+                d->state = QCoapConnection::Bound;
+                startToSendRequest();
+            });
 }
 
 /*!
@@ -160,16 +175,10 @@ QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &ho
     CoapFrame frame(request, host, port);
     framesToSend.enqueue(frame);
 
-    if (state == QCoapConnection::ConnectionState::Unconnected) {
-        q->connect(q, &QCoapConnection::bound, q,
-                [this, q]() {
-                    state = QCoapConnection::ConnectionState::Bound;
-                    q->startToSendRequest();
-                });
+    if (state == QCoapConnection::ConnectionState::Unconnected)
         q->bind(host, port);
-    } else {
+    else
         q->startToSendRequest();
-    }
 }
 
 /*!
@@ -240,6 +249,20 @@ QCoapSecurityConfiguration QCoapConnection::securityConfiguration() const
 {
     Q_D(const QCoapConnection);
     return d->securityConfiguration;
+}
+
+/*!
+    Closes the open sockets and connections to free the transport and clears
+    the connection state.
+*/
+void QCoapConnection::disconnect()
+{
+    Q_D(QCoapConnection);
+
+    close();
+
+    d->framesToSend.clear();
+    d->state = QCoapConnection::Unconnected;
 }
 
 QT_END_NAMESPACE

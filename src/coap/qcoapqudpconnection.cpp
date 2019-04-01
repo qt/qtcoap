@@ -242,6 +242,30 @@ void QCoapQUdpConnection::writeData(const QByteArray &data, const QString &host,
 }
 
 /*!
+    \internal
+
+    \brief Close the UDP socket
+
+    In the case of a secure connection, this also interrupts any ongoing
+    hand-shake and shuts down the DTLS connection.
+*/
+void QCoapQUdpConnection::close()
+{
+    Q_D(QCoapQUdpConnection);
+
+#if QT_CONFIG(dtls)
+    if (isSecure()) {
+        if (d->dtls->handshakeState() == QDtls::HandshakeInProgress)
+            d->dtls->abortHandshake(d->socket());
+
+        if (d->dtls->isConnectionEncrypted())
+            d->dtls->shutdown(d->socket());
+    }
+#endif
+    d->socket()->close();
+}
+
+/*!
     Sets the QUdpSocket socket \a option to \a value.
 */
 void QCoapQUdpConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
@@ -393,8 +417,10 @@ void QCoapQUdpConnection::handshakeTimeout()
     Q_D(QCoapQUdpConnection);
 
     qCWarning(lcCoapConnection, "Handshake timeout, trying to re-transmit");
-    if (!d->dtls->handleTimeout(d->udpSocket))
+    if (d->dtls->handshakeState() == QDtls::HandshakeInProgress &&
+            !d->dtls->handleTimeout(d->udpSocket)) {
         qCWarning(lcCoapConnection) << "Failed to re-transmit" << d->dtls->dtlsErrorString();
+    }
 }
 
 /*!

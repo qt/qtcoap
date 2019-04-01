@@ -508,6 +508,15 @@ void QCoapClient::cancelObserve(const QUrl &url)
 }
 
 /*!
+    Closes the open sockets and connections to free the transport.
+*/
+void QCoapClient::disconnect()
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->connection, "disconnect", Qt::QueuedConnection);
+}
+
+/*!
     \internal
 
     Sends the CoAP \a request to its own URL and returns a new QCoapReply
