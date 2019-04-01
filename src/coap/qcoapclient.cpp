@@ -638,16 +638,47 @@ void QCoapClient::setMaxServerResponseDelay(uint responseDelay)
                               Q_ARG(uint, responseDelay));
 }
 
-#if 0
-//! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows use of a custom protocol.
+    Sets the \c ACK_TIMEOUT value defined in \l {RFC 7252 - Section 4.2} to
+    \a ackTimeout in milliseconds. The default is 2000 ms.
+
+    This timeout only applies to confirmable messages. The actual timeout for
+    reliable transmissions is a random value between \c ACK_TIMEOUT and
+    \c {ACK_TIMEOUT * ACK_RANDOM_FACTOR}.
+
+    \sa setAckRandomFactor()
 */
-void QCoapClient::setProtocol(QCoapProtocol *protocol)
+void QCoapClient::setAckTimeout(uint ackTimeout)
 {
     Q_D(QCoapClient);
-    // FIXME: Protocol running on incorrect thread
-    d->protocol = protocol;
+    QMetaObject::invokeMethod(d->protocol, "setAckTimeout", Qt::QueuedConnection,
+                              Q_ARG(uint, ackTimeout));
 }
-#endif
+
+/*!
+    Sets the \c ACK_RANDOM_FACTOR value defined in \l {RFC 7252 - Section 4.2},
+    to \a ackRandomFactor. This value should be greater than or equal to 1.
+    The default is 1.5.
+
+    \sa setAckTimeout()
+*/
+void QCoapClient::setAckRandomFactor(double ackRandomFactor)
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "setAckRandomFactor", Qt::QueuedConnection,
+                              Q_ARG(double, ackRandomFactor));
+}
+
+/*!
+    Sets the \c MAX_RETRANSMIT value defined in \l {RFC 7252 - Section 4.2}
+    to \a maxRetransmit. This value should be less than or equal to 25.
+    The default is 4.
+*/
+void QCoapClient::setMaxRetransmit(uint maxRetransmit)
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "setMaxRetransmit", Qt::QueuedConnection,
+                              Q_ARG(uint, maxRetransmit));
+}
+
 QT_END_NAMESPACE
