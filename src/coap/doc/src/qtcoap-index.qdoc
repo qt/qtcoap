@@ -25,12 +25,35 @@
 **
 ****************************************************************************/
 
-
 /*!
     \page qtcoap-index.html
     \title Qt CoAP
     \brief Provides classes and functions to make CoAP programming simple and
     portable.
+
+    Constrained Application Protocol (\l CoAP) is a machine-to-machine (M2M) web
+    transfer protocol for use with constrained nodes and constrained networks in
+    the Internet of Things (IoT). It is designed to easily interface with HTTP for
+    integration with the Web, while meeting specialized requirements such as multicast
+    support, very low overhead, and simplicity for constrained environments.
+
+    The Qt CoAP module implements the client side of CoAP defined by \l{RFC 7252}.
+    Generally, CoAP is designed to use datagram-oriented transport such as UDP, so
+    the current implementation of the transport is based on UDP. However implementing
+    custom transports based on TCP, WebSocket, and so on, is also possible.
+
+    The Qt CoAP module supports:
+
+    \list
+    \li Security based on Datagram TLS (DTLS) over UDP
+    \li Group communication defined by \l{RFC 7390}
+    \li Blockwise transfers defined by \l{RFC 7959}
+    \li Resource observation defined by \l{RFC 7641}
+    \li Resource discovery (multicast and single server)
+    \endlist
+
+    \note Qt CoAP is part of the Qt for Automation offering and not Qt. For further
+    details please see \l {Qt for Automation}.
 
     \section1 Getting Started
 
