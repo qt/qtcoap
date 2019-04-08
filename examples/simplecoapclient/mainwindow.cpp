@@ -56,6 +56,7 @@
 #include <QCoapReply>
 #include <QDateTime>
 #include <QFileDialog>
+#include <QHostInfo>
 #include <QMessageBox>
 #include <QMetaEnum>
 #include <QNetworkInterface>
@@ -141,12 +142,22 @@ void MainWindow::onNotified(QCoapReply *reply, const QCoapMessage &message)
         addMessage("Received observe notification with payload: " + message.payload());
 }
 
+
+static QString tryToResolveHostName(const QString hostName)
+{
+    const auto hostInfo = QHostInfo::fromName(hostName);
+    if (!hostInfo.addresses().empty())
+        return hostInfo.addresses().first().toString();
+
+    return hostName;
+}
+
 void MainWindow::on_runButton_clicked()
 {
     const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::Confirmable
                                                           : QCoapMessage::NonConfirmable;
     QUrl url;
-    url.setHost(ui->hostComboBox->currentText());
+    url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
     url.setPath(ui->resourceComboBox->currentText());
 
@@ -178,7 +189,7 @@ void MainWindow::on_runButton_clicked()
 void MainWindow::on_discoverButton_clicked()
 {
     QUrl url;
-    url.setHost(ui->hostComboBox->currentText());
+    url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
 
     QCoapDiscoveryReply *discoverReply = m_client->discover(url, ui->discoveryPathEdit->text());
@@ -191,7 +202,7 @@ void MainWindow::on_discoverButton_clicked()
 void MainWindow::on_observeButton_clicked()
 {
     QUrl url;
-    url.setHost(ui->hostComboBox->currentText());
+    url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
     url.setPath(ui->resourceComboBox->currentText());
 
