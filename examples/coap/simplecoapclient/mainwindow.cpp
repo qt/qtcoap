@@ -63,9 +63,12 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_client(new QCoapClient(QtCoap::NoSec, this))
+    ui(new Ui::MainWindow)
 {
+    m_client = new QCoapClient(QtCoap::NoSec, this);
+    connect(m_client, &QCoapClient::finished, this, &MainWindow::onFinished);
+    connect(m_client, &QCoapClient::error, this, &MainWindow::onError);
+
     ui->setupUi(this);
 
     ui->methodComboBox->addItem("Get", QtCoap::Method::Get);
@@ -75,9 +78,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     fillHostSelector();
     ui->hostComboBox->setFocus();
-
-    connect(m_client, &QCoapClient::finished, this, &MainWindow::onFinished);
-    connect(m_client, &QCoapClient::error, this, &MainWindow::onError);
 }
 
 MainWindow::~MainWindow()
