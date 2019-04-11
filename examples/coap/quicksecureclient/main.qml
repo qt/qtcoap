@@ -64,8 +64,9 @@ Window {
     CoapSecureClient {
         id: client
         onFinished: {
-            outputView.text = result
-            statusLabel.text = ""
+            outputView.text = result;
+            statusLabel.text = "";
+            disconnectButton.enabled = true;
         }
     }
 
@@ -182,7 +183,6 @@ Window {
             id: requestButton
             text: qsTr("Send Request")
             enabled: securityModeGroup.checkState !== Qt.Unchecked
-            Layout.columnSpan: 2
 
             onClicked: {
                 outputView.text = "";
@@ -198,6 +198,19 @@ Window {
 
                 statusLabel.text = qsTr("Sending request to %1%2...").arg(hostComboBox.editText)
                                                                      .arg(resourceField.text);
+            }
+        }
+
+        Button {
+            id: disconnectButton
+            text: qsTr("Disconnect")
+            enabled: false
+
+            onClicked: {
+                client.disconnect();
+                statusLabel.text = qsTr("Disconnected.");
+                outputView.text = "";
+                disconnectButton.enabled = false;
             }
         }
 

@@ -159,3 +159,9 @@ void QmlCoapSecureClient::setSecurityConfiguration(const QString &localCertifica
     }
     m_configuration = configuration;
 }
+
+void QmlCoapSecureClient::disconnect()
+{
+    if (m_coapClient)
+        m_coapClient->disconnect();
+}

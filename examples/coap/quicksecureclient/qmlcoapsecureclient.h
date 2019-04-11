@@ -68,6 +68,7 @@ public:
     Q_INVOKABLE void setSecurityConfiguration(const QString &localCertificatePath,
                                               const QString &caCertificatePath,
                                               const QString &privateKeyPath);
+    Q_INVOKABLE void disconnect();
 
 Q_SIGNALS:
     void finished(const QString &result);
