@@ -74,6 +74,7 @@ public:
     void cancelObserve(const QUrl &url);
 
     QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::AllCoapNodesIPv4,
+                                  int port = QtCoap::DefaultPort,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
@@ -82,10 +83,9 @@ public:
     void setBlockSize(quint16 blockSize);
     void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
     void setMaxServerResponseDelay(uint responseDelay);
-
-#if 0
-    void setProtocol(QCoapProtocol *protocol);
-#endif
+    void setAckTimeout(uint ackTimeout);
+    void setAckRandomFactor(double ackRandomFactor);
+    void setMaxRetransmit(uint maxRetransmit);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);

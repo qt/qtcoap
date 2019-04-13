@@ -10,5 +10,5 @@ SOURCES += main.cpp \
     coaphandler.cpp
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/testapp
+target.path = $$[QT_INSTALL_EXAMPLES]/consolecoapclient
 INSTALLS += target

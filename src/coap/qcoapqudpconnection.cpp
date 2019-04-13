@@ -164,6 +164,16 @@ QCoapQUdpConnectionPrivate::QCoapQUdpConnectionPrivate(QtCoap::SecurityMode secu
 {
 }
 
+QCoapQUdpConnectionPrivate::~QCoapQUdpConnectionPrivate()
+{
+#if QT_CONFIG(dtls)
+    if (dtls && dtls->isConnectionEncrypted()) {
+        Q_ASSERT(udpSocket);
+        dtls->shutdown(udpSocket);
+    }
+#endif
+}
+
 /*!
     \internal
 

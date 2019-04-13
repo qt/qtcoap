@@ -15,8 +15,6 @@ The full specification can be found in [RFC 7252](https://tools.ietf.org/html/rf
 
 ### Unsupported yet
 
-- Multicast discovery
-- DTLS
 - CoAP Server
 
 ## How to use the library
@@ -33,10 +31,13 @@ or
 QCoapReply* reply = client->get(QCoapRequest("coap://coap.me/test"));
 connect(reply, &QCoapReply::finished, this, &MyClass::onFinished);
 ```
-The slot connected to the `QCoapReply::finished(QCoapReply *)` signal can use the `QCoapReply` object like a `QIODevice` object.
+The slot connected to the `QCoapReply::finished(QCoapReply *)` signal can use the `QCoapReply`
+object like a `QIODevice` object.
 
 ### OBSERVE requests
-Observe requests are used to receive automatic server notifications for a resource. For Observe requests specifically, you can use the `QCoapReply::notified(QCoapReply *, QCoapMessage)` signal to handle notifications from the CoAP server.
+Observe requests are used to receive automatic server notifications for a resource. For Observe
+requests specifically, you can use the `QCoapReply::notified(QCoapReply *, QCoapMessage)` signal
+to handle notifications from the CoAP server.
 ```c++
 QCoapRequest request = QCoapRequest("coap://coap.me/obs");
 QCoapReply* reply = client->observe(request);
@@ -51,23 +52,50 @@ client->cancelObserve(reply);
 The notified signal will provide the `QCoapReply` and most recent message.
 
 ### DISCOVERY requests
-For machine to machine communication, CoAP Discovery requests is used to query the resources available to an endpoint, or to the complete network.
+For machine to machine communication, CoAP Discovery requests is used to query the resources
+available to an endpoint, or to the complete network.
 ```c++
 QCoapDiscoveryReply* reply = client->discover("coap://coap.me/");
 connect(reply, &QCoapReply::discovered, this, &MyClass::onDiscovered);
 ```
 
-The signal `discovered` can be triggered multiple times, and will provide the list of resources returns by the server(s).
+For multicast discovery use one of the groups from the `QtCoap::MulticastGroup` enum, instead of
+specifying the discovery path:
+
+```c++
+QCoapDiscoveryReply* reply = client->discover(QtCoap::AllCoapNodesIPv6LinkLocal);
+```
+
+If no group is specified, `QtCoap::AllCoapNodesIPv4` will be used by default.
+
+The signal `discovered` can be triggered multiple times, and will provide the list of resources
+returned by the server(s).
+
+### Using security
+
+The following example code can be used to secure CoAP communication:
+
+```c++
+QCoapClient* client = new QCoapClient(this, QtCoap::PreSharedKey);
+QCoapSecurityConfiguration config;
+config.setPreSharedKey("secretPSK");
+config.setIdentity("Client_identity");
+client->setSecurityConfiguration(config);
+```
+
+To use X.509 certificate-based security use `QtCoap::Certificate` for the security mode.
+`QtCoap::RawPublicKey` mode is not supported yet.
 
 ## Automated tests
-Automated tests require a Californium plugtest server. Plugtest is a CoAP server used to test the main features of the CoAP protocol.
-The following command starts a plugtest server using Docker.
+Automated tests require a Californium plugtest server. Plugtest is a CoAP server used to test the
+main features of the CoAP protocol. The following command starts a plugtest server using Docker.
 
 ```bash
 docker run --name coap-test-server -d --rm -p 5683:5683/udp aleravat/coap-test-server:latest
 ```
 
-Automated tests require `COAP_TEST_SERVER_IP` environment variable to be set, containing Plugtest server IP address. This address will be used to connect to the Plugtest server on port 5683.
+Automated tests require `COAP_TEST_SERVER_IP` environment variable to be set, containing Plugtest
+server IP address. This address will be used to connect to the Plugtest server on port 5683.
 
 The IP address of the docker container can found identified by:
 1. Retrieve the container id with `docker ps`

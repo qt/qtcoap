@@ -26,16 +26,8 @@
 ****************************************************************************/
 
 /*!
-    \externalpage http://coap.technology/
-    \title CoAP
-*/
-
-/*!
-    \externalpage https://tools.ietf.org/search/rfc7390#section-2.5
-    \title RFC 7390 - Section 2.5
-*/
-
-/*!
-    \externalpage https://tools.ietf.org/html/rfc7252#section-4.2
-    \title RFC 7252 - Section 4.2
+    \example quicksecureclient
+    \title Quick Secure CoAP Client Example
+    \ingroup qtcoap-examples
+    \brief Securing the CoAP client and using it with a Qt Quick user interface.
 */

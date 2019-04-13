@@ -31,7 +31,7 @@ qhp.QtCoap.subprojects.examples.sortPages     = true
 
 headerdirs  += ..
 sourcedirs  += ..
-exampledirs = ../../../examples/testapp
+exampledirs = ../../../examples
 excludedirs += ../qt4support
 
 Cpp.ignoretokens += Q_COAP_EXPORT

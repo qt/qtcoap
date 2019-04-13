@@ -26,16 +26,10 @@
 ****************************************************************************/
 
 /*!
-    \externalpage http://coap.technology/
-    \title CoAP
-*/
+    \group qtcoap-examples
+    \title Qt CoAP Examples
+    \brief List of Qt CoAP examples.
 
-/*!
-    \externalpage https://tools.ietf.org/search/rfc7390#section-2.5
-    \title RFC 7390 - Section 2.5
-*/
-
-/*!
-    \externalpage https://tools.ietf.org/html/rfc7252#section-4.2
-    \title RFC 7252 - Section 4.2
+    The Qt CoAP examples demonstrate the functionality provided by the
+    \l{Qt CoAP} module.
 */

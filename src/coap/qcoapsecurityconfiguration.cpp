@@ -40,8 +40,8 @@ class QCoapPrivateKeyPrivate : public QSharedData
 {
 public:
     QByteArray key;
-    Qt::HANDLE opaqueKey;
-    QSsl::KeyAlgorithm algorithm;
+    Qt::HANDLE opaqueKey = nullptr;
+    QSsl::KeyAlgorithm algorithm = QSsl::Opaque;
     QSsl::EncodingFormat encodingFormat;
     QByteArray passPhrase;
 };
