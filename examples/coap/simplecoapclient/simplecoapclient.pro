@@ -29,5 +29,5 @@ FORMS += \
         mainwindow.ui \
         optiondialog.ui
 
-target.path = $$[QT_INSTALL_EXAMPLES]/simplecoapclient
+target.path = $$[QT_INSTALL_EXAMPLES]/coap/simplecoapclient
 INSTALLS += target
