@@ -315,6 +315,11 @@ QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
         finalizedUrl.setScheme(scheme);
     }
 
+    if (finalizedUrl.host().isEmpty()) {
+        qCWarning(lcCoapExchange) << "The requested URL" << url << "is not a valid CoAP URL.";
+        return QUrl();
+    }
+
     if (url.port() == -1) {
         const auto port = secure ? QtCoap::DefaultSecurePort : QtCoap::DefaultPort;
         finalizedUrl.setPort(port);
