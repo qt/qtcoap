@@ -43,3 +43,4 @@ depends += qtcore qtdoc qtnetwork qmake
 
 navigation.landingpage = "Qt CoAP"
 navigation.cppclassespage = "Qt CoAP C++ Classes"
+navigation.homepage = "Qt for Automation"
