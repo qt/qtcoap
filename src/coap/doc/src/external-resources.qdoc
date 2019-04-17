@@ -59,3 +59,8 @@
     \externalpage https://tools.ietf.org/html/rfc7252#section-4.2
     \title RFC 7252 - Section 4.2
 */
+
+/*!
+    \externalpage https://www.iana.org/assignments/core-parameters/core-parameters.xhtml#content-formats
+    \title CoAP Content-Formats Registry
+*/

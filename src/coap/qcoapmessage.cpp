@@ -371,9 +371,15 @@ void QCoapMessage::setMessageId(quint16 id)
 }
 
 /*!
-    Sets the message payload to \a payload.
+    Sets the message payload to \a payload. The payload can be represented in
+    one of the content formats defined in \l {CoAP Content-Formats Registry}.
 
-    \sa payload()
+    \note CoAP supports common content formats such as XML, JSON, and so on, but
+    these are text based and consequently heavy both in payload and in processing.
+    One of the recommended content formats to use with CoAP is CBOR, which is
+    designed to be used in such contexts.
+
+    \sa payload(), QCborStreamWriter, QCborStreamReader
 */
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
