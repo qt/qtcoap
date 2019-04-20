@@ -31,7 +31,7 @@ qhp.QtCoap.subprojects.examples.sortPages     = true
 
 headerdirs  += ..
 sourcedirs  += ..
-exampledirs = ../../../examples
+exampledirs = ../../../examples/coap
 excludedirs += ../qt4support
 
 Cpp.ignoretokens += Q_COAP_EXPORT
@@ -43,3 +43,4 @@ depends += qtcore qtdoc qtnetwork qmake
 
 navigation.landingpage = "Qt CoAP"
 navigation.cppclassespage = "Qt CoAP C++ Classes"
+navigation.homepage = "Qt for Automation"
