@@ -127,7 +127,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
 /*!
     \fn void QCoapClient::responseToMulticastReceived(QCoapReply *reply,
-                                                      const QCoapMessage& message,
+                                                      const QCoapMessage &message,
                                                       const QHostAddress &sender)
 
     This signal is emitted when a unicast response to a multicast request
