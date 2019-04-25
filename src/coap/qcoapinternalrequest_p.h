@@ -64,7 +64,7 @@ public:
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
-    bool isValid() const Q_DECL_OVERRIDE;
+    bool isValid() const override;
 
     void initForAcknowledgment(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
@@ -77,7 +77,7 @@ public:
     bool checkBlockNumber(uint blockNumber);
 
     using QCoapInternalMessage::addOption;
-    void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
+    void addOption(const QCoapOption &option) override;
     bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
     QCoapToken token() const;

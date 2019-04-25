@@ -64,7 +64,7 @@ public:
     int nextBlockToSend() const;
 
     using QCoapInternalMessage::addOption;
-    void addOption(const QCoapOption &option);
+    void addOption(const QCoapOption &option) override;
     void setSenderAddress(const QHostAddress &address);
 
     QtCoap::ResponseCode responseCode() const;
