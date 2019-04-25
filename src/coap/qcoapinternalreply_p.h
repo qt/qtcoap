@@ -33,7 +33,6 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCoap/qcoapinternalmessage.h>
 #include <private/qcoapinternalmessage_p.h>
 #include <QtNetwork/qhostaddress.h>
 

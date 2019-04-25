@@ -35,7 +35,6 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCoap/qcoapinternalmessage.h>
 #include <QtCoap/qcoapconnection.h>
 
 #include <QtCore/qglobal.h>

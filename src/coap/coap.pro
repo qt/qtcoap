@@ -10,7 +10,6 @@ PUBLIC_HEADERS += \
     qcoapconnection.h \
     qcoapdiscoveryreply.h \
     qcoapglobal.h \
-    qcoapinternalmessage.h \
     qcoapmessage.h \
     qcoapnamespace.h \
     qcoapoption.h \
