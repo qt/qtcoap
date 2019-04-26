@@ -236,7 +236,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Get);
+    QCoapRequest copyRequest(request, QtCoap::Method::Get);
     copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
@@ -265,7 +265,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Put);
+    QCoapRequest copyRequest(request, QtCoap::Method::Put);
     copyRequest.setPayload(data);
     copyRequest.adjustUrl(d->connection->isSecure());
 
@@ -311,7 +311,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Post);
+    QCoapRequest copyRequest(request, QtCoap::Method::Post);
     copyRequest.setPayload(data);
     copyRequest.adjustUrl(d->connection->isSecure());
 
@@ -360,7 +360,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Delete);
+    QCoapRequest copyRequest(request, QtCoap::Method::Delete);
     copyRequest.adjustUrl(d->connection->isSecure());
 
     return d->sendRequest(copyRequest);
@@ -400,13 +400,13 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
 
     QString base;
     switch (group) {
-    case QtCoap::AllCoapNodesIPv4:
+    case QtCoap::MulticastGroup::AllCoapNodesIPv4:
         base = QStringLiteral("224.0.1.187");
         break;
-    case QtCoap::AllCoapNodesIPv6LinkLocal:
+    case QtCoap::MulticastGroup::AllCoapNodesIPv6LinkLocal:
         base = QStringLiteral("ff02::fd");
         break;
-    case QtCoap::AllCoapNodesIPv6SiteLocal:
+    case QtCoap::MulticastGroup::AllCoapNodesIPv6SiteLocal:
         base = QStringLiteral("ff05::fd");
         break;
     }
@@ -417,7 +417,7 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
     discoveryUrl.setPort(port);
 
     QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Get);
+    request.setMethod(QtCoap::Method::Get);
     request.adjustUrl(d->connection->isSecure());
 
     return d->sendDiscovery(request);
@@ -443,7 +443,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
     discoveryUrl.setPath(url.path() + discoveryPath);
 
     QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Get);
+    request.setMethod(QtCoap::Method::Get);
     request.adjustUrl(d->connection->isSecure());
 
     return d->sendDiscovery(request);
@@ -458,7 +458,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    QCoapRequest copyRequest(request, QtCoap::Get);
+    QCoapRequest copyRequest(request, QtCoap::Method::Get);
     copyRequest.enableObserve();
 
     return get(copyRequest);
@@ -579,7 +579,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     // According to https://tools.ietf.org/html/rfc7252#section-8.1,
     // multicast requests MUST be Non-confirmable.
     if (QHostAddress(reply->url().host()).isMulticast()
-            && reply->request().type() == QCoapMessage::Confirmable) {
+            && reply->request().type() == QCoapMessage::MessageType::Confirmable) {
         qCWarning(lcCoapClient, "Failed to send request, "
                                 "multicast requests must be non-confirmable.");
         return false;

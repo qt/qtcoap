@@ -120,7 +120,7 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
 QCoapConnectionPrivate::QCoapConnectionPrivate(QtCoap::SecurityMode security)
     : securityMode(security)
-    , state(QCoapConnection::Unconnected)
+    , state(QCoapConnection::ConnectionState::Unconnected)
 {}
 
 /*!
@@ -145,7 +145,7 @@ QCoapConnection::QCoapConnection(QObjectPrivate &dd, QObject *parent)
     connect(this, &QCoapConnection::bound, this,
             [this]() {
                 Q_D(QCoapConnection);
-                d->state = QCoapConnection::Bound;
+                d->state = ConnectionState::Bound;
                 startToSendRequest();
             });
 }
@@ -187,7 +187,7 @@ QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &ho
 bool QCoapConnection::isSecure() const
 {
     Q_D(const QCoapConnection);
-    return d->securityMode != QtCoap::NoSec;
+    return d->securityMode != QtCoap::SecurityMode::NoSec;
 }
 
 /*!
@@ -262,7 +262,7 @@ void QCoapConnection::disconnect()
     close();
 
     d->framesToSend.clear();
-    d->state = QCoapConnection::Unconnected;
+    d->state = ConnectionState::Unconnected;
 }
 
 QT_END_NAMESPACE

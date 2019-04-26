@@ -49,7 +49,7 @@ namespace QtCoap
 {
     Q_COAP_EXPORT Q_NAMESPACE
 
-    enum ResponseCode {
+    enum class ResponseCode : quint8 {
         EmptyMessage = 0x00,
         Created = 0x41, // 2.01
         Deleted = 0x42, // 2.02
@@ -66,7 +66,7 @@ namespace QtCoap
     };
     Q_ENUM_NS(ResponseCode)
 
-    enum Error {
+    enum class Error : quint8 {
         NoError,
         HostNotFoundError,
         AddressInUseError,
@@ -80,7 +80,7 @@ namespace QtCoap
     };
     Q_ENUM_NS(Error)
 
-    enum Method {
+    enum class Method : quint8 {
         Invalid,
         Get,
         Post,
@@ -103,7 +103,7 @@ namespace QtCoap
     };
     Q_ENUM_NS(Port)
 
-    enum SecurityMode {
+    enum class SecurityMode : quint8 {
         NoSec = 0,
         PreSharedKey,
         RawPublicKey,
@@ -111,7 +111,7 @@ namespace QtCoap
     };
     Q_ENUM_NS(SecurityMode)
 
-    enum MulticastGroup {
+    enum class MulticastGroup : quint8 {
         AllCoapNodesIPv4,
         AllCoapNodesIPv6LinkLocal,
         AllCoapNodesIPv6SiteLocal

@@ -78,7 +78,7 @@ class Q_AUTOTEST_EXPORT QCoapInternalReplyPrivate : public QCoapInternalMessageP
 public:
     QCoapInternalReplyPrivate() = default;
 
-    QtCoap::ResponseCode responseCode = QtCoap::InvalidCode;
+    QtCoap::ResponseCode responseCode = QtCoap::ResponseCode::InvalidCode;
     QHostAddress senderAddress;
 };
 

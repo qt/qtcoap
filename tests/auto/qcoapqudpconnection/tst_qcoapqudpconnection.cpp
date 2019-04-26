@@ -68,7 +68,7 @@ class QCoapQUdpConnectionForTest : public QCoapQUdpConnection
     Q_OBJECT
 public:
     QCoapQUdpConnectionForTest(QObject *parent = nullptr) :
-        QCoapQUdpConnection(QtCoap::NoSec, parent)
+        QCoapQUdpConnection(QtCoap::SecurityMode::NoSec, parent)
     {}
 
     void bindSocketForTest() { d_func()->bindSocket(); }
@@ -93,14 +93,14 @@ void tst_QCoapQUdpConnection::connectToHost()
     QSignalSpy spyConnectionBound(&connection, SIGNAL(bound()));
     QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
-    QCOMPARE(connection.state(), QCoapQUdpConnection::Unconnected);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Unconnected);
 
     // This will trigger connection.bind()
     connection.sendRequest(QByteArray(), QString(), 0);
 
     QTRY_COMPARE(spySocketStateChanged.count(), 1);
     QTRY_COMPARE(spyConnectionBound.count(), 1);
-    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
@@ -115,15 +115,15 @@ void tst_QCoapQUdpConnection::reconnect()
     QSignalSpy connectionBoundSpy(&connection, SIGNAL(bound()));
     connection.sendRequest(QByteArray(), QString(), 0);
     QTRY_COMPARE(connectionBoundSpy.count(), 1);
-    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 
     connection.disconnect();
-    QCOMPARE(connection.state(), QCoapQUdpConnection::Unconnected);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Unconnected);
 
     // Make sure that we are able to connect again
     connection.sendRequest(QByteArray(), QString(), 0);
     QTRY_COMPARE(connectionBoundSpy.count(), 2);
-    QCOMPARE(connection.state(), QCoapQUdpConnection::Bound);
+    QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
@@ -144,7 +144,7 @@ void tst_QCoapQUdpConnection::sendRequest_data()
         << testServerHost()
         << "/test"
         << quint16(QtCoap::DefaultPort)
-        << QtCoap::Get
+        << QtCoap::Method::Get
         << "5445"
         << "61626364c0211eff547970653a203120284e4f4e290a436f64653a2031202847"
            "4554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
@@ -154,7 +154,7 @@ void tst_QCoapQUdpConnection::sendRequest_data()
         << testServerHost()
         << "/test"
         << quint16(QtCoap::DefaultPort)
-        << QtCoap::Put
+        << QtCoap::Method::Put
         << "5444"
         << "61626364";
 
@@ -163,7 +163,7 @@ void tst_QCoapQUdpConnection::sendRequest_data()
         << testServerHost()
         << "/test"
         << quint16(QtCoap::DefaultPort)
-        << QtCoap::Post
+        << QtCoap::Method::Post
         << "5441"
         << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f"
            "6e33";
@@ -173,7 +173,7 @@ void tst_QCoapQUdpConnection::sendRequest_data()
         << testServerHost()
         << "/test"
         << quint16(QtCoap::DefaultPort)
-        << QtCoap::Delete
+        << QtCoap::Method::Delete
         << "5442"
         << "61626364";
 }

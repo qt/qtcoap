@@ -146,7 +146,7 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
 QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     QCoapRequest(other)
 {
-    if (method != QtCoap::Invalid)
+    if (method != QtCoap::Method::Invalid)
         setMethod(method);
 }
 
@@ -278,7 +278,7 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 */
 bool QCoapRequest::isValid() const
 {
-    return isUrlValid(url()) && method() != QtCoap::Invalid;
+    return isUrlValid(url()) && method() != QtCoap::Method::Invalid;
 }
 
 /*!

@@ -72,8 +72,8 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
     QList<QByteArray> bigOptionValueReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
     QTest::newRow("reply_with_options_and_payload")
-            << QtCoap::Content
-            << QCoapMessage::NonConfirmable
+            << QtCoap::ResponseCode::Content
+            << QCoapMessage::MessageType::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -86,8 +86,8 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
                "3962";
 
     QTest::newRow("reply_with_payload")
-            << QtCoap::Content
-            << QCoapMessage::NonConfirmable
+            << QtCoap::ResponseCode::Content
+            << QCoapMessage::MessageType::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -99,8 +99,8 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
                "474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
     QTest::newRow("reply_with_options")
-            << QtCoap::Content
-            << QCoapMessage::NonConfirmable
+            << QtCoap::ResponseCode::Content
+            << QCoapMessage::MessageType::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -111,8 +111,8 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
             << "5445fbcf4647f09bc0211e";
 
     QTest::newRow("reply_only")
-            << QtCoap::Content
-            << QCoapMessage::NonConfirmable
+            << QtCoap::ResponseCode::Content
+            << QCoapMessage::MessageType::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -123,8 +123,8 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
             << "5445fbcf4647f09b";
 
     QTest::newRow("reply_with_big_option")
-            << QtCoap::Content
-            << QCoapMessage::NonConfirmable
+            << QtCoap::ResponseCode::Content
+            << QCoapMessage::MessageType::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)

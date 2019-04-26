@@ -44,7 +44,7 @@ class QCoapMessagePrivate;
 class Q_COAP_EXPORT QCoapMessage
 {
 public:
-    enum MessageType {
+    enum class MessageType : quint8 {
         Confirmable,
         NonConfirmable,
         Acknowledgment,

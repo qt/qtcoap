@@ -60,7 +60,7 @@ struct CoapFrame {
 class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
-    QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
+    QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec);
 
     ~QCoapConnectionPrivate() override = default;
 

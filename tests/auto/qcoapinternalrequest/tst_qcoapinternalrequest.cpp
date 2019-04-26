@@ -71,8 +71,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_with_option_and_payload")
         << QUrl("coap://10.20.30.40:5683/test")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
@@ -80,8 +80,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_domain")
         << QUrl("coap://domain.com:5683/test")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09b3a646f6d61696e2e636f6d8474657374ff"
@@ -89,8 +89,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_ipv6")
         << QUrl("coap://[::ffff:ac11:3]:5683/test")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
@@ -98,8 +98,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_without_payload")
         << QUrl("coap://10.20.30.40:5683/test")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374"
@@ -107,8 +107,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_without_option")
         << QUrl("coap://10.20.30.40:5683/")
-        << QtCoap::Put
-        << QCoapRequest::Confirmable
+        << QtCoap::Method::Put
+        << QCoapRequest::MessageType::Confirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "4403dc504647f09bff"
@@ -116,8 +116,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_only")
         << QUrl("coap://10.20.30.40:5683/")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09b"
@@ -125,8 +125,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_with_multiple_options")
         << QUrl("coap://10.20.30.40:5683/test/oui")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374036f7569"
@@ -134,8 +134,8 @@ void tst_QCoapInternalRequest::requestToFrame_data()
 
     QTest::newRow("request_with_big_option_number")
         << QUrl("coap://10.20.30.40:5683/test")
-        << QtCoap::Get
-        << QCoapRequest::NonConfirmable
+        << QtCoap::Method::Get
+        << QCoapRequest::MessageType::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f70"
@@ -218,7 +218,7 @@ void tst_QCoapInternalRequest::parseUri()
     QFETCH(QUrl, proxyUri);
     QFETCH(QVector<QCoapOption>, options);
 
-    QCoapRequest request(uri, QCoapMessage::NonConfirmable, proxyUri);
+    QCoapRequest request(uri, QCoapMessage::MessageType::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
     for (QCoapOption opt : options)

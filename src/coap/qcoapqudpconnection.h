@@ -48,7 +48,7 @@ class Q_COAP_EXPORT QCoapQUdpConnection : public QCoapConnection
     Q_OBJECT
 
 public:
-    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::NoSec,
+    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec,
                                  QObject *parent = nullptr);
 
     ~QCoapQUdpConnection() override = default;

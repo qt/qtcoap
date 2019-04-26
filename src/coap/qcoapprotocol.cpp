@@ -168,7 +168,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
             internalRequest->setToSendBlock(0, d->blockSize);
     }
 
-    if (requestMessage->type() == QCoapMessage::Confirmable)
+    if (requestMessage->type() == QCoapMessage::MessageType::Confirmable)
         internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minTimeout(), maxTimeout()));
     else
         internalRequest->setTimeout(maxTimeout());
@@ -229,11 +229,11 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     if (!isRequestRegistered(request))
         return;
 
-    if (request->message()->type() == QCoapMessage::Confirmable
+    if (request->message()->type() == QCoapMessage::MessageType::Confirmable
             && request->retransmissionCounter() < maxRetransmit) {
         sendRequest(request);
     } else {
-        onRequestError(request, QtCoap::TimeOutError);
+        onRequestError(request, QtCoap::Error::TimeOutError);
     }
 }
 
@@ -249,7 +249,7 @@ void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequ
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     if (isRequestRegistered(request))
-        onRequestError(request, QtCoap::TimeOutError);
+        onRequestError(request, QtCoap::Error::TimeOutError);
 }
 
 /*!
@@ -267,7 +267,7 @@ void QCoapProtocolPrivate::onMulticastRequestExpired(QCoapInternalRequest *reque
     QPointer<QCoapReply> userReply = userReplyForToken(request->token());
     if (userReply) {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
     } else {
         qCWarning(lcCoapProtocol).nospace() << "Reply for token '" << request->token()
                                             << "' is not registered, reply is null.";
@@ -312,7 +312,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
         }
 
         QMetaObject::invokeMethod(userReply.data(), "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
     }
 
     forgetExchange(request);
@@ -366,7 +366,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
         // Remove option to ensure that it will stop
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
-    } else if (messageReceived->type() == QCoapMessage::Confirmable) {
+    } else if (messageReceived->type() == QCoapMessage::MessageType::Confirmable) {
         sendAcknowledgment(request);
     }
 
@@ -505,8 +505,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
 
     auto lastReply = replies.last();
     // Ignore empty ACK messages
-    if (lastReply->message()->type() == QCoapMessage::Acknowledgment
-            && lastReply->responseCode() == QtCoap::EmptyMessage) {
+    if (lastReply->message()->type() == QCoapMessage::MessageType::Acknowledgment
+            && lastReply->responseCode() == QtCoap::ResponseCode::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;
     }
@@ -557,7 +557,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
         emit q->responseToMulticastReceived(userReply, *lastReply->message(), sender);
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
         forgetExchange(request);
     }
 }
@@ -733,13 +733,13 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
     QtCoap::Error coapError;
     switch (socketError) {
     case QAbstractSocket::HostNotFoundError :
-        coapError = QtCoap::HostNotFoundError;
+        coapError = QtCoap::Error::HostNotFoundError;
         break;
     case QAbstractSocket::AddressInUseError :
-        coapError = QtCoap::AddressInUseError;
+        coapError = QtCoap::Error::AddressInUseError;
         break;
     default:
-        coapError = QtCoap::UnknownError;
+        coapError = QtCoap::Error::UnknownError;
         break;
     }
 

@@ -59,7 +59,7 @@ void tst_QCoapMessage::copyAndDetach()
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
-    a.setType(QCoapMessage::Acknowledgment);
+    a.setType(QCoapMessage::MessageType::Acknowledgment);
     a.setVersion(5);
 
     // Test the copy
@@ -67,7 +67,7 @@ void tst_QCoapMessage::copyAndDetach()
     QVERIFY2(b.messageId() == 3, "Message not copied correctly");
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
-    QVERIFY2(b.type() == QCoapMessage::Acknowledgment, "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::MessageType::Acknowledgment, "Message not copied correctly");
     QVERIFY2(b.version() == 5, "Message not copied correctly");
 
     // Detach
@@ -80,10 +80,10 @@ void tst_QCoapMessage::setMessageType_data()
 {
     QTest::addColumn<QCoapMessage::MessageType>("type");
 
-    QTest::newRow("acknowledgment") << QCoapMessage::Acknowledgment;
-    QTest::newRow("confirmable") << QCoapMessage::Confirmable;
-    QTest::newRow("non-confirmable") << QCoapMessage::NonConfirmable;
-    QTest::newRow("reset") << QCoapMessage::Reset;
+    QTest::newRow("acknowledgment") << QCoapMessage::MessageType::Acknowledgment;
+    QTest::newRow("confirmable") << QCoapMessage::MessageType::Confirmable;
+    QTest::newRow("non-confirmable") << QCoapMessage::MessageType::NonConfirmable;
+    QTest::newRow("reset") << QCoapMessage::MessageType::Reset;
 }
 
 void tst_QCoapMessage::setMessageType()

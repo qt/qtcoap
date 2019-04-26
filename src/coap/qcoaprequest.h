@@ -46,10 +46,10 @@ class Q_COAP_EXPORT QCoapRequest : public QCoapMessage
 {
 public:
     explicit QCoapRequest(const QUrl &url = QUrl(),
-                 MessageType type = NonConfirmable,
+                 MessageType type = MessageType::NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
     explicit QCoapRequest(const char* url,
-                 MessageType type = NonConfirmable);
+                 MessageType type = MessageType::NonConfirmable);
     QCoapRequest(const QCoapRequest &other);
     ~QCoapRequest();
 

@@ -283,14 +283,14 @@ bool QtCoap::isError(QtCoap::ResponseCode code)
 QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 {
     if (!isError(code))
-        return QtCoap::NoError;
+        return QtCoap::Error::NoError;
 
     switch (code) {
-#define SINGLE_CASE(name, ignored) case name: return name ## Error;
+#define SINGLE_CASE(name, ignored) case ResponseCode::name: return Error::name ## Error;
         FOR_EACH_COAP_ERROR(SINGLE_CASE)
 #undef SINGLE_CASE
     default:
-        return UnknownError;
+        return Error::UnknownError;
     }
 }
 

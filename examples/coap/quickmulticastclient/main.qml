@@ -102,17 +102,17 @@ Window {
                     ListElement {
                         group: qsTr("IPv4 CoAP Nodes")
                         address: "224.0.1.187"
-                        value: QtCoap.AllCoapNodesIPv4
+                        value: QtCoap.MulticastGroup.AllCoapNodesIPv4
                     }
                     ListElement {
                         group: qsTr("IPv6 Link Local CoAP Nodes")
                         address: "ff02::fd"
-                        value: QtCoap.AllCoapNodesIPv6LinkLocal
+                        value: QtCoap.MulticastGroup.AllCoapNodesIPv6LinkLocal
                     }
                     ListElement {
                         group: qsTr("IPv6 Site Local CoAP Nodes")
                         address: "ff05::fd"
-                        value: QtCoap.AllCoapNodesIPv6SiteLocal
+                        value: QtCoap.MulticastGroup.AllCoapNodesIPv6SiteLocal
                     }
                     ListElement {
                         group: qsTr("Other")

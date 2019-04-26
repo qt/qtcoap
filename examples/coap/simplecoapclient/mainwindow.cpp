@@ -65,16 +65,16 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    m_client = new QCoapClient(QtCoap::NoSec, this);
+    m_client = new QCoapClient(QtCoap::SecurityMode::NoSec, this);
     connect(m_client, &QCoapClient::finished, this, &MainWindow::onFinished);
     connect(m_client, &QCoapClient::error, this, &MainWindow::onError);
 
     ui->setupUi(this);
 
-    ui->methodComboBox->addItem("Get", QtCoap::Method::Get);
-    ui->methodComboBox->addItem("Put", QtCoap::Method::Put);
-    ui->methodComboBox->addItem("Post", QtCoap::Method::Post);
-    ui->methodComboBox->addItem("Delete", QtCoap::Method::Delete);
+    ui->methodComboBox->addItem("Get", QVariant::fromValue(QtCoap::Method::Get));
+    ui->methodComboBox->addItem("Put", QVariant::fromValue(QtCoap::Method::Put));
+    ui->methodComboBox->addItem("Post", QVariant::fromValue(QtCoap::Method::Post));
+    ui->methodComboBox->addItem("Delete", QVariant::fromValue(QtCoap::Method::Delete));
 
     fillHostSelector();
     ui->hostComboBox->setFocus();
@@ -106,13 +106,13 @@ void MainWindow::addMessage(const QString &message, bool isError)
 
 void MainWindow::onFinished(QCoapReply *reply)
 {
-    if (reply->errorReceived() == QtCoap::NoError)
+    if (reply->errorReceived() == QtCoap::Error::NoError)
         addMessage(reply->message().payload());
 }
 
 static QString errorMessage(QtCoap::Error errorCode)
 {
-    const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(errorCode);
+    const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(static_cast<int>(errorCode));
     return QString("Request failed with error: %1\n").arg(error);
 }
 
@@ -124,7 +124,7 @@ void MainWindow::onError(QCoapReply *reply, QtCoap::Error error)
 
 void MainWindow::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
 {
-    if (reply->errorReceived() != QtCoap::NoError)
+    if (reply->errorReceived() != QtCoap::Error::NoError)
         return;
 
     QString message;
@@ -138,7 +138,7 @@ void MainWindow::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource>
 
 void MainWindow::onNotified(QCoapReply *reply, const QCoapMessage &message)
 {
-    if (reply->errorReceived() == QtCoap::NoError)
+    if (reply->errorReceived() == QtCoap::Error::NoError)
         addMessage("Received observe notification with payload: " + message.payload());
 }
 
@@ -154,8 +154,8 @@ static QString tryToResolveHostName(const QString hostName)
 
 void MainWindow::on_runButton_clicked()
 {
-    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::Confirmable
-                                                          : QCoapMessage::NonConfirmable;
+    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::MessageType::Confirmable
+                                                          : QCoapMessage::MessageType::NonConfirmable;
     QUrl url;
     url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
@@ -168,16 +168,16 @@ void MainWindow::on_runButton_clicked()
 
     const auto method = ui->methodComboBox->currentData(Qt::UserRole).value<QtCoap::Method>();
     switch (method) {
-    case QtCoap::Get:
+    case QtCoap::Method::Get:
         m_client->get(request);
         break;
-    case QtCoap::Put:
+    case QtCoap::Method::Put:
         m_client->put(request, m_currentData);
         break;
-    case QtCoap::Post:
+    case QtCoap::Method::Post:
         m_client->post(request, m_currentData);
         break;
-    case QtCoap::Delete:
+    case QtCoap::Method::Delete:
         m_client->deleteResource(request);
         break;
     default:
@@ -255,5 +255,5 @@ void MainWindow::on_methodComboBox_currentIndexChanged(int index)
     Q_UNUSED(index);
 
     const auto method = ui->methodComboBox->currentData(Qt::UserRole).value<QtCoap::Method>();
-    ui->contentButton->setEnabled(method == QtCoap::Put || method == QtCoap::Post);
+    ui->contentButton->setEnabled(method == QtCoap::Method::Put || method == QtCoap::Method::Post);
 }
