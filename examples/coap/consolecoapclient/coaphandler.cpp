@@ -88,7 +88,7 @@ bool CoapHandler::runDiscover(const QUrl &url)
 
 void CoapHandler::onFinished(QCoapReply *reply)
 {
-    if (reply->errorReceived() == QtCoap::Error::NoError)
+    if (reply->errorReceived() == QtCoap::Error::Ok)
         qCInfo(lcCoapClient) << "Request finished with payload:" << reply->readAll();
     else
         qCWarning(lcCoapClient, "Request failed");
@@ -116,7 +116,7 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
 void CoapHandler::onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message,
                                         const QHostAddress &sender)
 {
-    if (reply->errorReceived() == QtCoap::Error::NoError)
+    if (reply->errorReceived() == QtCoap::Error::Ok)
         qCInfo(lcCoapClient) << "Got a response for multicast request from:" << sender.toString()
                              << "with payload:" << message.payload();
     else

@@ -67,16 +67,16 @@ namespace QtCoap
     Q_ENUM_NS(ResponseCode)
 
     enum class Error : quint8 {
-        NoError,
-        HostNotFoundError,
-        AddressInUseError,
-        TimeOutError,
+        Ok,
+        HostNotFound,
+        AddressInUse,
+        TimeOut,
 
-#define SINGLE_ERROR(name, ignored) name ## Error,
+#define SINGLE_ERROR(name, ignored) name,
         FOR_EACH_COAP_ERROR(SINGLE_ERROR)
 #undef SINGLE_ERROR
 
-        UnknownError
+        Unknown
     };
     Q_ENUM_NS(Error)
 
@@ -121,6 +121,8 @@ namespace QtCoap
     Q_COAP_EXPORT bool isError(ResponseCode code);
     Q_COAP_EXPORT Error responseCodeError(ResponseCode code);
     Q_COAP_EXPORT QRandomGenerator &randomGenerator();
+
+    Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 }
 
 QT_END_NAMESPACE

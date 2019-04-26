@@ -462,7 +462,7 @@ void tst_QCoapClient::socketError()
     QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 1000);
     QCOMPARE(qvariant_cast<QtCoap::Error>(spyClientError.first().at(1)),
-             QtCoap::Error::AddressInUseError);
+             QtCoap::Error::AddressInUse);
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
@@ -516,7 +516,7 @@ void tst_QCoapClient::timeout()
              qPrintable(errorMessage));
 
     QCOMPARE(qvariant_cast<QtCoap::Error>(spyReplyError.first().at(1)),
-             QtCoap::Error::TimeOutError);
+             QtCoap::Error::TimeOut);
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyAborted.count(), 0);
     QCOMPARE(spyClientError.count(), 1);

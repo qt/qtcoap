@@ -106,7 +106,7 @@ void MainWindow::addMessage(const QString &message, bool isError)
 
 void MainWindow::onFinished(QCoapReply *reply)
 {
-    if (reply->errorReceived() == QtCoap::Error::NoError)
+    if (reply->errorReceived() == QtCoap::Error::Ok)
         addMessage(reply->message().payload());
 }
 
@@ -124,7 +124,7 @@ void MainWindow::onError(QCoapReply *reply, QtCoap::Error error)
 
 void MainWindow::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
 {
-    if (reply->errorReceived() != QtCoap::Error::NoError)
+    if (reply->errorReceived() != QtCoap::Error::Ok)
         return;
 
     QString message;
@@ -138,7 +138,7 @@ void MainWindow::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource>
 
 void MainWindow::onNotified(QCoapReply *reply, const QCoapMessage &message)
 {
-    if (reply->errorReceived() == QtCoap::Error::NoError)
+    if (reply->errorReceived() == QtCoap::Error::Ok)
         addMessage("Received observe notification with payload: " + message.payload());
 }
 

@@ -233,7 +233,7 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
             && request->retransmissionCounter() < maxRetransmit) {
         sendRequest(request);
     } else {
-        onRequestError(request, QtCoap::Error::TimeOutError);
+        onRequestError(request, QtCoap::Error::TimeOut);
     }
 }
 
@@ -249,7 +249,7 @@ void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequ
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     if (isRequestRegistered(request))
-        onRequestError(request, QtCoap::Error::TimeOutError);
+        onRequestError(request, QtCoap::Error::TimeOut);
 }
 
 /*!
@@ -267,7 +267,7 @@ void QCoapProtocolPrivate::onMulticastRequestExpired(QCoapInternalRequest *reque
     QPointer<QCoapReply> userReply = userReplyForToken(request->token());
     if (userReply) {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::Ok));
     } else {
         qCWarning(lcCoapProtocol).nospace() << "Reply for token '" << request->token()
                                             << "' is not registered, reply is null.";
@@ -312,7 +312,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
         }
 
         QMetaObject::invokeMethod(userReply.data(), "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::Ok));
     }
 
     forgetExchange(request);
@@ -557,7 +557,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
         emit q->responseToMulticastReceived(userReply, *lastReply->message(), sender);
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                                  Q_ARG(QtCoap::Error, QtCoap::Error::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::Error::Ok));
         forgetExchange(request);
     }
 }
@@ -733,13 +733,13 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
     QtCoap::Error coapError;
     switch (socketError) {
     case QAbstractSocket::HostNotFoundError :
-        coapError = QtCoap::Error::HostNotFoundError;
+        coapError = QtCoap::Error::HostNotFound;
         break;
     case QAbstractSocket::AddressInUseError :
-        coapError = QtCoap::Error::AddressInUseError;
+        coapError = QtCoap::Error::AddressInUse;
         break;
     default:
-        coapError = QtCoap::Error::UnknownError;
+        coapError = QtCoap::Error::Unknown;
         break;
     }
 

@@ -131,7 +131,7 @@ void QCoapReplyPrivate::_q_setFinished(QtCoap::Error newError)
     isFinished = true;
     isRunning = false;
 
-    if (newError != QtCoap::Error::NoError)
+    if (newError != QtCoap::Error::Ok)
         _q_setError(newError);
 
     emit q->finished(q);
@@ -376,7 +376,7 @@ bool QCoapReply::isSuccessful() const
 {
     Q_D(const QCoapReply);
     return d->isFinished && !QtCoap::isError(d->responseCode)
-            && d->error == QtCoap::Error::NoError;
+            && d->error == QtCoap::Error::Ok;
 }
 
 /*!

@@ -95,7 +95,7 @@ void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
                 [this](QCoapReply *reply) {
                     if (!reply)
                         emit finished("Something went wrong, received a null reply");
-                    else if (reply->errorReceived() != QtCoap::Error::NoError)
+                    else if (reply->errorReceived() != QtCoap::Error::Ok)
                         emit finished(errorMessage(reply->errorReceived()));
                     else
                         emit finished(reply->message().payload());

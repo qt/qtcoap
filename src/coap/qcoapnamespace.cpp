@@ -140,74 +140,74 @@ QT_BEGIN_NAMESPACE
 
     Indicates the error condition found during processing of the request.
 
-    \value NoError                          No error condition.
+    \value Ok                               No error condition.
 
-    \value HostNotFoundError                The remote host name was not found.
+    \value HostNotFound                     The remote host name was not found.
 
-    \value AddressInUseError                The address is already in use.
+    \value AddressInUse                     The address is already in use.
 
-    \value TimeOutError                     The response did not arrive in time.
+    \value TimeOut                          The response did not arrive in time.
 
-    \value BadRequestError                  The request was not recognized.
+    \value BadRequest                       The request was not recognized.
 
-    \value UnauthorizedError                The client is not authorized to perform
+    \value Unauthorized                     The client is not authorized to perform
                                             the requested action.
 
-    \value BadOptionError                   The request could not be understood by
+    \value BadOption                        The request could not be understood by
                                             the server due to one or more unrecognized
                                             or malformed options.
 
-    \value ForbiddenError                   Access to this resource is forbidden.
+    \value Forbidden                        Access to this resource is forbidden.
 
-    \value NotFoundError                    The resource requested was not found.
+    \value NotFound                         The resource requested was not found.
 
-    \value MethodNotAllowedError            The server does not allow the method used
+    \value MethodNotAllowed                 The server does not allow the method used
                                             for the URL requested.
 
-    \value NotAcceptableError               No resource satisfying the request's acceptance
+    \value NotAcceptable                    No resource satisfying the request's acceptance
                                             criteria was found.
 
-    \value RequestEntityIncompleteError     The server has not received the blocks of
+    \value RequestEntityIncomplete          The server has not received the blocks of
                                             the request body that it needs to proceed.
                                             The client has not sent all blocks,
                                             has not sent them in the order required by the
                                             server, or sent them long enough ago
                                             that the server has already discarded them.
 
-    \value PreconditionFailedError          One or more conditions given in the request
+    \value PreconditionFailed               One or more conditions given in the request
                                             header fields evaluated to false when tested
                                             on the server.
 
-    \value RequestEntityTooLargeError       The request payload is larger than the
+    \value RequestEntityTooLarge            The request payload is larger than the
                                             server is willing or able to process.
 
-    \value UnsupportedContentFormatError    The payload is in a format not supported
+    \value UnsupportedContentFormat         The payload is in a format not supported
                                             by this method on the target resource.
 
-    \value InternalServerFaultError         The server encountered an unexpected
+    \value InternalServerFault              The server encountered an unexpected
                                             condition that prevented it from
                                             fulfilling the request.
 
-    \value NotImplementedError              The server does not support the
+    \value NotImplemented                   The server does not support the
                                             functionality required to fulfill the
                                             request.
 
-    \value BadGatewayError                  An error occurred with an upstream
+    \value BadGateway                       An error occurred with an upstream
                                             server.
 
-    \value ServiceUnavailableError          The service is currently unavailable.
+    \value ServiceUnavailable               The service is currently unavailable.
 
-    \value GatewayTimeoutError              The server, while acting as a gateway
+    \value GatewayTimeout                   The server, while acting as a gateway
                                             or proxy, did not receive a timely
                                             response from an upstream server it needed
                                             to access in order to complete the request.
 
-    \value ProxyingNotSupportedError        The server is unable or unwilling to act
+    \value ProxyingNotSupported             The server is unable or unwilling to act
                                             as a forward-proxy for the URI specified
                                             in the Proxy-Uri Option or using the scheme
                                             specified in Proxy-Scheme.
 
-    \value UnknownError                     An unknown error occurred.
+    \value Unknown                          An unknown error occurred.
 */
 
 /*!
@@ -283,14 +283,14 @@ bool QtCoap::isError(QtCoap::ResponseCode code)
 QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 {
     if (!isError(code))
-        return QtCoap::Error::NoError;
+        return QtCoap::Error::Ok;
 
     switch (code) {
-#define SINGLE_CASE(name, ignored) case ResponseCode::name: return Error::name ## Error;
+#define SINGLE_CASE(name, ignored) case ResponseCode::name: return Error::name;
         FOR_EACH_COAP_ERROR(SINGLE_CASE)
 #undef SINGLE_CASE
     default:
-        return Error::UnknownError;
+        return Error::Unknown;
     }
 }
 
