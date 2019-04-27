@@ -53,7 +53,7 @@ public:
 
     QCoapMessage();
     QCoapMessage(const QCoapMessage &other);
-    virtual ~QCoapMessage();
+    ~QCoapMessage();
 
     void swap(QCoapMessage &other) Q_DECL_NOTHROW;
     QCoapMessage &operator=(const QCoapMessage &other);
@@ -79,7 +79,7 @@ public:
     QVector<QCoapOption> options(QCoapOption::OptionName name) const;
     int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
-    virtual void addOption(const QCoapOption &option);
+    void addOption(const QCoapOption &option);
     void removeOption(const QCoapOption &option);
     void removeOption(QCoapOption::OptionName name);
     void removeAllOptions();

@@ -255,9 +255,15 @@ void QCoapResource::setMaximumSize(int maximumSize)
 }
 
 /*!
-    Sets the content format of the resource to \a contentFormat.
+    Sets the content format of the resource to \a contentFormat. The content
+    format can be one of the content formats defined in \l {CoAP Content-Formats Registry}.
 
-    \sa contentFormat()
+    \note CoAP supports common content formats such as XML, JSON, and so on, but
+    these are text based and consequently heavy both in payload and in processing.
+    One of the recommended content formats to use with CoAP is CBOR, which is
+    designed to be used in such contexts.
+
+    \sa contentFormat(), QCborStreamWriter, QCborStreamReader
  */
 void QCoapResource::setContentFormat(uint contentFormat)
 {

@@ -72,6 +72,7 @@ public:
     QCoapReply *observe(const QUrl &request);
     void cancelObserve(QCoapReply *notifiedReply);
     void cancelObserve(const QUrl &url);
+    void disconnect();
 
     QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::AllCoapNodesIPv4,
                                   int port = QtCoap::DefaultPort,
@@ -89,7 +90,7 @@ public:
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
-    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage& message,
+    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage &message,
                                      const QHostAddress &sender);
     void error(QCoapReply *reply, QtCoap::Error error);
 

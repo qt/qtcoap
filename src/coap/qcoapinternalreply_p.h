@@ -33,7 +33,6 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCoap/qcoapinternalmessage.h>
 #include <private/qcoapinternalmessage_p.h>
 #include <QtNetwork/qhostaddress.h>
 
@@ -64,7 +63,7 @@ public:
     int nextBlockToSend() const;
 
     using QCoapInternalMessage::addOption;
-    void addOption(const QCoapOption &option);
+    void addOption(const QCoapOption &option) override;
     void setSenderAddress(const QHostAddress &address);
 
     QtCoap::ResponseCode responseCode() const;

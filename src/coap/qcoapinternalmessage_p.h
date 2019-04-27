@@ -31,7 +31,6 @@
 #ifndef QCOAPINTERNALMESSAGE_P_H
 #define QCOAPINTERNALMESSAGE_P_H
 
-#include <QtCoap/qcoapinternalmessage.h>
 #include <private/qcoapmessage_p.h>
 #include <private/qobject_p.h>
 
@@ -47,6 +46,39 @@
 //
 
 QT_BEGIN_NAMESPACE
+
+class QCoapInternalMessagePrivate;
+class Q_AUTOTEST_EXPORT QCoapInternalMessage : public QObject
+{
+    Q_OBJECT
+public:
+    explicit QCoapInternalMessage(QObject *parent = nullptr);
+    explicit QCoapInternalMessage(const QCoapMessage &message, QObject *parent = nullptr);
+    QCoapInternalMessage(const QCoapInternalMessage &other, QObject *parent = nullptr);
+    virtual ~QCoapInternalMessage() {}
+
+    void addOption(QCoapOption::OptionName name, const QByteArray &value);
+    void addOption(QCoapOption::OptionName name, quint32 value);
+    virtual void addOption(const QCoapOption &option);
+    void removeOption(QCoapOption::OptionName name);
+
+    QCoapMessage *message();
+    const QCoapMessage *message() const;
+
+    uint currentBlockNumber() const;
+    bool hasMoreBlocksToReceive() const;
+    uint blockSize() const;
+
+    virtual bool isValid() const;
+    static bool isUrlValid(const QUrl &url);
+
+protected:
+    explicit QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent = nullptr);
+
+    void setFromDescriptiveBlockOption(const QCoapOption &option);
+
+    Q_DECLARE_PRIVATE(QCoapInternalMessage)
+};
 
 class Q_AUTOTEST_EXPORT QCoapInternalMessagePrivate : public QObjectPrivate
 {

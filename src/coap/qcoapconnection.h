@@ -58,6 +58,7 @@ public:
     QCoapSecurityConfiguration securityConfiguration() const;
 
     Q_INVOKABLE void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
+    Q_INVOKABLE void disconnect();
 
 Q_SIGNALS:
     void error(QAbstractSocket::SocketError error);
@@ -73,6 +74,7 @@ protected:
 
     virtual void bind(const QString &host, quint16 port) = 0;
     virtual void writeData(const QByteArray &data, const QString &host, quint16 port) = 0;
+    virtual void close() = 0;
 
 private:
     friend class QCoapProtocolPrivate;

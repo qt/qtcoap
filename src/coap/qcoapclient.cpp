@@ -127,7 +127,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
 /*!
     \fn void QCoapClient::responseToMulticastReceived(QCoapReply *reply,
-                                                      const QCoapMessage& message,
+                                                      const QCoapMessage &message,
                                                       const QHostAddress &sender)
 
     This signal is emitted when a unicast response to a multicast request
@@ -505,6 +505,15 @@ void QCoapClient::cancelObserve(const QUrl &url)
     Q_D(QCoapClient);
     const auto adjustedUrl = QCoapRequest::adjustedUrl(url, d->connection->isSecure());
     QMetaObject::invokeMethod(d->protocol, "cancelObserve", Q_ARG(QUrl, adjustedUrl));
+}
+
+/*!
+    Closes the open sockets and connections to free the transport.
+*/
+void QCoapClient::disconnect()
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->connection, "disconnect", Qt::QueuedConnection);
 }
 
 /*!

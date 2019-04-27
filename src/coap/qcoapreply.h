@@ -73,8 +73,8 @@ protected:
 
     explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
-    qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
-    qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
+    qint64 readData(char *data, qint64 maxSize) override;
+    qint64 writeData(const char *data, qint64 maxSize) override;
 
     Q_DECLARE_PRIVATE(QCoapReply)
     Q_PRIVATE_SLOT(d_func(), void _q_setRunning(const QCoapToken &, QCoapMessageId))
