@@ -65,20 +65,20 @@ void tst_QCoapReply::updateReply_data()
 
     QTest::newRow("success")
             << QByteArray("Some data")
-            << QtCoap::Content
-            << QtCoap::NoError;
+            << QtCoap::ResponseCode::Content
+            << QtCoap::Error::Ok;
     QTest::newRow("content error")
             << QByteArray("Error")
-            << QtCoap::BadRequest
-            << QtCoap::NoError;
+            << QtCoap::ResponseCode::BadRequest
+            << QtCoap::Error::Ok;
     QTest::newRow("finished error")
             << QByteArray("Error")
-            << QtCoap::Content
-            << QtCoap::BadRequestError;
+            << QtCoap::ResponseCode::Content
+            << QtCoap::Error::BadRequest;
     QTest::newRow("content & finished errors")
             << QByteArray("2Errors")
-            << QtCoap::BadGateway
-            << QtCoap::BadRequestError;
+            << QtCoap::ResponseCode::BadGateway
+            << QtCoap::Error::BadRequest;
 }
 
 void tst_QCoapReply::updateReply()
@@ -111,7 +111,7 @@ void tst_QCoapReply::updateReply()
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyNotified.count(), 0);
     QCOMPARE(spyReplyAborted.count(), 0);
-    if (error != QtCoap::NoError || QtCoap::isError(responseCode)) {
+    if (error != QtCoap::Error::Ok || QtCoap::isError(responseCode)) {
         QVERIFY(spyReplyError.count() > 0);
         QCOMPARE(reply.isSuccessful(), false);
     } else {

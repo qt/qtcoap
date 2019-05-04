@@ -56,7 +56,7 @@ class QSslPreSharedKeyAuthenticator;
 class Q_AUTOTEST_EXPORT QCoapQUdpConnectionPrivate : public QCoapConnectionPrivate
 {
 public:
-    QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::NoSec);
+    QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec);
     ~QCoapQUdpConnectionPrivate() override;
 
     virtual bool bind();

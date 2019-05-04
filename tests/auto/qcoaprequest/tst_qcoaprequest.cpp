@@ -160,9 +160,9 @@ void tst_QCoapRequest::copyAndDetach()
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
-    a.setType(QCoapMessage::Acknowledgment);
+    a.setType(QCoapMessage::MessageType::Acknowledgment);
     a.setVersion(5);
-    a.setMethod(QtCoap::Delete);
+    a.setMethod(QtCoap::Method::Delete);
     QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
@@ -173,12 +173,12 @@ void tst_QCoapRequest::copyAndDetach()
     QVERIFY2(b.messageId() == 3, "Message not copied correctly");
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
-    QVERIFY2(b.type() == QCoapMessage::Acknowledgment, "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::MessageType::Acknowledgment, "Message not copied correctly");
     QVERIFY2(b.version() == 5, "Message not copied correctly");
 
     // Test the QCoapRequest copy
     QCoapRequest c(a);
-    QVERIFY2(c.method() == QtCoap::Delete, "Request not copied correctly");
+    QVERIFY2(c.method() == QtCoap::Method::Delete, "Request not copied correctly");
     QVERIFY2(c.url() == testUrl, "Request not copied correctly");
     QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
 

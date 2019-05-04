@@ -114,9 +114,9 @@ Window {
             id: securityModeGroup
             onClicked: {
                 if (securityModeGroup.checkedButton === preSharedMode)
-                    client.setSecurityMode(QtCoap.PreSharedKey);
+                    client.setSecurityMode(QtCoap.SecurityMode.PreSharedKey);
                 else
-                    client.setSecurityMode(QtCoap.Certificate);
+                    client.setSecurityMode(QtCoap.SecurityMode.Certificate);
             }
         }
         RowLayout {

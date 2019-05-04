@@ -43,18 +43,18 @@ class Q_COAP_EXPORT QCoapConnection : public QObject
 {
     Q_OBJECT
 public:
-    enum ConnectionState {
+    enum class ConnectionState : quint8 {
         Unconnected,
         Bound
     };
 
-    explicit QCoapConnection(QtCoap::SecurityMode securityMode = QtCoap::NoSec,
+    explicit QCoapConnection(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSec,
                              QObject *parent = nullptr);
     virtual ~QCoapConnection();
 
     bool isSecure() const;
     QtCoap::SecurityMode securityMode() const;
-    QCoapConnection::ConnectionState state() const;
+    ConnectionState state() const;
     QCoapSecurityConfiguration securityConfiguration() const;
 
     Q_INVOKABLE void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);

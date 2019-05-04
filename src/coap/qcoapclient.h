@@ -53,7 +53,7 @@ class Q_COAP_EXPORT QCoapClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::NoSec,
+    explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSec,
                          QObject *parent = nullptr);
     explicit QCoapClient(QCoapConnection *connection, QObject *parent = nullptr);
     ~QCoapClient();
@@ -74,7 +74,7 @@ public:
     void cancelObserve(const QUrl &url);
     void disconnect();
 
-    QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::AllCoapNodesIPv4,
+    QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::MulticastGroup::AllCoapNodesIPv4,
                                   int port = QtCoap::DefaultPort,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,

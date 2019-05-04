@@ -61,7 +61,7 @@ Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 QmlCoapSecureClient::QmlCoapSecureClient(QObject *parent)
     : QObject(parent)
     , m_coapClient(nullptr)
-    , m_securityMode(QtCoap::NoSec)
+    , m_securityMode(QtCoap::SecurityMode::NoSec)
 {
 }
 
@@ -75,7 +75,7 @@ QmlCoapSecureClient::~QmlCoapSecureClient()
 
 static QString errorMessage(QtCoap::Error errorCode)
 {
-    const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(errorCode);
+    const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(static_cast<int>(errorCode));
     return QString("Request failed with error: %1\n").arg(error);
 }
 
@@ -95,7 +95,7 @@ void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
                 [this](QCoapReply *reply) {
                     if (!reply)
                         emit finished("Something went wrong, received a null reply");
-                    else if (reply->errorReceived() != QtCoap::NoError)
+                    else if (reply->errorReceived() != QtCoap::Error::Ok)
                         emit finished(errorMessage(reply->errorReceived()));
                     else
                         emit finished(reply->message().payload());

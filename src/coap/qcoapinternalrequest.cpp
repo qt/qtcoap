@@ -97,7 +97,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 bool QCoapInternalRequest::isValid() const
 {
     Q_D(const QCoapInternalRequest);
-    return isUrlValid(d->targetUri) && d->method != QtCoap::Invalid;
+    return isUrlValid(d->targetUri) && d->method != QtCoap::Method::Invalid;
 }
 
 /*!
@@ -110,8 +110,8 @@ void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteA
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Invalid);
-    d->message.setType(QCoapMessage::Acknowledgment);
+    setMethod(QtCoap::Method::Invalid);
+    d->message.setType(QCoapMessage::MessageType::Acknowledgment);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
     d->message.setPayload(QByteArray());
@@ -129,8 +129,8 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Invalid);
-    d->message.setType(QCoapMessage::Reset);
+    setMethod(QtCoap::Method::Invalid);
+    d->message.setType(QCoapMessage::MessageType::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
     d->message.setPayload(QByteArray());
@@ -171,12 +171,12 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     QByteArray pdu;
 
     // Insert header
-    appendByte(&pdu, (d->message.version()   << 6)           // CoAP version
-                   | (d->message.type()      << 4)           // Message type
-                   |  d->message.token().length());          // Token Length
-    appendByte(&pdu,  d->method                    & 0xFF);  // Method code
-    appendByte(&pdu, (d->message.messageId() >> 8) & 0xFF);  // Message ID
-    appendByte(&pdu,  d->message.messageId()       & 0xFF);
+    appendByte(&pdu, (d->message.version()                   << 6)  // CoAP version
+                   | (static_cast<quint8>(d->message.type()) << 4)  // Message type
+                   |  d->message.token().length());                 // Token Length
+    appendByte(&pdu,  static_cast<quint8>(d->method) & 0xFF);       // Method code
+    appendByte(&pdu, (d->message.messageId() >> 8)   & 0xFF);       // Message ID
+    appendByte(&pdu,  d->message.messageId()         & 0xFF);
 
     // Insert Token
     pdu.append(d->message.token());

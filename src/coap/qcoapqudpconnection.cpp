@@ -101,12 +101,12 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
         auto configuration = QSslConfiguration::defaultDtlsConfiguration();
 
         switch (d->securityMode) {
-        case QtCoap::RawPublicKey:
+        case QtCoap::SecurityMode::RawPublicKey:
             qCWarning(lcCoapConnection, "RawPublicKey security is not supported yet,"
                                         "disabling security");
-            d->securityMode = QtCoap::NoSec;
+            d->securityMode = QtCoap::SecurityMode::NoSec;
             break;
-        case QtCoap::PreSharedKey:
+        case QtCoap::SecurityMode::PreSharedKey:
             d->dtls = new QDtls(QSslSocket::SslClientMode, this);
             configuration.setPeerVerifyMode(QSslSocket::VerifyNone);
             d->dtls->setDtlsConfiguration(configuration);
@@ -114,7 +114,7 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
             connect(d->dtls, &QDtls::pskRequired, this, &QCoapQUdpConnection::pskRequired);
             connect(d->dtls, &QDtls::handshakeTimeout, this, &QCoapQUdpConnection::handshakeTimeout);
             break;
-        case QtCoap::Certificate:
+        case QtCoap::SecurityMode::Certificate:
             d->dtls = new QDtls(QSslSocket::SslClientMode, this);
             configuration.setPeerVerifyMode(QSslSocket::VerifyPeer);
             d->dtls->setDtlsConfiguration(configuration);
@@ -126,7 +126,7 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
         }
 #else
         qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSec mode.");
-        d->securityMode = QtCoap::NoSec;
+        d->securityMode = QtCoap::SecurityMode::NoSec;
 #endif
     }
 }
@@ -194,7 +194,7 @@ void QCoapQUdpConnectionPrivate::bindSocket()
 {
     Q_Q(QCoapQUdpConnection);
 
-    if (state != QCoapQUdpConnection::Bound && bind())
+    if (state != QCoapQUdpConnection::ConnectionState::Bound && bind())
         emit q->bound();
 }
 
