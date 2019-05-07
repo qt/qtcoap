@@ -37,6 +37,7 @@
 #include <QtCoap/qcoapresourcediscoveryreply.h>
 #include <QtCore/qbuffer.h>
 #include <QtNetwork/qnetworkdatagram.h>
+#include <QtNetwork/qsslcipher.h>
 #include <private/qcoapclient_p.h>
 #include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapprotocol_p.h>
@@ -66,6 +67,7 @@ private Q_SLOTS:
     void setBlockSize();
     void requestWithQIODevice_data();
     void requestWithQIODevice();
+    void multipleRequests_data();
     void multipleRequests();
     void blockwiseReply_data();
     void blockwiseReply();
@@ -82,8 +84,40 @@ private Q_SLOTS:
     void setMinimumTokenSize();
 };
 
-#ifdef QT_BUILD_INTERNAL
+class QCoapClientForSecurityTests : public QCoapClient
+{
+public:
+    QCoapClientForSecurityTests(QtCoap::SecurityMode security)
+        : QCoapClient(security)
+        , securityMode(security)
+    {
+        if (security != QtCoap::SecurityMode::NoSecurity)
+            setSecurityConfiguration(createConfiguration(security));
+    }
 
+    bool securityMissing() const
+    {
+#if QT_CONFIG(dtls)
+        if (securityMode == QtCoap::SecurityMode::PreSharedKey) {
+            const auto ciphers = QSslConfiguration::defaultDtlsConfiguration().ciphers();
+            const auto it = std::find_if(ciphers.cbegin(), ciphers.cend(),
+                                         [](const QSslCipher &cipher) {
+                                            return cipher.name() == "PSK-AES128-CCM8"
+                                                    || cipher.name() == "PSK-AES128-CBC-SHA256";
+                                         });
+            return it == ciphers.cend();
+        }
+        return false;
+#else
+        return true;
+#endif
+    }
+
+private:
+    QtCoap::SecurityMode securityMode;
+};
+
+#ifdef QT_BUILD_INTERNAL
 class QCoapQUdpConnectionSocketTestsPrivate : public QCoapQUdpConnectionPrivate
 {
     bool bind() override
@@ -199,6 +233,10 @@ void tst_QCoapClient::initTestCase()
 {
 #if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
     QVERIFY2(waitForHost(testServerHost()), "Failed to connect to Californium plugtest server.");
+#if QT_CONFIG(dtls)
+    QVERIFY2(waitForHost(timeServerUrl(), QtCoap::SecurityMode::Certificate),
+             "Failed to connect to FreeCoAP sample time server.");
+#endif
 #endif
 }
 
@@ -243,24 +281,59 @@ void tst_QCoapClient::methods_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
+    QTest::addColumn<QtCoap::SecurityMode>("security");
 
-    QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Method::Get;
-    QTest::newRow("get_no_port")            << QUrl("coap://" + testServerHost() + "/test")
-                                            << QtCoap::Method::Get;
-    QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test")
-                                            << QtCoap::Method::Get;
-    QTest::newRow("post")                   << QUrl(testServerResource())
-                                            << QtCoap::Method::Post;
-    QTest::newRow("post_no_scheme_no_port") << QUrl(testServerHost() + "/test")
-                                            << QtCoap::Method::Post;
-    QTest::newRow("put")                    << QUrl(testServerResource())
-                                            << QtCoap::Method::Put;
-    QTest::newRow("put_no_scheme_no_port")  << QUrl(testServerHost() + "/test")
-                                            << QtCoap::Method::Put;
-    QTest::newRow("delete")                 << QUrl(testServerResource())
-                                            << QtCoap::Method::Delete;
-    QTest::newRow("delete_no_scheme_no_port") << QUrl(testServerHost() + "/test")
-                                              << QtCoap::Method::Delete;
+    QTest::newRow("get")
+            << QUrl(testServerResource())
+            << QtCoap::Method::Get
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("get_no_port")
+            << QUrl("coap://" + testServerHost() + "/test")
+            << QtCoap::Method::Get
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("get_no_scheme_no_port")
+            << QUrl(testServerHost() + "/test")
+            << QtCoap::Method::Get
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("get_psk")
+            << QUrl(testServerResource()) << QtCoap::Method::Get
+            << QtCoap::SecurityMode::PreSharedKey;
+    QTest::newRow("get_cert")
+            << QUrl(timeServerUrl()) << QtCoap::Method::Get
+            << QtCoap::SecurityMode::Certificate;
+    QTest::newRow("post")
+            << QUrl(testServerResource())
+            << QtCoap::Method::Post
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("post_no_scheme_no_port")
+            << QUrl(testServerHost() + "/test")
+            << QtCoap::Method::Post
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("post_psk")
+            << QUrl(testServerResource()) << QtCoap::Method::Post
+            << QtCoap::SecurityMode::PreSharedKey;
+    QTest::newRow("put")
+            << QUrl(testServerResource())
+            << QtCoap::Method::Put
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("put_no_scheme_no_port")
+            << QUrl(testServerHost() + "/test")
+            << QtCoap::Method::Put
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("put_psk")
+            << QUrl(testServerResource()) << QtCoap::Method::Put
+            << QtCoap::SecurityMode::PreSharedKey;
+    QTest::newRow("delete")
+            << QUrl(testServerResource())
+            << QtCoap::Method::Delete
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("delete_no_scheme_no_port")
+            << QUrl(testServerHost() + "/test")
+            << QtCoap::Method::Delete
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("delete_psk")
+            << QUrl(testServerResource()) << QtCoap::Method::Delete
+            << QtCoap::SecurityMode::PreSharedKey;
 }
 
 void tst_QCoapClient::methods()
@@ -269,8 +342,12 @@ void tst_QCoapClient::methods()
 
     QFETCH(QUrl, url);
     QFETCH(QtCoap::Method, method);
+    QFETCH(QtCoap::SecurityMode, security);
 
-    QCoapClient client;
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
+
     QCoapRequest request(url);
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
@@ -291,7 +368,8 @@ void tst_QCoapClient::methods()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
 #ifdef QT_BUILD_INTERNAL
-    QCOMPARE(reply->url(), QCoapRequestPrivate::adjustedUrl(url, false));
+    QCOMPARE(reply->url(),
+             QCoapRequestPrivate::adjustedUrl(url, security != QtCoap::SecurityMode::NoSecurity));
 #endif
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
@@ -430,51 +508,56 @@ void tst_QCoapClient::requestWithQIODevice()
     }
 }
 
+void tst_QCoapClient::multipleRequests_data()
+{
+    QTest::addColumn<QtCoap::SecurityMode>("security");
+
+    QTest::newRow("multiple_requests") << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("multiple_requests_secure") << QtCoap::SecurityMode::PreSharedKey;
+}
+
 void tst_QCoapClient::multipleRequests()
 {
     CHECK_FOR_COAP_SERVER;
 
-    QCoapClient client;
+    QFETCH(QtCoap::SecurityMode, security);
+
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
+
     QUrl url = QUrl(testServerResource());
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
-    QScopedPointer<QCoapReply> replyGet1(client.get(url));
-    QScopedPointer<QCoapReply> replyGet2(client.get(url));
-    QScopedPointer<QCoapReply> replyGet3(client.get(url));
-    QScopedPointer<QCoapReply> replyGet4(client.get(url));
+    const uint8_t requestCount = 4;
+    QVector<QSharedPointer<QCoapReply>> replies;
+    QVector<QSharedPointer<QSignalSpy>> signalSpies;
+    for (uint8_t i = 0; i < requestCount; ++i) {
+        QCoapRequest request;
+        const auto token = "token" + QByteArray::number(i);
+        request.setToken(token);
+        request.setUrl(url);
 
-    QVERIFY2(!replyGet1.isNull(), "Request failed unexpectedly");
-    QVERIFY2(!replyGet2.isNull(), "Request failed unexpectedly");
-    QVERIFY2(!replyGet3.isNull(), "Request failed unexpectedly");
-    QVERIFY2(!replyGet4.isNull(), "Request failed unexpectedly");
+        QSharedPointer<QCoapReply> reply(client.get(request));
+        const auto errorMsg = QStringLiteral("Request number %1 failed unexpectedly").arg(i);
+        QVERIFY2(!reply.isNull(), qPrintable(errorMsg));
+        replies.push_back(reply);
 
-    QSignalSpy spyReplyGet1Finished(replyGet1.data(), SIGNAL(finished(QCoapReply *)));
-    QSignalSpy spyReplyGet2Finished(replyGet2.data(), SIGNAL(finished(QCoapReply *)));
-    QSignalSpy spyReplyGet3Finished(replyGet3.data(), SIGNAL(finished(QCoapReply *)));
-    QSignalSpy spyReplyGet4Finished(replyGet4.data(), SIGNAL(finished(QCoapReply *)));
+        QSharedPointer<QSignalSpy> signalSpy(
+                new QSignalSpy(reply.data(), SIGNAL(finished(QCoapReply *))));
+        signalSpies.push_back(signalSpy);
+    }
 
-    QTRY_COMPARE(spyReplyGet1Finished.count(), 1);
-    QTRY_COMPARE(spyReplyGet2Finished.count(), 1);
-    QTRY_COMPARE(spyReplyGet3Finished.count(), 1);
-    QTRY_COMPARE(spyReplyGet4Finished.count(), 1);
+    for (const auto &signalSpy : signalSpies)
+        QTRY_COMPARE(signalSpy->count(), 1);
     QTRY_COMPARE(spyClientFinished.count(), 4);
 
-    QByteArray replyData1 = replyGet1->readAll();
-    QByteArray replyData2 = replyGet2->readAll();
-    QByteArray replyData3 = replyGet3->readAll();
-    QByteArray replyData4 = replyGet4->readAll();
-
-    QCOMPARE(replyGet1->responseCode(), QtCoap::ResponseCode::Content);
-    QCOMPARE(replyGet2->responseCode(), QtCoap::ResponseCode::Content);
-    QCOMPARE(replyGet3->responseCode(), QtCoap::ResponseCode::Content);
-    QCOMPARE(replyGet4->responseCode(), QtCoap::ResponseCode::Content);
-
-    QVERIFY(replyData1 != replyData2);
-    QVERIFY(replyData1 != replyData3);
-    QVERIFY(replyData1 != replyData4);
-    QVERIFY(replyData2 != replyData3);
-    QVERIFY(replyData2 != replyData4);
-    QVERIFY(replyData3 != replyData4);
+    for (uint8_t i = 0; i < requestCount; ++i) {
+        QCOMPARE(replies[i]->responseCode(), QtCoap::ResponseCode::Content);
+        QByteArray replyData = replies[i]->readAll();
+        const auto token = "token" + QByteArray::number(i);
+        QVERIFY(replyData.contains(token.toHex()));
+    }
 }
 
 void tst_QCoapClient::socketError()
@@ -591,6 +674,7 @@ void tst_QCoapClient::blockwiseReply_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<QByteArray>("replyData");
+    QTest::addColumn<QtCoap::SecurityMode>("security");
 
     QByteArray data;
     data.append("/-------------------------------------------------------------\\\n");
@@ -617,27 +701,43 @@ void tst_QCoapClient::blockwiseReply_data()
     QTest::newRow("get_large")
             << QUrl(testServerUrl() + "/large")
             << QCoapMessage::Type::NonConfirmable
-            << data;
-    QTest::newRow("get_large_separate")
-            << QUrl(testServerUrl() + "/large-separate")
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("get_large_secure")
+            << QUrl(testServerHost() + "/large")
             << QCoapMessage::Type::NonConfirmable
-            << data;
+            << data
+            << QtCoap::SecurityMode::PreSharedKey;
+    QTest::newRow("get_large_separate")
+            << QUrl(testServerHost() + "/large-separate")
+            << QCoapMessage::Type::NonConfirmable
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
     QTest::newRow("get_large_confirmable")
             << QUrl(testServerUrl() + "/large")
             << QCoapMessage::Type::Confirmable
-            << data;
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("get_large_confirmable_secure")
+            << QUrl(testServerHost() + "/large")
+            << QCoapMessage::Type::Confirmable
+            << data
+            << QtCoap::SecurityMode::PreSharedKey;
     QTest::newRow("get_large_separate_confirmable")
             << QUrl(testServerUrl() + "/large-separate")
             << QCoapMessage::Type::Confirmable
-            << data;
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
     QTest::newRow("get_large_16bits")
             << QUrl(testServerUrl() + "/large")
             << QCoapMessage::Type::NonConfirmable
-            << data;
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
     QTest::newRow("get_large_16bits_confirmable")
             << QUrl(testServerUrl() + "/large")
             << QCoapMessage::Type::Confirmable
-            << data;
+            << data
+            << QtCoap::SecurityMode::NoSecurity;
 }
 
 void tst_QCoapClient::blockwiseReply()
@@ -647,8 +747,12 @@ void tst_QCoapClient::blockwiseReply()
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::Type, type);
     QFETCH(QByteArray, replyData);
+    QFETCH(QtCoap::SecurityMode, security);
 
-    QCoapClient client;
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
+
     QCoapRequest request(url);
 
     if (qstrncmp(QTest::currentDataTag(), "get_large_16bits", 16) == 0)
@@ -674,22 +778,34 @@ void tst_QCoapClient::blockwiseRequest_data()
     QTest::addColumn<QByteArray>("requestData");
     QTest::addColumn<QtCoap::ResponseCode>("responseCode");
     QTest::addColumn<QByteArray>("replyData");
+    QTest::addColumn<QtCoap::SecurityMode>("security");
 
     QByteArray data;
     const char alphabet[] = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
     for (int i = 3; i-- > 0; )
         data.append(alphabet);
 
-    QTest::newRow("large_post_empty_reply") << QUrl(testServerUrl() + "/query")
-                                            << QCoapMessage::Type::NonConfirmable
-                                            << data
-                                            << QtCoap::ResponseCode::MethodNotAllowed
-                                            << QByteArray();
-    QTest::newRow("large_post_large_reply") << QUrl(testServerUrl() + "/large-post")
-                                            << QCoapMessage::Type::NonConfirmable
-                                            << data
-                                            << QtCoap::ResponseCode::Changed
-                                            << data.toUpper();
+    QTest::newRow("large_post_empty_reply")
+            << QUrl(testServerUrl() + "/query")
+            << QCoapMessage::Type::NonConfirmable
+            << data
+            << QtCoap::ResponseCode::MethodNotAllowed
+            << QByteArray()
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("large_post_large_reply")
+            << QUrl(testServerUrl() + "/large-post")
+            << QCoapMessage::Type::NonConfirmable
+            << data
+            << QtCoap::ResponseCode::Changed
+            << data.toUpper()
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("large_post_large_reply_secure")
+            << QUrl(testServerHost() + "/large-post")
+            << QCoapMessage::Type::NonConfirmable
+            << data
+            << QtCoap::ResponseCode::Changed
+            << data.toUpper()
+            << QtCoap::SecurityMode::PreSharedKey;
 }
 
 void tst_QCoapClient::blockwiseRequest()
@@ -701,8 +817,12 @@ void tst_QCoapClient::blockwiseRequest()
     QFETCH(QByteArray, requestData);
     QFETCH(QtCoap::ResponseCode, responseCode);
     QFETCH(QByteArray, replyData);
+    QFETCH(QtCoap::SecurityMode, security);
 
-    QCoapClient client;
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
+
     client.setBlockSize(16);
 
     QCoapRequest request(url);
@@ -724,12 +844,17 @@ void tst_QCoapClient::discover_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<int>("resourceNumber");
+    QTest::addColumn<QtCoap::SecurityMode>("security");
 
     // Californium test server exposes 29 resources
-    QTest::newRow("discover") << QUrl(testServerUrl())
-                              << 29;
-    QTest::newRow("discover_no_scheme_no_port") << QUrl(testServerHost())
-                                                << 29;
+    QTest::newRow("discover")
+            << QUrl(testServerHost())
+            << 29
+            << QtCoap::SecurityMode::NoSecurity;
+    QTest::newRow("discover_secure")
+            << QUrl(testServerHost())
+            << 29
+            << QtCoap::SecurityMode::PreSharedKey;
 }
 
 void tst_QCoapClient::discover()
@@ -738,8 +863,11 @@ void tst_QCoapClient::discover()
 
     QFETCH(QUrl, url);
     QFETCH(int, resourceNumber);
+    QFETCH(QtCoap::SecurityMode, security);
 
-    QCoapClient client;
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
 
     QScopedPointer<QCoapResourceDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
     QVERIFY(!resourcesReply.isNull());
@@ -749,7 +877,8 @@ void tst_QCoapClient::discover()
 
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
 #ifdef QT_BUILD_INTERNAL
-    QCOMPARE(resourcesReply->url(), QCoapRequestPrivate::adjustedUrl(discoverUrl, false));
+    QCOMPARE(resourcesReply->url(),
+             QCoapRequestPrivate::adjustedUrl(discoverUrl, security != QtCoap::SecurityMode::NoSecurity));
 #endif
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
     QCOMPARE(resourcesReply->request().method(), QtCoap::Method::Get);
@@ -762,42 +891,62 @@ void tst_QCoapClient::observe_data()
     QWARN("Observe tests may take some time, don't forget to raise Tests timeout in settings.");
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::Type>("type");
+    QTest::addColumn<QtCoap::SecurityMode>("security");
 
     QTest::newRow("observe")
             << QUrl(testServerUrl() + "/obs")
-            << QCoapMessage::Type::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::NoSecurity;
+
+    QTest::newRow("observe_secure")
+            << QUrl(testServerHost() + "/obs")
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::PreSharedKey;
 
     QTest::newRow("observe_no_scheme_no_port")
             << QUrl(testServerHost() + "/obs")
-            << QCoapMessage::Type::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_confirmable")
             << QUrl(testServerUrl() + "/obs")
-            << QCoapMessage::Type::Confirmable;
+            << QCoapMessage::Type::Confirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_receive")
             << QUrl(testServerUrl() + "/obs-non")
-            << QCoapMessage::Type::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_receive_confirmable")
             << QUrl(testServerUrl() + "/obs-non")
-            << QCoapMessage::Type::Confirmable;
+            << QCoapMessage::Type::Confirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_large")
             << QUrl(testServerUrl() + "/obs-large")
-            << QCoapMessage::Type::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::NoSecurity;
+
+    QTest::newRow("observe_large_secure")
+            << QUrl(testServerHost() + "/obs-large")
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::PreSharedKey;
 
     QTest::newRow("observe_large_confirmable")
             << QUrl(testServerUrl() + "/obs-large")
-            << QCoapMessage::Type::Confirmable;
+            << QCoapMessage::Type::Confirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_pumping")
             << QUrl(testServerUrl() + "/obs-pumping")
-            << QCoapMessage::Type::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable
+            << QtCoap::SecurityMode::NoSecurity;
 
     QTest::newRow("observe_pumping_confirmable")
             << QUrl(testServerUrl() + "/obs-pumping")
-            << QCoapMessage::Type::Confirmable;
+            << QCoapMessage::Type::Confirmable
+            << QtCoap::SecurityMode::NoSecurity;
 }
 
 void tst_QCoapClient::observe()
@@ -806,8 +955,12 @@ void tst_QCoapClient::observe()
 
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::Type, type);
+    QFETCH(QtCoap::SecurityMode, security);
 
-    QCoapClient client;
+    QCoapClientForSecurityTests client(security);
+    if (client.securityMissing())
+        QSKIP("Skipping this test, security is not configured properly");
+
     QCoapRequest request(url);
 
     request.setType(type);
@@ -820,7 +973,8 @@ void tst_QCoapClient::observe()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
 #ifdef QT_BUILD_INTERNAL
-    QCOMPARE(reply->url(), QCoapRequestPrivate::adjustedUrl(url, false));
+    QCOMPARE(reply->url(),
+             QCoapRequestPrivate::adjustedUrl(url, security != QtCoap::SecurityMode::NoSecurity));
 #endif
     QCOMPARE(reply->request().method(), QtCoap::Method::Get);
 

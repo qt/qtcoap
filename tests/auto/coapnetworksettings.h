@@ -32,6 +32,7 @@
 #include <QtCore/qstring.h>
 #include <QtNetwork/qhostinfo.h>
 #include <QtCoap/qcoapclient.h>
+#include <QtCoap/qcoapsecurityconfiguration.h>
 
 /*!
     \internal
@@ -97,6 +98,12 @@ QString testServerHost()
     return testServerHostAddress;
 }
 
+QString timeServerUrl()
+{
+    static QString timeServerHostAddress = getHostAddress("freecoap");
+    return QStringLiteral("coaps://") + timeServerHostAddress + QStringLiteral(":5685/time");
+}
+
 QString testServerUrl()
 {
     return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":")
@@ -105,13 +112,64 @@ QString testServerUrl()
 
 QString testServerResource()
 {
-    return testServerUrl() + QStringLiteral("/test");
+    return testServerHost() + QStringLiteral("/test");
 }
 
-bool waitForHost(const QUrl &url, quint8 retries = 10)
+QCoapSecurityConfiguration createConfiguration(QtCoap::SecurityMode securityMode)
+{
+    QCoapSecurityConfiguration configuration;
+
+    if (securityMode == QtCoap::SecurityMode::PreSharedKey) {
+        configuration.setPreSharedKeyIdentity("Client_identity");
+        configuration.setPreSharedKey("secretPSK");
+    } else if (securityMode == QtCoap::SecurityMode::Certificate) {
+        const QString directory = QFINDTESTDATA("testdata");
+        if (directory.isEmpty()) {
+            qWarning() << "Found no testdata/, cannot load certificates.";
+            return configuration;
+        }
+
+        const auto localCertPath = directory + QDir::separator() +"local_cert.pem";
+        const auto localCerts = QSslCertificate::fromPath(localCertPath);
+        if (localCerts.isEmpty()) {
+            qWarning() << "Failed to load local certificates, the"
+                       << localCertPath
+                       << "file was not found or it is not valid.";
+        } else {
+            configuration.setLocalCertificateChain(localCerts.toVector());
+        }
+
+        const auto caCertPath = directory + QDir::separator() + "ca_cert.pem";
+        const auto caCerts = QSslCertificate::fromPath(caCertPath);
+        if (caCerts.isEmpty()) {
+            qWarning() << "Failed to load CA certificates, the"
+                       << caCertPath
+                       << "file was not found or it is not valid.";
+        } else {
+            configuration.setCaCertificates(caCerts.toVector());
+        }
+
+        const auto privateKeyPath = directory + QDir::separator() + "privkey.pem";
+        QFile privateKey(privateKeyPath);
+        if (privateKey.open(QIODevice::ReadOnly)) {
+            QCoapPrivateKey key(privateKey.readAll(), QSsl::Ec);
+            configuration.setPrivateKey(key);
+        } else {
+            qWarning() << "Failed to read the private key" << privateKeyPath;
+        }
+    }
+
+    return configuration;
+}
+
+bool waitForHost(const QUrl &url, QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSecurity,
+                 quint8 retries = 10)
 {
     while (retries-- > 0) {
-        QCoapClient client;
+        QCoapClient client(security);
+        if (security != QtCoap::SecurityMode::NoSecurity)
+            client.setSecurityConfiguration(createConfiguration(security));
+
         QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
         client.get(url);
 

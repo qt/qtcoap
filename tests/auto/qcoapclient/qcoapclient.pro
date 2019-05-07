@@ -8,4 +8,4 @@ HEADERS += ../coapnetworksettings.h
 SOURCES +=  tst_qcoapclient.cpp
 
 CONFIG += unsupported/testserver
-QT_TEST_SERVER_LIST = californium
+QT_TEST_SERVER_LIST = californium freecoap
