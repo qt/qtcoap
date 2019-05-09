@@ -31,7 +31,6 @@
 #ifndef QCOAPQUDPCONNECTION_P_H
 #define QCOAPQUDPCONNECTION_P_H
 
-#include <QtCoap/qcoapqudpconnection.h>
 #include <QtCoap/qcoapsecurityconfiguration.h>
 #include <private/qcoapconnection_p.h>
 
@@ -53,6 +52,40 @@ QT_BEGIN_NAMESPACE
 
 class QDtls;
 class QSslPreSharedKeyAuthenticator;
+class QCoapQUdpConnectionPrivate;
+class Q_AUTOTEST_EXPORT QCoapQUdpConnection : public QCoapConnection
+{
+    Q_OBJECT
+
+public:
+    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec,
+                                 QObject *parent = nullptr);
+
+    ~QCoapQUdpConnection() override = default;
+
+    QUdpSocket *socket() const;
+
+public Q_SLOTS:
+    void setSocketOption(QAbstractSocket::SocketOption, const QVariant &value);
+
+#if QT_CONFIG(dtls)
+private Q_SLOTS:
+    void pskRequired(QSslPreSharedKeyAuthenticator *authenticator);
+    void handshakeTimeout();
+#endif
+
+protected:
+    explicit QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject *parent = nullptr);
+
+    void bind(const QString &host, quint16 port) override;
+    void writeData(const QByteArray &data, const QString &host, quint16 port) override;
+    void close() override;
+
+    void createSocket();
+
+    Q_DECLARE_PRIVATE(QCoapQUdpConnection)
+};
+
 class Q_AUTOTEST_EXPORT QCoapQUdpConnectionPrivate : public QCoapConnectionPrivate
 {
 public:

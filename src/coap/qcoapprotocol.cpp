@@ -31,7 +31,6 @@
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
-#include "qcoapconnection.h"
 #include "qcoapconnection_p.h"
 
 #include <QtCore/qrandom.h>

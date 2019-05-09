@@ -35,7 +35,7 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCoap/qcoapconnection.h>
+#include <private/qcoapconnection_p.h>
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qtimer.h>

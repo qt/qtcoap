@@ -37,11 +37,12 @@
 #include <QtNetwork/qudpsocket.h>
 #include <QtNetwork/qnetworkdatagram.h>
 #include <QtCoap/qcoapglobal.h>
-#include <QtCoap/qcoapqudpconnection.h>
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapinternalrequest_p.h>
 #include "../coapnetworksettings.h"
+
+#ifdef QT_BUILD_INTERNAL
 
 using namespace QtCoapNetworkSettings;
 
@@ -86,7 +87,6 @@ void tst_QCoapQUdpConnection::ctor()
 
 void tst_QCoapQUdpConnection::connectToHost()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapQUdpConnectionForTest connection;
 
     QUdpSocket *socket = qobject_cast<QUdpSocket*>(connection.socket());
@@ -101,14 +101,10 @@ void tst_QCoapQUdpConnection::connectToHost()
     QTRY_COMPARE(spySocketStateChanged.count(), 1);
     QTRY_COMPARE(spyConnectionBound.count(), 1);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 void tst_QCoapQUdpConnection::reconnect()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapQUdpConnectionForTest connection;
 
     // This will trigger connection.bind()
@@ -124,9 +120,6 @@ void tst_QCoapQUdpConnection::reconnect()
     connection.sendRequest(QByteArray(), QString(), 0);
     QTRY_COMPARE(connectionBoundSpy.count(), 2);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 void tst_QCoapQUdpConnection::sendRequest_data()
@@ -180,7 +173,6 @@ void tst_QCoapQUdpConnection::sendRequest_data()
 
 void tst_QCoapQUdpConnection::sendRequest()
 {
-#ifdef QT_BUILD_INTERNAL
     QFETCH(QString, protocol);
     QFETCH(QString, host);
     QFETCH(QString, path);
@@ -208,10 +200,22 @@ void tst_QCoapQUdpConnection::sendRequest()
     QByteArray data = spyConnectionReadyRead.first().first().value<QByteArray>();
     QVERIFY(QString(data.toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(data.toHex()).endsWith(dataHexaPayload));
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
+
+#else
+
+class tst_QCoapQUdpConnection : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        QSKIP("Not an internal build, nothing to test");
+    }
+};
+
+#endif
 
 QTEST_MAIN(tst_QCoapQUdpConnection)
 

@@ -77,6 +77,8 @@ private Q_SLOTS:
     void multicast_blockwise();
 };
 
+#ifdef QT_BUILD_INTERNAL
+
 class QCoapQUdpConnectionSocketTestsPrivate : public QCoapQUdpConnectionPrivate
 {
     bool bind() override
@@ -172,6 +174,7 @@ public:
     }
 };
 
+#endif
 
 class Helper : public QObject
 {
@@ -347,6 +350,7 @@ void tst_QCoapClient::setBlockSize_data()
 
 void tst_QCoapClient::setBlockSize()
 {
+#ifdef QT_BUILD_INTERNAL
     QFETCH(int, blockSizeSet);
     QFETCH(int, blockSizeExpected);
 
@@ -358,6 +362,9 @@ void tst_QCoapClient::setBlockSize()
     eventLoop.exec();
 
     QCOMPARE(client.protocol()->blockSize(), blockSizeExpected);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 void tst_QCoapClient::requestWithQIODevice_data()
@@ -479,6 +486,7 @@ void tst_QCoapClient::timeout_data()
 
 void tst_QCoapClient::timeout()
 {
+#ifdef QT_BUILD_INTERNAL
     QFETCH(int, timeout);
     QFETCH(int, maxRetransmit);
 
@@ -520,6 +528,9 @@ void tst_QCoapClient::timeout()
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyAborted.count(), 0);
     QCOMPARE(spyClientError.count(), 1);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 void tst_QCoapClient::abort()
@@ -786,6 +797,7 @@ void tst_QCoapClient::confirmableMulticast()
 
 void tst_QCoapClient::multicast()
 {
+#ifdef QT_BUILD_INTERNAL
     QCoapClientForMulticastTests client;
     QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
     request.setToken("abc");
@@ -811,10 +823,14 @@ void tst_QCoapClient::multicast()
     QCOMPARE(message1.payload(), "Reply1");
     QHostAddress sender1 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(1).at(2));
     QCOMPARE(sender1, host1);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 void tst_QCoapClient::multicast_blockwise()
 {
+#ifdef QT_BUILD_INTERNAL
     QCoapClientForMulticastTests client;
     QCoapRequest request = QCoapRequest(QUrl("224.0.1.187"));
     request.setToken("abc");
@@ -842,6 +858,9 @@ void tst_QCoapClient::multicast_blockwise()
     QCOMPARE(message1.payload(), "Reply3Reply4");
     QHostAddress sender1 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(1).at(2));
     QCOMPARE(sender1, host1);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 QTEST_MAIN(tst_QCoapClient)

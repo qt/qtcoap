@@ -34,7 +34,7 @@
 #include "qcoapdiscoveryreply.h"
 #include "qcoapnamespace.h"
 #include "qcoapsecurityconfiguration.h"
-#include "qcoapqudpconnection.h"
+#include "qcoapqudpconnection_p.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qloggingcategory.h>

@@ -7,14 +7,12 @@ QMAKE_DOCS = $$PWD/doc/qtcoap.qdocconf
 
 PUBLIC_HEADERS += \
     qcoapclient.h \
-    qcoapconnection.h \
     qcoapdiscoveryreply.h \
     qcoapglobal.h \
     qcoapmessage.h \
     qcoapnamespace.h \
     qcoapoption.h \
     qcoapprotocol.h \
-    qcoapqudpconnection.h \
     qcoapreply.h \
     qcoaprequest.h \
     qcoapresource.h \

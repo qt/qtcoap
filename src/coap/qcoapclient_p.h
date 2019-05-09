@@ -31,7 +31,6 @@
 #ifndef QCOAPCLIENT_P_H
 #define QCOAPCLIENT_P_H
 
-#include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoapclient.h>
 #include <QtCoap/qcoapprotocol.h>
 #include <QtCore/qthread.h>

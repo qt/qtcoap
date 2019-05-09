@@ -45,6 +45,8 @@ QT_BEGIN_NAMESPACE
 Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
 
 /*!
+    \internal
+
     \class QCoapQUdpConnection
     \inmodule QtCoap
 
@@ -266,6 +268,8 @@ void QCoapQUdpConnection::close()
 }
 
 /*!
+    \internal
+
     Sets the QUdpSocket socket \a option to \a value.
 */
 void QCoapQUdpConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
@@ -339,6 +343,8 @@ void QCoapQUdpConnectionPrivate::socketReadyRead()
 }
 
 /*!
+    \internal
+
     Returns the socket.
 */
 QUdpSocket *QCoapQUdpConnection::socket() const
@@ -468,5 +474,3 @@ void QCoapQUdpConnectionPrivate::handleEncryptedDatagram()
 #endif // dtls
 
 QT_END_NAMESPACE
-
-#include "moc_qcoapqudpconnection.cpp"
