@@ -32,6 +32,7 @@
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
 #include "qcoapconnection_p.h"
+#include "qcoapnamespace_p.h"
 
 #include <QtCore/qrandom.h>
 #include <QtCore/qthread.h>
@@ -291,7 +292,7 @@ void QCoapProtocolPrivate::onMulticastRequestExpired(QCoapInternalRequest *reque
 */
 void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply)
 {
-    QtCoap::Error error = QtCoap::responseCodeError(reply->responseCode());
+    QtCoap::Error error = QtCoap::errorForResponseCode(reply->responseCode());
     onRequestError(request, error, reply);
 }
 

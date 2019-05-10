@@ -30,6 +30,7 @@
 
 #include "qcoapdiscoveryreply_p.h"
 #include "qcoapinternalreply_p.h"
+#include "qcoapnamespace_p.h"
 
 QT_BEGIN_NAMESPACE
 

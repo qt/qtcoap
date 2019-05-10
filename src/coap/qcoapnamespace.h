@@ -118,10 +118,6 @@ namespace QtCoap
     };
     Q_ENUM_NS(MulticastGroup)
 
-    Q_COAP_EXPORT bool isError(ResponseCode code);
-    Q_COAP_EXPORT Error responseCodeError(ResponseCode code);
-    Q_COAP_EXPORT QRandomGenerator &randomGenerator();
-
     Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 }
 

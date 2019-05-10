@@ -33,6 +33,9 @@
 
 #include <QtCoap/qcoapreply.h>
 #include <private/qcoapreply_p.h>
+#include <private/qcoapnamespace_p.h>
+
+#ifdef QT_BUILD_INTERNAL
 
 class tst_QCoapReply : public QObject
 {
@@ -128,20 +131,15 @@ void tst_QCoapReply::updateReply()
 
 void tst_QCoapReply::requestData()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapReplyForTests reply((QCoapRequest()));
     reply.setRunning("token", 543);
 
     QCOMPARE(reply.request().token(), QByteArray("token"));
     QCOMPARE(reply.request().messageId(), 543);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 void tst_QCoapReply::abortRequest()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapReplyForTests reply((QCoapRequest()));
     reply.setRunning("token", 543);
 
@@ -154,10 +152,22 @@ void tst_QCoapReply::abortRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spyFinished.count(), 1, 1000);
     QVERIFY(arguments.at(0).toByteArray() == "token");
     QCOMPARE(reply.isSuccessful(), false);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
+
+#else
+
+class tst_QCoapReply : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        QSKIP("Not an internal build, nothing to test");
+    }
+};
+
+#endif
 
 QTEST_MAIN(tst_QCoapReply)
 

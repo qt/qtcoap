@@ -30,6 +30,8 @@
 
 #include "qcoapreply_p.h"
 #include "qcoapinternalreply_p.h"
+#include "qcoapnamespace_p.h"
+
 #include <QtCore/qmath.h>
 #include <QtCore/qloggingcategory.h>
 
@@ -161,7 +163,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::Error newError)
 */
 void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 {
-    _q_setError(QtCoap::responseCodeError(code));
+    _q_setError(QtCoap::errorForResponseCode(code));
 }
 
 /*!

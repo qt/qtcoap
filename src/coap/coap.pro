@@ -25,6 +25,7 @@ PRIVATE_HEADERS += \
     qcoapinternalreply_p.h \
     qcoapinternalrequest_p.h \
     qcoapmessage_p.h \
+    qcoapnamespace_p.h \
     qcoapoption_p.h \
     qcoapprotocol_p.h \
     qcoapqudpconnection_p.h \
