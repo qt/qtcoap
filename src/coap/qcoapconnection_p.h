@@ -61,7 +61,7 @@ public:
         Bound
     };
 
-    explicit QCoapConnection(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSec,
+    explicit QCoapConnection(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSecurity,
                              QObject *parent = nullptr);
     virtual ~QCoapConnection();
 
@@ -107,7 +107,7 @@ struct CoapFrame {
 class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
-    QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec);
+    QCoapConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSecurity);
 
     ~QCoapConnectionPrivate() override = default;
 

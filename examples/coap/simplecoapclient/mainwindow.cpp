@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    m_client = new QCoapClient(QtCoap::SecurityMode::NoSec, this);
+    m_client = new QCoapClient(QtCoap::SecurityMode::NoSecurity, this);
     connect(m_client, &QCoapClient::finished, this, &MainWindow::onFinished);
     connect(m_client, &QCoapClient::error, this, &MainWindow::onError);
 

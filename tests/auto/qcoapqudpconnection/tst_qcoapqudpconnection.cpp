@@ -69,7 +69,7 @@ class QCoapQUdpConnectionForTest : public QCoapQUdpConnection
     Q_OBJECT
 public:
     QCoapQUdpConnectionForTest(QObject *parent = nullptr) :
-        QCoapQUdpConnection(QtCoap::SecurityMode::NoSec, parent)
+        QCoapQUdpConnection(QtCoap::SecurityMode::NoSecurity, parent)
     {}
 
     void bindSocketForTest() { d_func()->bindSocket(); }

@@ -70,7 +70,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
     sets \a parent as the parent object.
 
     \note Since QtCoap::RawPublicKey is not supported yet, the connection
-    will fall back to the QtCoap::NoSec in the QtCoap::RawPublicKey mode.
+    will fall back to the QtCoap::NoSecurity in the QtCoap::RawPublicKey mode.
     That is, the connection won't be secure in this mode.
 */
 QCoapQUdpConnection::QCoapQUdpConnection(QtCoap::SecurityMode securityMode, QObject *parent) :
@@ -106,7 +106,7 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
         case QtCoap::SecurityMode::RawPublicKey:
             qCWarning(lcCoapConnection, "RawPublicKey security is not supported yet,"
                                         "disabling security");
-            d->securityMode = QtCoap::SecurityMode::NoSec;
+            d->securityMode = QtCoap::SecurityMode::NoSecurity;
             break;
         case QtCoap::SecurityMode::PreSharedKey:
             d->dtls = new QDtls(QSslSocket::SslClientMode, this);
@@ -127,8 +127,8 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
             break;
         }
 #else
-        qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSec mode.");
-        d->securityMode = QtCoap::SecurityMode::NoSec;
+        qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSecurity mode.");
+        d->securityMode = QtCoap::SecurityMode::NoSecurity;
 #endif
     }
 }

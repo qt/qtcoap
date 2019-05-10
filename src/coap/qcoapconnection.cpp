@@ -207,7 +207,7 @@ QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &ho
 bool QCoapConnection::isSecure() const
 {
     Q_D(const QCoapConnection);
-    return d->securityMode != QtCoap::SecurityMode::NoSec;
+    return d->securityMode != QtCoap::SecurityMode::NoSecurity;
 }
 
 /*!
@@ -249,8 +249,8 @@ void QCoapConnection::startToSendRequest()
 
 /*!
     Sets the security configuration parameters from the \a configuration.
-    The security configuration will be ignored if the QtCoap::NoSec mode is used
-    for connection.
+    The security configuration will be ignored if the QtCoap::NoSecurity mode is
+    used for connection.
 
     \note This method must be called before the handshake starts.
 */

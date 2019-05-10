@@ -56,7 +56,7 @@
 Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
 QmlCoapMulticastClient::QmlCoapMulticastClient(QObject *parent)
-    : QCoapClient(QtCoap::SecurityMode::NoSec, parent)
+    : QCoapClient(QtCoap::SecurityMode::NoSecurity, parent)
 {
     connect(this, &QCoapClient::finished, this,
             [this](QCoapReply *reply) {

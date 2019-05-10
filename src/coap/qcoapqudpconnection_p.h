@@ -58,7 +58,7 @@ class Q_AUTOTEST_EXPORT QCoapQUdpConnection : public QCoapConnection
     Q_OBJECT
 
 public:
-    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec,
+    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSecurity,
                                  QObject *parent = nullptr);
 
     ~QCoapQUdpConnection() override = default;
@@ -89,7 +89,7 @@ protected:
 class Q_AUTOTEST_EXPORT QCoapQUdpConnectionPrivate : public QCoapConnectionPrivate
 {
 public:
-    QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec);
+    QCoapQUdpConnectionPrivate(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSecurity);
     ~QCoapQUdpConnectionPrivate() override;
 
     virtual bool bind();

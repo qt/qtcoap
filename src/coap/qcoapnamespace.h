@@ -104,7 +104,7 @@ namespace QtCoap
     Q_ENUM_NS(Port)
 
     enum class SecurityMode : quint8 {
-        NoSec = 0,
+        NoSecurity = 0,
         PreSharedKey,
         RawPublicKey,
         Certificate

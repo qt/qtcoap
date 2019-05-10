@@ -238,7 +238,7 @@ QT_BEGIN_NAMESPACE
   Specifies the security mode used for securing a CoAP connection, as defined in
   \l{https://tools.ietf.org/html/rfc7252#section-9}{RFC 7252}.
 
-  \value NoSec              There is no protocol-level security (DTLS is disabled).
+  \value NoSecurity         There is no protocol-level security (DTLS is disabled).
 
   \value PreSharedKey       DTLS is enabled. PSK authentication will be used for security.
 

@@ -152,7 +152,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     Constructs a QCoapClient object for the given \a securityMode and
     sets \a parent as the parent object.
 
-    The default for \a securityMode is SecurityMode::NoSec, which
+    The default for \a securityMode is QtCoap::NoSecurity, which
     disables security.
 
     This connects using a QCoapQUdpConnection; to use a custom transport,
@@ -585,7 +585,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 
 /*!
     Sets the security configuration parameters from \a configuration.
-    Configuration will be ignored if the QtCoap::NoSec mode is used.
+    Configuration will be ignored if the QtCoap::NoSecurity mode is used.
 
     \note This method must be called before the handshake starts.
 */
