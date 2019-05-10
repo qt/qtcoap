@@ -60,7 +60,7 @@ public:
     QThread *workerThread = nullptr;
 
     QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
+    QCoapResourceDiscoveryReply *sendDiscovery(const QCoapRequest &request);
     bool send(QCoapReply *reply);
 
     Q_DECLARE_PUBLIC(QCoapClient)

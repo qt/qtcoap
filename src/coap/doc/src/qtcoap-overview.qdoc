@@ -106,15 +106,15 @@
     firmware resource available in the network. The reply is represented in
     \l {https://tools.ietf.org/html/rfc6690}{CoRE Link Format}.
 
-    The specialized QCoapDiscoveryReply class is used to get the discovery replies:
+    The specialized QCoapResourceDiscoveryReply class is used to get the discovery replies:
 
     \code
     // This will make a multicast discovery request to the CoAP IPv4 multicast group.
-    QCoapDiscoveryReply *discoverReply = client->discover();
-    connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &MyClass::onDiscovered);
+    QCoapResourceDiscoveryReply *discoverReply = client->discover();
+    connect(discoverReply, &QCoapResourceDiscoveryReply::discovered, this, &MyClass::onDiscovered);
     \endcode
 
-    The QCoapDiscoveryReply::discovered will return the list of CoAP resources found in the
+    The QCoapResourceDiscoveryReply::discovered will return the list of CoAP resources found in the
     network.
 
     \section2 Resource Observation

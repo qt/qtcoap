@@ -107,7 +107,7 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     The QCoapRequest contains data needed to make CoAP frames that can be
     sent to the URL it holds.
 
-    \sa QCoapClient, QCoapReply, QCoapDiscoveryReply
+    \sa QCoapClient, QCoapReply, QCoapResourceDiscoveryReply
 */
 
 /*!

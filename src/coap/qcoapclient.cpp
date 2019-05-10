@@ -31,7 +31,7 @@
 #include "qcoapclient_p.h"
 #include "qcoapprotocol_p.h"
 #include "qcoapreply.h"
-#include "qcoapdiscoveryreply.h"
+#include "qcoapresourcediscoveryreply.h"
 #include "qcoapnamespace.h"
 #include "qcoapsecurityconfiguration.h"
 #include "qcoapqudpconnection_p.h"
@@ -107,11 +107,11 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     When a reply arrives, the QCoapClient emits a finished() signal.
 
-    \note For a discovery request, the returned object is a QCoapDiscoveryReply.
+    \note For a discovery request, the returned object is a QCoapResourceDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
     resources.
 
-    \sa QCoapRequest, QCoapReply, QCoapDiscoveryReply
+    \sa QCoapRequest, QCoapReply, QCoapResourceDiscoveryReply
 */
 
 /*!
@@ -176,7 +176,7 @@ QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
     qRegisterMetaType<QCoapReply *>();
     qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
-    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
+    qRegisterMetaType<QPointer<QCoapResourceDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection *>();
     qRegisterMetaType<QtCoap::Error>();
     qRegisterMetaType<QtCoap::ResponseCode>();
@@ -373,8 +373,8 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
     \overload
 
     Discovers the resources available at the endpoints which have joined
-    the \a group at the given \a port. Returns a new QCoapDiscoveryReply
-    object which emits the \l QCoapDiscoveryReply::discovered() signal whenever
+    the \a group at the given \a port. Returns a new QCoapResourceDiscoveryReply
+    object which emits the \l QCoapResourceDiscoveryReply::discovered() signal whenever
     a response arrives. The \a group is one of the CoAP multicast group addresses
     and defaults to QtCoap::AllCoapNodesIPv4.
 
@@ -384,7 +384,7 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
-QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int port,
+QCoapResourceDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int port,
                                            const QString &discoveryPath)
 {
     Q_D(QCoapClient);
@@ -416,8 +416,8 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
 
 /*!
     Discovers the resources available at the given \a url and returns
-    a new QCoapDiscoveryReply object which emits the
-    \l QCoapDiscoveryReply::discovered() signal whenever the response
+    a new QCoapResourceDiscoveryReply object which emits the
+    \l QCoapResourceDiscoveryReply::discovered() signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed
@@ -426,7 +426,7 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
-QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
+QCoapResourceDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
 {
     Q_D(QCoapClient);
 
@@ -532,14 +532,14 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     \internal
 
     Sends the CoAP \a request to its own URL and returns a
-    new QCoapDiscoveryReply object.
+    new QCoapResourceDiscoveryReply object.
 */
-QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
+QCoapResourceDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(request, q);
+    QCoapResourceDiscoveryReply *reply = new QCoapResourceDiscoveryReply(request, q);
 
     if (!send(reply)) {
         delete reply;

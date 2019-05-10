@@ -7,7 +7,6 @@ QMAKE_DOCS = $$PWD/doc/qtcoap.qdocconf
 
 PUBLIC_HEADERS += \
     qcoapclient.h \
-    qcoapdiscoveryreply.h \
     qcoapglobal.h \
     qcoapmessage.h \
     qcoapnamespace.h \
@@ -15,12 +14,12 @@ PUBLIC_HEADERS += \
     qcoapreply.h \
     qcoaprequest.h \
     qcoapresource.h \
+    qcoapresourcediscoveryreply.h \
     qcoapsecurityconfiguration.h
 
 PRIVATE_HEADERS += \
     qcoapclient_p.h \
     qcoapconnection_p.h \
-    qcoapdiscoveryreply_p.h \
     qcoapinternalmessage_p.h \
     qcoapinternalreply_p.h \
     qcoapinternalrequest_p.h \
@@ -31,12 +30,12 @@ PRIVATE_HEADERS += \
     qcoapqudpconnection_p.h \
     qcoapreply_p.h \
     qcoaprequest_p.h \
-    qcoapresource_p.h
+    qcoapresource_p.h \
+    qcoapresourcediscoveryreply_p.h
 
 SOURCES += \
     qcoapclient.cpp \
     qcoapconnection.cpp \
-    qcoapdiscoveryreply.cpp \
     qcoapinternalmessage.cpp \
     qcoapinternalreply.cpp \
     qcoapinternalrequest.cpp \
@@ -48,6 +47,7 @@ SOURCES += \
     qcoapreply.cpp \
     qcoaprequest.cpp \
     qcoapresource.cpp \
+    qcoapresourcediscoveryreply.cpp \
     qcoapsecurityconfiguration.cpp
 
 HEADERS += $$PUBLIC_HEADERS $$PRIVATE_HEADERS

@@ -50,7 +50,7 @@
 
 #include "qmlcoapmulticastclient.h"
 
-#include <QCoapDiscoveryReply>
+#include <QCoapResourceDiscoveryReply>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
@@ -73,9 +73,9 @@ void QmlCoapMulticastClient::discover(const QString &host, int port, const QStri
     url.setHost(host);
     url.setPort(port);
 
-    QCoapDiscoveryReply *discoverReply = QCoapClient::discover(url, discoveryPath);
+    QCoapResourceDiscoveryReply *discoverReply = QCoapClient::discover(url, discoveryPath);
     if (discoverReply) {
-        connect(discoverReply, &QCoapDiscoveryReply::discovered,
+        connect(discoverReply, &QCoapResourceDiscoveryReply::discovered,
                 this, &QmlCoapMulticastClient::onDiscovered);
     } else {
         qCWarning(lcCoapClient, "Discovery request failed.");
@@ -85,16 +85,16 @@ void QmlCoapMulticastClient::discover(const QString &host, int port, const QStri
 void QmlCoapMulticastClient::discover(QtCoap::MulticastGroup group, int port,
                                       const QString &discoveryPath)
 {
-    QCoapDiscoveryReply *discoverReply = QCoapClient::discover(group, port, discoveryPath);
+    QCoapResourceDiscoveryReply *discoverReply = QCoapClient::discover(group, port, discoveryPath);
     if (discoverReply) {
-        connect(discoverReply, &QCoapDiscoveryReply::discovered,
+        connect(discoverReply, &QCoapResourceDiscoveryReply::discovered,
                 this, &QmlCoapMulticastClient::onDiscovered);
     } else {
         qCWarning(lcCoapClient, "Discovery request failed.");
     }
 }
 
-void QmlCoapMulticastClient::onDiscovered(QCoapDiscoveryReply *reply,
+void QmlCoapMulticastClient::onDiscovered(QCoapResourceDiscoveryReply *reply,
                                           const QVector<QCoapResource> &resources)
 {
     Q_UNUSED(reply)

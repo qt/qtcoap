@@ -28,13 +28,13 @@
 **
 ****************************************************************************/
 
-#include "qcoapdiscoveryreply_p.h"
+#include "qcoapresourcediscoveryreply_p.h"
 #include "qcoapinternalreply_p.h"
 #include "qcoapnamespace_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &request) :
+QCoapResourceDiscoveryReplyPrivate::QCoapResourceDiscoveryReplyPrivate(const QCoapRequest &request) :
     QCoapReplyPrivate(request)
 {
 }
@@ -42,13 +42,14 @@ QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &reque
 /*!
     \internal
 
-    Updates the QCoapDiscoveryReply object, its message and list of resources
+    Updates the QCoapResourceDiscoveryReply object, its message and list of resources
     with data of the internal reply \a internalReply.
 */
-void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const QCoapMessage &msg,
-                                               QtCoap::ResponseCode code)
+void QCoapResourceDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender,
+                                                       const QCoapMessage &msg,
+                                                       QtCoap::ResponseCode code)
 {
-    Q_Q(QCoapDiscoveryReply);
+    Q_Q(QCoapResourceDiscoveryReply);
 
     if (q->isFinished())
         return;
@@ -59,17 +60,17 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
     if (QtCoap::isError(responseCode)) {
         _q_setError(responseCode);
     } else {
-        auto res = QCoapDiscoveryReply::resourcesFromCoreLinkList(sender, message.payload());
+        auto res = QCoapResourceDiscoveryReply::resourcesFromCoreLinkList(sender, message.payload());
         resources.append(res);
         emit q->discovered(q, res);
     }
 }
 
 /*!
-    \class QCoapDiscoveryReply
+    \class QCoapResourceDiscoveryReply
     \inmodule QtCoap
 
-    \brief The QCoapDiscoveryReply class holds the data of a CoAP reply
+    \brief The QCoapResourceDiscoveryReply class holds the data of a CoAP reply
     for a resource discovery request.
 
     \reentrant
@@ -79,14 +80,14 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
     address for discovery, the discovered() signal will be emitted once
     for each response received.
 
-    \note A QCoapDiscoveryReply is a QCoapReply that stores also a list
+    \note A QCoapResourceDiscoveryReply is a QCoapReply that stores also a list
     of QCoapResources.
 
     \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
 */
 
 /*!
-    \fn void QCoapDiscoveryReply::discovered(QCoapDiscoveryReply *reply,
+    \fn void QCoapResourceDiscoveryReply::discovered(QCoapResourceDiscoveryReply *reply,
                                              QVector<QCoapResource> resources);
 
     This signal is emitted whenever a CoAP resource is discovered.
@@ -101,17 +102,17 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
     Constructs a new CoAP discovery reply from the \a request and sets \a parent
     as its parent.
 */
-QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
-    QCoapReply(*new QCoapDiscoveryReplyPrivate(request), parent)
+QCoapResourceDiscoveryReply::QCoapResourceDiscoveryReply(const QCoapRequest &request, QObject *parent) :
+    QCoapReply(*new QCoapResourceDiscoveryReplyPrivate(request), parent)
 {
 }
 
 /*!
     Returns the list of resources.
 */
-QVector<QCoapResource> QCoapDiscoveryReply::resources() const
+QVector<QCoapResource> QCoapResourceDiscoveryReply::resources() const
 {
-    Q_D(const QCoapDiscoveryReply);
+    Q_D(const QCoapResourceDiscoveryReply);
     return d->resources;
 }
 
@@ -121,7 +122,7 @@ QVector<QCoapResource> QCoapDiscoveryReply::resources() const
     discovery request.
 */
 QVector<QCoapResource>
-QCoapDiscoveryReply::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
+QCoapResourceDiscoveryReply::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
 {
     QVector<QCoapResource> resourceList;
 

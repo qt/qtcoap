@@ -28,35 +28,39 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPDISCOVERYREPLY_H
-#define QCOAPDISCOVERYREPLY_H
+#ifndef QCOAPRESOURCEDISCOVERYREPLY_P_H
+#define QCOAPRESOURCEDISCOVERYREPLY_P_H
 
-#include <QtCoap/qcoapreply.h>
-#include <QtCoap/qcoapresource.h>
 #include <QtCore/qlist.h>
+#include <QtCoap/qcoapresourcediscoveryreply.h>
+#include <QtCoap/qcoapresource.h>
+#include <private/qcoapreply_p.h>
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API. It exists purely as an
+// implementation detail. This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 QT_BEGIN_NAMESPACE
 
-class QCoapDiscoveryReplyPrivate;
-class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
+class Q_AUTOTEST_EXPORT QCoapResourceDiscoveryReplyPrivate : public QCoapReplyPrivate
 {
-    Q_OBJECT
-
 public:
-    explicit QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent = nullptr);
+    QCoapResourceDiscoveryReplyPrivate(const QCoapRequest &request);
 
-    QVector<QCoapResource> resources() const;
+    void _q_setContent(const QHostAddress &sender, const QCoapMessage &, QtCoap::ResponseCode) override;
 
-    static QVector<QCoapResource> resourcesFromCoreLinkList(
-            const QHostAddress &sender, const QByteArray &data);
+    QVector<QCoapResource> resources;
 
-Q_SIGNALS:
-    void discovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
-
-private:
-    Q_DECLARE_PRIVATE(QCoapDiscoveryReply)
+    Q_DECLARE_PUBLIC(QCoapResourceDiscoveryReply)
 };
 
 QT_END_NAMESPACE
 
-#endif // QCOAPDISCOVERYREPLY_H
+#endif // QCOAPRESOURCEDISCOVERYREPLY_P_H

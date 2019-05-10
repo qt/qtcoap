@@ -40,7 +40,7 @@
 QT_BEGIN_NAMESPACE
 
 class QCoapReply;
-class QCoapDiscoveryReply;
+class QCoapResourceDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
 class QCoapConnection;
@@ -74,11 +74,13 @@ public:
     void cancelObserve(const QUrl &url);
     void disconnect();
 
-    QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::MulticastGroup::AllCoapNodesIPv4,
-                                  int port = QtCoap::DefaultPort,
-                                  const QString &discoveryPath = QLatin1String("/.well-known/core"));
-    QCoapDiscoveryReply *discover(const QUrl &baseUrl,
-                                  const QString &discoveryPath = QLatin1String("/.well-known/core"));
+    QCoapResourceDiscoveryReply *discover(
+            QtCoap::MulticastGroup group = QtCoap::MulticastGroup::AllCoapNodesIPv4,
+            int port = QtCoap::DefaultPort,
+            const QString &discoveryPath = QLatin1String("/.well-known/core"));
+    QCoapResourceDiscoveryReply *discover(
+            const QUrl &baseUrl,
+            const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     void setBlockSize(quint16 blockSize);

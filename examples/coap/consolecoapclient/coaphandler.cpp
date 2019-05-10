@@ -34,7 +34,7 @@
 #include <QLoggingCategory>
 #include <QCoapClient>
 #include <QCoapReply>
-#include <QCoapDiscoveryReply>
+#include <QCoapResourceDiscoveryReply>
 
 Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
@@ -78,11 +78,11 @@ bool CoapHandler::runObserve(const QUrl &url)
 
 bool CoapHandler::runDiscover(const QUrl &url)
 {
-    QCoapDiscoveryReply *discoverReply = m_coapClient.discover(url);
+    QCoapResourceDiscoveryReply *discoverReply = m_coapClient.discover(url);
     if (!discoverReply)
         return false;
 
-    connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
+    connect(discoverReply, &QCoapResourceDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
     return true;
 }
 
@@ -105,7 +105,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
     qCInfo(lcCoapClient) << "Received Observe notification with payload:" << reply->readAll();
 }
 
-void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
+void CoapHandler::onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources)
 {
     Q_UNUSED(reply)
 

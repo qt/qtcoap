@@ -183,7 +183,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     For \e Observe requests specifically, the notified() signal is emitted
     whenever a notification is received.
 
-    \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
+    \sa QCoapClient, QCoapRequest, QCoapResourceDiscoveryReply
 */
 
 /*!

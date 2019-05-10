@@ -34,7 +34,7 @@
 #include <QtCoap/qcoapclient.h>
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapreply.h>
-#include <QtCoap/qcoapdiscoveryreply.h>
+#include <QtCoap/qcoapresourcediscoveryreply.h>
 #include <QtCore/qbuffer.h>
 #include <QtNetwork/qnetworkdatagram.h>
 #include <private/qcoapclient_p.h>
@@ -699,7 +699,7 @@ void tst_QCoapClient::discover()
 
     QCoapClient client;
 
-    QScopedPointer<QCoapDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
+    QScopedPointer<QCoapResourceDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
     QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);

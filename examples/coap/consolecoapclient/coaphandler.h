@@ -40,7 +40,7 @@
 QT_BEGIN_NAMESPACE
 
 class QCoapReply;
-class QCoapDiscoveryReply;
+class QCoapResourceDiscoveryReply;
 class QCoapResource;
 
 QT_END_NAMESPACE
@@ -61,7 +61,7 @@ public:
 public Q_SLOTS:
     void onFinished(QCoapReply *reply);
     void onNotified(QCoapReply *reply, QCoapMessage message);
-    void onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
+    void onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources);
     void onResponseToMulticast(QCoapReply *reply, const QCoapMessage& message,
                                const QHostAddress &sender);
     void onError(QCoapReply *reply, QtCoap::Error error);
