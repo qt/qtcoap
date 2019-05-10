@@ -32,7 +32,6 @@
 #define QCOAPCLIENT_P_H
 
 #include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
 #include <QtCore/qthread.h>
 #include <QtCore/qpointer.h>
 #include <private/qobject_p.h>

@@ -39,6 +39,7 @@
 #include <QtNetwork/qnetworkdatagram.h>
 #include <private/qcoapclient_p.h>
 #include <private/qcoapqudpconnection_p.h>
+#include <private/qcoapprotocol_p.h>
 
 #include "../coapnetworksettings.h"
 

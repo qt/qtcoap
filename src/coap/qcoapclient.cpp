@@ -610,8 +610,6 @@ void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &con
     Sets the maximum block size used by the protocol to \a blockSize
     when sending requests and receiving replies. The block size must be
     a power of two.
-
-    \sa QCoapProtocol::setBlockSize()
 */
 void QCoapClient::setBlockSize(quint16 blockSize)
 {

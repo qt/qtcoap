@@ -43,6 +43,8 @@ QT_BEGIN_NAMESPACE
 Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 
 /*!
+    \internal
+
     \class QCoapProtocol
     \inmodule QtCoap
 
@@ -60,6 +62,8 @@ Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 */
 
 /*!
+    \internal
+
     \fn void QCoapProtocol::finished(QCoapReply *reply)
 
     This signal is emitted along with the \l QCoapReply::finished() signal
@@ -71,6 +75,8 @@ Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 */
 
 /*!
+    \internal
+
     \fn void QCoapProtocol::responseToMulticastReceived(QCoapReply *reply,
                                                         const QCoapMessage& message,
                                                         const QHostAddress &sender)
@@ -84,6 +90,8 @@ Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 */
 
 /*!
+    \internal
+
     \fn void QCoapProtocol::error(QCoapReply *reply, QtCoap::Error error)
 
     This signal is emitted whenever an error occurs. The \a reply parameter
@@ -94,6 +102,8 @@ Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 */
 
 /*!
+    \internal
+
     Constructs a new QCoapProtocol and sets \a parent as the parent object.
 */
 QCoapProtocol::QCoapProtocol(QObject *parent) :
@@ -876,6 +886,8 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id) const
 }
 
 /*!
+    \internal
+
     Returns the ACK_TIMEOUT value in milliseconds.
     The default is 2000.
 
@@ -888,6 +900,8 @@ uint QCoapProtocol::ackTimeout() const
 }
 
 /*!
+    \internal
+
     Returns the ACK_RANDOM_FACTOR value.
     The default is 1.5.
 
@@ -900,6 +914,8 @@ double QCoapProtocol::ackRandomFactor() const
 }
 
 /*!
+    \internal
+
     Returns the MAX_RETRANSMIT value. This is the maximum number of
     retransmissions of a message, before notifying a timeout error.
     The default is 4.
@@ -913,6 +929,8 @@ uint QCoapProtocol::maxRetransmit() const
 }
 
 /*!
+    \internal
+
     Returns the max block size wanted.
     The default is 0, which invites the server to choose the block size.
 
@@ -925,6 +943,8 @@ quint16 QCoapProtocol::blockSize() const
 }
 
 /*!
+    \internal
+
     Returns the MAX_TRANSMIT_SPAN in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
 
@@ -937,6 +957,8 @@ uint QCoapProtocol::maxTransmitSpan() const
 }
 
 /*!
+    \internal
+
     Returns the MAX_TRANSMIT_WAIT in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
 
@@ -951,6 +973,8 @@ uint QCoapProtocol::maxTransmitWait() const
 }
 
 /*!
+    \internal
+
     Returns the MAX_LATENCY in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}. This
     value is arbitrarily set to 100 seconds by the standard.
@@ -964,6 +988,8 @@ constexpr uint QCoapProtocol::maxLatency()
 }
 
 /*!
+    \internal
+
     Returns the minimum duration for messages timeout. The timeout is defined
     as a random value between minTimeout() and maxTimeout(). This is a
     convenience method identical to ackTimeout().
@@ -977,6 +1003,8 @@ uint QCoapProtocol::minTimeout() const
 }
 
 /*!
+    \internal
+
     Returns the maximum duration for messages timeout in milliseconds.
 
     \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
@@ -988,6 +1016,8 @@ uint QCoapProtocol::maxTimeout() const
 }
 
 /*!
+    \internal
+
     Returns the \c NON_LIFETIME in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
 
@@ -1000,6 +1030,8 @@ uint QCoapProtocol::nonConfirmLifetime() const
 }
 
 /*!
+    \internal
+
     Returns the \c MAX_SERVER_RESPONSE_DELAY in milliseconds, as defined in
     \l {RFC 7390 - Section 2.5}.
 
@@ -1015,6 +1047,8 @@ uint QCoapProtocol::maxServerResponseDelay() const
 }
 
 /*!
+    \internal
+
     Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds.
     The default is 2000 ms.
 
@@ -1031,6 +1065,8 @@ void QCoapProtocol::setAckTimeout(uint ackTimeout)
 }
 
 /*!
+    \internal
+
     Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
     should be greater than or equal to 1.
     The default is 1.5.
@@ -1047,6 +1083,8 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 }
 
 /*!
+    \internal
+
     Sets the MAX_RETRANSMIT value to \a maxRetransmit, but never
     to more than 25.
     The default is 4.
@@ -1066,6 +1104,8 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 }
 
 /*!
+    \internal
+
     Sets the max block size wanted to \a blockSize.
 
     The \a blockSize should be zero, or range from 16 to 1024 and be a
@@ -1092,6 +1132,8 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
 }
 
 /*!
+    \internal
+
     Sets the \c MAX_SERVER_RESPONSE_DELAY value to \a responseDelay in milliseconds.
     The default is 250 seconds.
 
@@ -1107,5 +1149,3 @@ void QCoapProtocol::setMaxServerResponseDelay(uint responseDelay)
 }
 
 QT_END_NAMESPACE
-
-#include "moc_qcoapprotocol.cpp"

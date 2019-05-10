@@ -31,10 +31,13 @@
 #ifndef QCOAPPROTOCOL_P_H
 #define QCOAPPROTOCOL_P_H
 
-#include <QtCoap/qcoapprotocol.h>
+#include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapreply.h>
+#include <QtCoap/qcoapresource.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpointer.h>
+#include <QtCore/qobject.h>
 #include <private/qobject_p.h>
 
 //
@@ -49,6 +52,55 @@
 //
 
 QT_BEGIN_NAMESPACE
+
+class QCoapInternalRequest;
+class QCoapInternalReply;
+class QCoapProtocolPrivate;
+class QCoapConnection;
+class Q_AUTOTEST_EXPORT QCoapProtocol : public QObject
+{
+    Q_OBJECT
+public:
+    explicit QCoapProtocol(QObject *parent = nullptr);
+    ~QCoapProtocol();
+
+    uint ackTimeout() const;
+    double ackRandomFactor() const;
+    uint maxRetransmit() const;
+    quint16 blockSize() const;
+    uint maxTransmitSpan() const;
+    uint maxTransmitWait() const;
+    static constexpr uint maxLatency();
+
+    uint minTimeout() const;
+    uint maxTimeout() const;
+
+    uint nonConfirmLifetime() const;
+    uint maxServerResponseDelay() const;
+
+Q_SIGNALS:
+    void finished(QCoapReply *reply);
+    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage &message,
+                                     const QHostAddress &sender);
+    void error(QCoapReply *reply, QtCoap::Error error);
+
+public:
+    Q_INVOKABLE void setAckTimeout(uint ackTimeout);
+    Q_INVOKABLE void setAckRandomFactor(double ackRandomFactor);
+    Q_INVOKABLE void setMaxRetransmit(uint maxRetransmit);
+    Q_INVOKABLE void setBlockSize(quint16 blockSize);
+    Q_INVOKABLE void setMaxServerResponseDelay(uint responseDelay);
+
+private:
+    Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
+    Q_INVOKABLE void cancelObserve(QPointer<QCoapReply> reply) const;
+    Q_INVOKABLE void cancelObserve(const QUrl &url) const;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapProtocol)
+
+    friend class QCoapClient;
+};
 
 struct CoapExchangeData {
     QPointer<QCoapReply> userReply;
@@ -114,5 +166,7 @@ public:
 };
 
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QHostAddress)
 
 #endif // QCOAPPROTOCOL_P_H

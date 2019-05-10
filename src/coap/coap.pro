@@ -12,7 +12,6 @@ PUBLIC_HEADERS += \
     qcoapmessage.h \
     qcoapnamespace.h \
     qcoapoption.h \
-    qcoapprotocol.h \
     qcoapreply.h \
     qcoaprequest.h \
     qcoapresource.h \

@@ -33,7 +33,6 @@
 
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapresource.h>
-#include <QtCoap/qcoapprotocol.h>
 #include <QtCore/qlist.h>
 
 QT_BEGIN_NAMESPACE
