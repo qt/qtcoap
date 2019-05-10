@@ -108,7 +108,7 @@ class QCoapClientForSocketErrorTests : public QCoapClient
 {
 public:
     QCoapClientForSocketErrorTests() :
-        QCoapClient(new QCoapProtocol, new QCoapQUdpConnectionSocketTests)
+        QCoapClient(new QCoapQUdpConnectionSocketTests)
     {}
 
     QCoapQUdpConnection *connection()
@@ -122,9 +122,6 @@ class QCoapClientForTests : public QCoapClient
 {
 public:
     QCoapClientForTests() {}
-    QCoapClientForTests(QCoapProtocol *protocol, QCoapQUdpConnection *connection) :
-        QCoapClient(protocol, connection)
-    {}
 
     QCoapProtocol *protocol()
     {
@@ -165,7 +162,7 @@ class QCoapClientForMulticastTests : public QCoapClient
 {
 public:
     QCoapClientForMulticastTests() :
-        QCoapClient(new QCoapProtocol, new QCoapConnectionMulticastTests)
+        QCoapClient(new QCoapConnectionMulticastTests)
     {}
 
     QCoapConnection *connection()

@@ -160,7 +160,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     constructors.
 */
 QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
-    QCoapClient(new QCoapProtocol, new QCoapQUdpConnection(securityMode), parent)
+    QCoapClient(new QCoapQUdpConnection(securityMode), parent)
 {
 }
 
@@ -169,16 +169,7 @@ QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
     sets \a parent as the parent object.
 */
 QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
-    QCoapClient(new QCoapProtocol, connection, parent)
-{
-}
-
-/*!
-    Base constructor, taking the \a protocol, \a connection, and \a parent
-    as arguments.
-*/
-QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent) :
-    QObject(*new QCoapClientPrivate(protocol, connection), parent)
+    QObject(*new QCoapClientPrivate(new QCoapProtocol, connection), parent)
 {
     Q_D(QCoapClient);
 

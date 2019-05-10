@@ -95,9 +95,6 @@ Q_SIGNALS:
     void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:
-    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection,
-                         QObject *parent = nullptr);
-
     Q_DECLARE_PRIVATE(QCoapClient)
 };
 
