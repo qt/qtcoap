@@ -111,11 +111,11 @@ void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteA
     Q_D(QCoapInternalRequest);
 
     setMethod(QtCoap::Method::Invalid);
-    d->message.setType(QCoapMessage::MessageType::Acknowledgment);
+    d->message.setType(QCoapMessage::Type::Acknowledgment);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
     d->message.setPayload(QByteArray());
-    d->message.removeAllOptions();
+    d->message.clearOptions();
 }
 
 /*!
@@ -130,11 +130,11 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     Q_D(QCoapInternalRequest);
 
     setMethod(QtCoap::Method::Invalid);
-    d->message.setType(QCoapMessage::MessageType::Reset);
+    d->message.setType(QCoapMessage::Type::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
     d->message.setPayload(QByteArray());
-    d->message.removeAllOptions();
+    d->message.clearOptions();
 }
 
 /*!

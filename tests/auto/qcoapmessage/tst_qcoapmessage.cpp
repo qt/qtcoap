@@ -39,8 +39,8 @@ class tst_QCoapMessage : public QObject
 
 private Q_SLOTS:
     void copyAndDetach();
-    void setMessageType_data();
-    void setMessageType();
+    void setType_data();
+    void setType();
     void addOption();
     void addOption_string_data();
     void addOption_string();
@@ -59,7 +59,7 @@ void tst_QCoapMessage::copyAndDetach()
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
-    a.setType(QCoapMessage::MessageType::Acknowledgment);
+    a.setType(QCoapMessage::Type::Acknowledgment);
     a.setVersion(5);
 
     // Test the copy
@@ -67,7 +67,7 @@ void tst_QCoapMessage::copyAndDetach()
     QVERIFY2(b.messageId() == 3, "Message not copied correctly");
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
-    QVERIFY2(b.type() == QCoapMessage::MessageType::Acknowledgment, "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Type::Acknowledgment, "Message not copied correctly");
     QVERIFY2(b.version() == 5, "Message not copied correctly");
 
     // Detach
@@ -76,19 +76,19 @@ void tst_QCoapMessage::copyAndDetach()
     QCOMPARE(a.messageId(), 3);
 }
 
-void tst_QCoapMessage::setMessageType_data()
+void tst_QCoapMessage::setType_data()
 {
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
 
-    QTest::newRow("acknowledgment") << QCoapMessage::MessageType::Acknowledgment;
-    QTest::newRow("confirmable") << QCoapMessage::MessageType::Confirmable;
-    QTest::newRow("non-confirmable") << QCoapMessage::MessageType::NonConfirmable;
-    QTest::newRow("reset") << QCoapMessage::MessageType::Reset;
+    QTest::newRow("acknowledgment") << QCoapMessage::Type::Acknowledgment;
+    QTest::newRow("confirmable") << QCoapMessage::Type::Confirmable;
+    QTest::newRow("non-confirmable") << QCoapMessage::Type::NonConfirmable;
+    QTest::newRow("reset") << QCoapMessage::Type::Reset;
 }
 
-void tst_QCoapMessage::setMessageType()
+void tst_QCoapMessage::setType()
 {
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);
@@ -256,7 +256,7 @@ void tst_QCoapMessage::removeAll()
     message.addOption(QCoapOption::LocationPath, "path");
     message.addOption(QCoapOption::ProxyUri, "proxy1");
     message.addOption(QCoapOption::ProxyUri, "proxy2");
-    message.removeAllOptions();
+    message.clearOptions();
 
     QVERIFY(message.options().isEmpty());
 }

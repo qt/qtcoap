@@ -52,7 +52,7 @@ private Q_SLOTS:
 void tst_QCoapInternalReply::parseReplyPdu_data()
 {
     QTest::addColumn<QtCoap::ResponseCode>("responseCode");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
     QTest::addColumn<quint8>("tokenLength");
@@ -73,7 +73,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 
     QTest::newRow("reply_with_options_and_payload")
             << QtCoap::ResponseCode::Content
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -87,7 +87,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 
     QTest::newRow("reply_with_payload")
             << QtCoap::ResponseCode::Content
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -100,7 +100,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 
     QTest::newRow("reply_with_options")
             << QtCoap::ResponseCode::Content
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -112,7 +112,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 
     QTest::newRow("reply_only")
             << QtCoap::ResponseCode::Content
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -124,7 +124,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 
     QTest::newRow("reply_with_big_option")
             << QtCoap::ResponseCode::Content
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
@@ -139,7 +139,7 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
 void tst_QCoapInternalReply::parseReplyPdu()
 {
     QFETCH(QtCoap::ResponseCode, responseCode);
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
     QFETCH(quint8, tokenLength);
@@ -159,7 +159,7 @@ void tst_QCoapInternalReply::parseReplyPdu()
     QCOMPARE(reply->message()->token().toHex(), token);
     QCOMPARE(reply->message()->optionCount(), optionsNames.count());
     for (int i = 0; i < reply->message()->optionCount(); ++i) {
-        QCoapOption option = reply->message()->option(i);
+        QCoapOption option = reply->message()->optionAt(i);
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.value(), optionsValues.at(i));

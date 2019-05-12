@@ -44,7 +44,7 @@ const auto CoapScheme = QLatin1String("coap");
 const auto CoapSecureScheme = QLatin1String("coaps");
 }
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type,
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::Type type,
                                          const QUrl &proxyUrl) :
     QCoapMessagePrivate(type),
     proxyUri(proxyUrl)
@@ -114,7 +114,7 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     Constructs a QCoapRequest object with the target \a url,
     the proxy URL \a proxyUrl and the \a type of the message.
 */
-QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
+QCoapRequest::QCoapRequest(const QUrl &url, Type type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
 {
 }
@@ -122,7 +122,7 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 /*!
     Constructs a QCoapRequest from a string literal
 */
-QCoapRequest::QCoapRequest(const char *url, MessageType type) :
+QCoapRequest::QCoapRequest(const char *url, Type type) :
     QCoapMessage(*new QCoapRequestPrivate(QUrl(QString::fromUtf8(url)), type))
 {
 }

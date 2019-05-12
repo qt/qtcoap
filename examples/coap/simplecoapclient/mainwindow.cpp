@@ -154,8 +154,8 @@ static QString tryToResolveHostName(const QString hostName)
 
 void MainWindow::on_runButton_clicked()
 {
-    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::MessageType::Confirmable
-                                                          : QCoapMessage::MessageType::NonConfirmable;
+    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::Type::Confirmable
+                                                          : QCoapMessage::Type::NonConfirmable;
     QUrl url;
     url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());

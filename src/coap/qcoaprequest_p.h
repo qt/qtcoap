@@ -52,8 +52,8 @@ class Q_AUTOTEST_EXPORT QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
     QCoapRequestPrivate(const QUrl &url = QUrl(),
-            QCoapMessage::MessageType type = QCoapMessage::MessageType::NonConfirmable,
-            const QUrl &proxyUrl = QUrl());
+                        QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable,
+                        const QUrl &proxyUrl = QUrl());
     QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
     ~QCoapRequestPrivate();
 

@@ -570,7 +570,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     // According to https://tools.ietf.org/html/rfc7252#section-8.1,
     // multicast requests MUST be Non-confirmable.
     if (QHostAddress(reply->url().host()).isMulticast()
-            && reply->request().type() == QCoapMessage::MessageType::Confirmable) {
+            && reply->request().type() == QCoapMessage::Type::Confirmable) {
         qCWarning(lcCoapClient, "Failed to send request, "
                                 "multicast requests must be non-confirmable.");
         return false;

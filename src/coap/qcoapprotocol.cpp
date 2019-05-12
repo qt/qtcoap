@@ -178,7 +178,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
             internalRequest->setToSendBlock(0, d->blockSize);
     }
 
-    if (requestMessage->type() == QCoapMessage::MessageType::Confirmable)
+    if (requestMessage->type() == QCoapMessage::Type::Confirmable)
         internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minTimeout(), maxTimeout()));
     else
         internalRequest->setTimeout(maxTimeout());
@@ -239,7 +239,7 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     if (!isRequestRegistered(request))
         return;
 
-    if (request->message()->type() == QCoapMessage::MessageType::Confirmable
+    if (request->message()->type() == QCoapMessage::Type::Confirmable
             && request->retransmissionCounter() < maxRetransmit) {
         sendRequest(request);
     } else {
@@ -376,7 +376,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
         // Remove option to ensure that it will stop
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
-    } else if (messageReceived->type() == QCoapMessage::MessageType::Confirmable) {
+    } else if (messageReceived->type() == QCoapMessage::Type::Confirmable) {
         sendAcknowledgment(request);
     }
 
@@ -515,7 +515,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
 
     auto lastReply = replies.last();
     // Ignore empty ACK messages
-    if (lastReply->message()->type() == QCoapMessage::MessageType::Acknowledgment
+    if (lastReply->message()->type() == QCoapMessage::Type::Acknowledgment
             && lastReply->responseCode() == QtCoap::ResponseCode::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;

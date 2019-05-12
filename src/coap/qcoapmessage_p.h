@@ -51,12 +51,14 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapMessagePrivate : public QSharedData
 {
 public:
-    QCoapMessagePrivate(QCoapMessage::MessageType type = QCoapMessage::MessageType::NonConfirmable);
+    QCoapMessagePrivate(QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable);
     QCoapMessagePrivate(const QCoapMessagePrivate &other);
     ~QCoapMessagePrivate();
 
+    QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
+
     quint8 version = 1;
-    QCoapMessage::MessageType type = QCoapMessage::MessageType::NonConfirmable;
+    QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable;
     quint16 messageId = 0;
     QByteArray token;
     QVector<QCoapOption> options;

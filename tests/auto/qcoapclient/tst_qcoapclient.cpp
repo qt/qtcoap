@@ -498,7 +498,7 @@ void tst_QCoapClient::timeout()
     QElapsedTimer timeoutTimer;
     timeoutTimer.start();
     QScopedPointer<QCoapReply> reply(
-                client.get(QCoapRequest(url, QCoapMessage::MessageType::Confirmable)));
+                client.get(QCoapRequest(url, QCoapMessage::Type::Confirmable)));
     QSignalSpy spyClientError(&client, &QCoapClient::error);
     QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
     QSignalSpy spyReplyAborted(reply.data(), &QCoapReply::aborted);
@@ -555,7 +555,7 @@ void tst_QCoapClient::abort()
 void tst_QCoapClient::blockwiseReply_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<QByteArray>("replyData");
 
     QByteArray data;
@@ -582,34 +582,34 @@ void tst_QCoapClient::blockwiseReply_data()
 
     QTest::newRow("get_large")
             << QUrl(testServerUrl() + "/large")
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << data;
     QTest::newRow("get_large_separate")
             << QUrl(testServerUrl() + "/large-separate")
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << data;
     QTest::newRow("get_large_confirmable")
             << QUrl(testServerUrl() + "/large")
-            << QCoapMessage::MessageType::Confirmable
+            << QCoapMessage::Type::Confirmable
             << data;
     QTest::newRow("get_large_separate_confirmable")
             << QUrl(testServerUrl() + "/large-separate")
-            << QCoapMessage::MessageType::Confirmable
+            << QCoapMessage::Type::Confirmable
             << data;
     QTest::newRow("get_large_16bits")
             << QUrl(testServerUrl() + "/large")
-            << QCoapMessage::MessageType::NonConfirmable
+            << QCoapMessage::Type::NonConfirmable
             << data;
     QTest::newRow("get_large_16bits_confirmable")
             << QUrl(testServerUrl() + "/large")
-            << QCoapMessage::MessageType::Confirmable
+            << QCoapMessage::Type::Confirmable
             << data;
 }
 
 void tst_QCoapClient::blockwiseReply()
 {
     QFETCH(QUrl, url);
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QFETCH(QByteArray, replyData);
 
     QCoapClient client;
@@ -633,7 +633,7 @@ void tst_QCoapClient::blockwiseReply()
 void tst_QCoapClient::blockwiseRequest_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<QByteArray>("requestData");
     QTest::addColumn<QtCoap::ResponseCode>("responseCode");
     QTest::addColumn<QByteArray>("replyData");
@@ -644,12 +644,12 @@ void tst_QCoapClient::blockwiseRequest_data()
         data.append(alphabet);
 
     QTest::newRow("large_post_empty_reply") << QUrl(testServerUrl() + "/query")
-                                            << QCoapMessage::MessageType::NonConfirmable
+                                            << QCoapMessage::Type::NonConfirmable
                                             << data
                                             << QtCoap::ResponseCode::MethodNotAllowed
                                             << QByteArray();
     QTest::newRow("large_post_large_reply") << QUrl(testServerUrl() + "/large-post")
-                                            << QCoapMessage::MessageType::NonConfirmable
+                                            << QCoapMessage::Type::NonConfirmable
                                             << data
                                             << QtCoap::ResponseCode::Changed
                                             << data.toUpper();
@@ -658,7 +658,7 @@ void tst_QCoapClient::blockwiseRequest_data()
 void tst_QCoapClient::blockwiseRequest()
 {
     QFETCH(QUrl, url);
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QFETCH(QByteArray, requestData);
     QFETCH(QtCoap::ResponseCode, responseCode);
     QFETCH(QByteArray, replyData);
@@ -716,49 +716,49 @@ void tst_QCoapClient::observe_data()
 {
     QWARN("Observe tests may take some time, don't forget to raise Tests timeout in settings.");
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
 
     QTest::newRow("observe")
             << QUrl(testServerUrl() + "/obs")
-            << QCoapMessage::MessageType::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable;
 
     QTest::newRow("observe_no_scheme_no_port")
             << QUrl(testServerHost() + "/obs")
-            << QCoapMessage::MessageType::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable;
 
     QTest::newRow("observe_confirmable")
             << QUrl(testServerUrl() + "/obs")
-            << QCoapMessage::MessageType::Confirmable;
+            << QCoapMessage::Type::Confirmable;
 
     QTest::newRow("observe_receive")
             << QUrl(testServerUrl() + "/obs-non")
-            << QCoapMessage::MessageType::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable;
 
     QTest::newRow("observe_receive_confirmable")
             << QUrl(testServerUrl() + "/obs-non")
-            << QCoapMessage::MessageType::Confirmable;
+            << QCoapMessage::Type::Confirmable;
 
     QTest::newRow("observe_large")
             << QUrl(testServerUrl() + "/obs-large")
-            << QCoapMessage::MessageType::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable;
 
     QTest::newRow("observe_large_confirmable")
             << QUrl(testServerUrl() + "/obs-large")
-            << QCoapMessage::MessageType::Confirmable;
+            << QCoapMessage::Type::Confirmable;
 
     QTest::newRow("observe_pumping")
             << QUrl(testServerUrl() + "/obs-pumping")
-            << QCoapMessage::MessageType::NonConfirmable;
+            << QCoapMessage::Type::NonConfirmable;
 
     QTest::newRow("observe_pumping_confirmable")
             << QUrl(testServerUrl() + "/obs-pumping")
-            << QCoapMessage::MessageType::Confirmable;
+            << QCoapMessage::Type::Confirmable;
 }
 
 void tst_QCoapClient::observe()
 {
     QFETCH(QUrl, url);
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
 
     QCoapClient client;
     QCoapRequest request(url);
@@ -788,8 +788,7 @@ void tst_QCoapClient::observe()
 void tst_QCoapClient::confirmableMulticast()
 {
     QCoapClient client;
-    const auto reply = client.get(QCoapRequest("224.0.1.187",
-                                               QCoapMessage::MessageType::Confirmable));
+    const auto reply = client.get(QCoapRequest("224.0.1.187", QCoapMessage::Type::Confirmable));
     QVERIFY2(!reply, "Confirmable multicast request didn't fail as expected.");
 }
 
