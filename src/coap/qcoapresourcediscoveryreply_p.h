@@ -56,6 +56,9 @@ public:
 
     void _q_setContent(const QHostAddress &sender, const QCoapMessage &, QtCoap::ResponseCode) override;
 
+    static QVector<QCoapResource> resourcesFromCoreLinkList(
+            const QHostAddress &sender, const QByteArray &data);
+
     QVector<QCoapResource> resources;
 
     Q_DECLARE_PUBLIC(QCoapResourceDiscoveryReply)

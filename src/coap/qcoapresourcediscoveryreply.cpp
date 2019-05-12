@@ -60,7 +60,8 @@ void QCoapResourceDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sende
     if (QtCoap::isError(responseCode)) {
         _q_setError(responseCode);
     } else {
-        auto res = QCoapResourceDiscoveryReply::resourcesFromCoreLinkList(sender, message.payload());
+        auto res = QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(sender,
+                                                                                 message.payload());
         resources.append(res);
         emit q->discovered(q, res);
     }
@@ -117,12 +118,15 @@ QVector<QCoapResource> QCoapResourceDiscoveryReply::resources() const
 }
 
 /*!
+    \internal
+
     Decodes the \a data received from the \a sender to a list of QCoapResource
     objects. The \a data byte array contains the frame returned by the
     discovery request.
 */
 QVector<QCoapResource>
-QCoapResourceDiscoveryReply::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
+QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(const QHostAddress &sender,
+                                                              const QByteArray &data)
 {
     QVector<QCoapResource> resourceList;
 

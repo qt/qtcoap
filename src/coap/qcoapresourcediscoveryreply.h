@@ -47,9 +47,6 @@ public:
 
     QVector<QCoapResource> resources() const;
 
-    static QVector<QCoapResource> resourcesFromCoreLinkList(
-            const QHostAddress &sender, const QByteArray &data);
-
 Q_SIGNALS:
     void discovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources);
 
