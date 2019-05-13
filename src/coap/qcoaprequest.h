@@ -61,16 +61,6 @@ public:
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
     void enableObserve();
-    void adjustUrl(bool secure);
-
-    bool isValid() const;
-    static bool isUrlValid(const QUrl &url);
-    static QUrl adjustedUrl(const QUrl &url, bool secure);
-
-protected:
-    QCoapRequest(const QCoapRequest &other, QtCoap::Method method);
-
-    void setMethod(QtCoap::Method method);
 
 private:
     // Q_DECLARE_PRIVATE equivalent for shared data pointers
@@ -78,7 +68,7 @@ private:
     const QCoapRequestPrivate* d_func() const
     { return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData()); }
 
-    friend class QCoapClient;
+    friend class QCoapRequestPrivate;
 };
 
 QT_END_NAMESPACE

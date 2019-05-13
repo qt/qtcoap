@@ -40,6 +40,7 @@
 #include <private/qcoapclient_p.h>
 #include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapprotocol_p.h>
+#include <private/qcoaprequest_p.h>
 
 #include "../coapnetworksettings.h"
 
@@ -273,7 +274,9 @@ void tst_QCoapClient::methods()
     }
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
+#ifdef QT_BUILD_INTERNAL
+    QCOMPARE(reply->url(), QCoapRequestPrivate::adjustedUrl(url, false));
+#endif
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
     QTRY_COMPARE(spyClientFinished.count(), 1);
@@ -705,7 +708,9 @@ void tst_QCoapClient::discover()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
-    QCOMPARE(resourcesReply->url(), QCoapRequest::adjustedUrl(discoverUrl, false));
+#ifdef QT_BUILD_INTERNAL
+    QCOMPARE(resourcesReply->url(), QCoapRequestPrivate::adjustedUrl(discoverUrl, false));
+#endif
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
     QCOMPARE(resourcesReply->request().method(), QtCoap::Method::Get);
 
@@ -771,7 +776,9 @@ void tst_QCoapClient::observe()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
-    QCOMPARE(reply->url(), QCoapRequest::adjustedUrl(url, false));
+#ifdef QT_BUILD_INTERNAL
+    QCOMPARE(reply->url(), QCoapRequestPrivate::adjustedUrl(url, false));
+#endif
     QCOMPARE(reply->request().method(), QtCoap::Method::Get);
 
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");

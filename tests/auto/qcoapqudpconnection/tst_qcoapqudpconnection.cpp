@@ -40,17 +40,12 @@
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapinternalrequest_p.h>
+#include <private/qcoaprequest_p.h>
 #include "../coapnetworksettings.h"
 
 #ifdef QT_BUILD_INTERNAL
 
 using namespace QtCoapNetworkSettings;
-
-struct QCoapRequestForTest : public QCoapRequest
-{
-    QCoapRequestForTest(const QUrl &url) : QCoapRequest(url) {}
-    using QCoapRequest::setMethod;
-};
 
 class tst_QCoapQUdpConnection : public QObject
 {
@@ -186,10 +181,10 @@ void tst_QCoapQUdpConnection::sendRequest()
     QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
     QSignalSpy spyConnectionReadyRead(&connection, &QCoapQUdpConnection::readyRead);
 
-    QCoapRequestForTest request(protocol + host + path);
+    QCoapRequest request =
+            QCoapRequestPrivate::createRequest(QCoapRequest(protocol + host + path), method);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
-    request.setMethod(method);
     QVERIFY(connection.socket() != nullptr);
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);

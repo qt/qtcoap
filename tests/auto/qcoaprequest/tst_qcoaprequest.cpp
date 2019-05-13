@@ -34,6 +34,7 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
+#include <private/qcoaprequest_p.h>
 
 class tst_QCoapRequest : public QObject
 {
@@ -48,11 +49,6 @@ private Q_SLOTS:
     void setUrl();
     void enableObserve();
     void copyAndDetach();
-};
-
-struct QCoapRequestForTest : public QCoapRequest
-{
-    using QCoapRequest::setMethod;
 };
 
 void tst_QCoapRequest::ctor_data()
@@ -103,13 +99,18 @@ void tst_QCoapRequest::adjustUrl_data()
 
 void tst_QCoapRequest::adjustUrl()
 {
+#ifdef QT_BUILD_INTERNAL
     QFETCH(QUrl, inputUrl);
     QFETCH(QUrl, expectedUrl);
     QFETCH(bool, secure);
 
-    QCoapRequest request(inputUrl);
-    request.adjustUrl(secure);
+    // createRequest() will adjust the url
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(inputUrl),
+                                                              QtCoap::Method::Get, secure);
     QCOMPARE(request.url(), expectedUrl);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 void tst_QCoapRequest::setUrl_data()
@@ -156,13 +157,13 @@ void tst_QCoapRequest::enableObserve()
 
 void tst_QCoapRequest::copyAndDetach()
 {
-    QCoapRequestForTest a;
+#ifdef QT_BUILD_INTERNAL
+    QCoapRequest a = QCoapRequestPrivate::createRequest(QCoapRequest(), QtCoap::Method::Delete);
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
     a.setType(QCoapMessage::Type::Acknowledgment);
     a.setVersion(5);
-    a.setMethod(QtCoap::Method::Delete);
     QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
@@ -186,6 +187,9 @@ void tst_QCoapRequest::copyAndDetach()
     c.setMessageId(9);
     QCOMPARE(c.messageId(), 9);
     QCOMPARE(a.messageId(), 3);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapRequest)

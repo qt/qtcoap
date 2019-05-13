@@ -58,6 +58,12 @@ public:
     ~QCoapRequestPrivate();
 
     void setUrl(const QUrl &url);
+    void adjustUrl(bool secure);
+
+    static QCoapRequest createRequest(const QCoapRequest &other, QtCoap::Method method,
+                                      bool isSecure = false);
+    static QUrl adjustedUrl(const QUrl &url, bool secure);
+    static bool isUrlValid(const QUrl &url);
 
     QUrl uri;
     QUrl proxyUri;

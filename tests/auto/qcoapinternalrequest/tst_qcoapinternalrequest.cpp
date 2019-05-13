@@ -33,6 +33,7 @@
 
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapinternalrequest_p.h>
+#include <private/qcoaprequest_p.h>
 
 #ifdef QT_BUILD_INTERNAL
 
@@ -51,12 +52,6 @@ private Q_SLOTS:
     void invalidUrls();
     void isMulticast_data();
     void isMulticast();
-};
-
-struct QCoapRequestForTest : public QCoapRequest
-{
-    QCoapRequestForTest(const QUrl& url) : QCoapRequest(url) {}
-    using QCoapRequest::setMethod;
 };
 
 void tst_QCoapInternalRequest::requestToFrame_data()
@@ -153,9 +148,8 @@ void tst_QCoapInternalRequest::requestToFrame()
     QFETCH(QString, pduHeader);
     QFETCH(QString, pduPayload);
 
-    QCoapRequestForTest request(url);
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(url), method);
     request.setType(type);
-    request.setMethod(method);
     request.setPayload(pduPayload.toUtf8());
     request.setMessageId(messageId);
     request.setToken(token);

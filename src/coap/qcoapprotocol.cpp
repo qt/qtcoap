@@ -31,6 +31,7 @@
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
+#include "qcoaprequest_p.h"
 #include "qcoapconnection_p.h"
 #include "qcoapnamespace_p.h"
 
@@ -134,7 +135,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     Q_D(QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == thread());
 
-    if (reply.isNull() || !reply->request().isValid())
+    if (reply.isNull() || reply->request().method() == QtCoap::Method::Invalid
+            || !QCoapRequestPrivate::isUrlValid(reply->request().url()))
         return;
 
     connect(reply, &QCoapReply::aborted, this, [this](const QCoapToken &token) {

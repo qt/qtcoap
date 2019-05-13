@@ -35,6 +35,7 @@
 #include "qcoapnamespace.h"
 #include "qcoapsecurityconfiguration.h"
 #include "qcoapqudpconnection_p.h"
+#include "qcoaprequest_p.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qloggingcategory.h>
@@ -227,9 +228,8 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Get);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get,
+                                                                  d->connection->isSecure());
     return d->sendRequest(copyRequest);
 }
 
@@ -256,10 +256,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Put);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Put,
+                                                                  d->connection->isSecure());
     copyRequest.setPayload(data);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
     return d->sendRequest(copyRequest);
 }
 
@@ -302,10 +301,9 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Post);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Post,
+                                                                  d->connection->isSecure());
     copyRequest.setPayload(data);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
     return d->sendRequest(copyRequest);
 }
 
@@ -351,9 +349,8 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Delete);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Delete,
+                                                                  d->connection->isSecure());
     return d->sendRequest(copyRequest);
 }
 
@@ -407,9 +404,9 @@ QCoapResourceDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group,
     discoveryUrl.setPath(discoveryPath);
     discoveryUrl.setPort(port);
 
-    QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Method::Get);
-    request.adjustUrl(d->connection->isSecure());
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(discoveryUrl),
+                                                              QtCoap::Method::Get,
+                                                              d->connection->isSecure());
 
     return d->sendDiscovery(request);
 }
@@ -433,10 +430,9 @@ QCoapResourceDiscoveryReply *QCoapClient::discover(const QUrl &url, const QStrin
     QUrl discoveryUrl(url);
     discoveryUrl.setPath(url.path() + discoveryPath);
 
-    QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Method::Get);
-    request.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(discoveryUrl),
+                                                              QtCoap::Method::Get,
+                                                              d->connection->isSecure());
     return d->sendDiscovery(request);
 }
 
@@ -449,7 +445,7 @@ QCoapResourceDiscoveryReply *QCoapClient::discover(const QUrl &url, const QStrin
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    QCoapRequest copyRequest(request, QtCoap::Method::Get);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get);
     copyRequest.enableObserve();
 
     return get(copyRequest);
@@ -494,7 +490,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 void QCoapClient::cancelObserve(const QUrl &url)
 {
     Q_D(QCoapClient);
-    const auto adjustedUrl = QCoapRequest::adjustedUrl(url, d->connection->isSecure());
+    const auto adjustedUrl = QCoapRequestPrivate::adjustedUrl(url, d->connection->isSecure());
     QMetaObject::invokeMethod(d->protocol, "cancelObserve", Q_ARG(QUrl, adjustedUrl));
 }
 
@@ -562,7 +558,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    if (!QCoapRequest::isUrlValid(reply->request().url())) {
+    if (!QCoapRequestPrivate::isUrlValid(reply->request().url())) {
         qCWarning(lcCoapClient, "Failed to send request for an invalid URL.");
         return false;
     }

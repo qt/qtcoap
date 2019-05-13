@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
+#include "qcoaprequest_p.h"
 #include <QtCoap/qcoaprequest.h>
 
 #include <QtCore/qloggingcategory.h>
@@ -261,7 +262,7 @@ bool QCoapInternalMessage::isValid() const
 */
 bool QCoapInternalMessage::isUrlValid(const QUrl &url)
 {
-    return QCoapRequest::isUrlValid(url);
+    return QCoapRequestPrivate::isUrlValid(url);
 }
 
 QT_END_NAMESPACE
