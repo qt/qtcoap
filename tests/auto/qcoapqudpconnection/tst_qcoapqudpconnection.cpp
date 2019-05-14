@@ -43,8 +43,6 @@
 #include <private/qcoaprequest_p.h>
 #include "../coapnetworksettings.h"
 
-#ifdef QT_BUILD_INTERNAL
-
 using namespace QtCoapNetworkSettings;
 
 class tst_QCoapQUdpConnection : public QObject
@@ -196,21 +194,6 @@ void tst_QCoapQUdpConnection::sendRequest()
     QVERIFY(QString(data.toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(data.toHex()).endsWith(dataHexaPayload));
 }
-
-#else
-
-class tst_QCoapQUdpConnection : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase()
-    {
-        QSKIP("Not an internal build, nothing to test");
-    }
-};
-
-#endif
 
 QTEST_MAIN(tst_QCoapQUdpConnection)
 

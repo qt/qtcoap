@@ -35,8 +35,6 @@
 #include <private/qcoapreply_p.h>
 #include <private/qcoapnamespace_p.h>
 
-#ifdef QT_BUILD_INTERNAL
-
 class tst_QCoapReply : public QObject
 {
     Q_OBJECT
@@ -144,21 +142,6 @@ void tst_QCoapReply::abortRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spyFinished.count(), 1, 1000);
     QVERIFY(arguments.at(0).toByteArray() == "token");
 }
-
-#else
-
-class tst_QCoapReply : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase()
-    {
-        QSKIP("Not an internal build, nothing to test");
-    }
-};
-
-#endif
 
 QTEST_MAIN(tst_QCoapReply)
 

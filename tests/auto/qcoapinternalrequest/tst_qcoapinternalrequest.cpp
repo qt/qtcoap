@@ -35,8 +35,6 @@
 #include <private/qcoapinternalrequest_p.h>
 #include <private/qcoaprequest_p.h>
 
-#ifdef QT_BUILD_INTERNAL
-
 class tst_QCoapInternalRequest : public QObject
 {
     Q_OBJECT
@@ -314,21 +312,6 @@ void tst_QCoapInternalRequest::isMulticast()
     const QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.isMulticast(), result);
 }
-
-#else
-
-class tst_QCoapInternalRequest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase()
-    {
-        QSKIP("Not an internal build, nothing to test");
-    }
-};
-
-#endif
 
 QTEST_APPLESS_MAIN(tst_QCoapInternalRequest)
 

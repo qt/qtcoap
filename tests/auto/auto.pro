@@ -1,14 +1,17 @@
 TEMPLATE = subdirs
 
+# TODO: enable disabled tests, when CI is configured properly
+
 SUBDIRS += \
     cmake \
-#    TODO: enable the tests below, when CI is configured properly
 #    qcoapclient \
-#    qcoapqudpconnection \
-    qcoapinternalreply \
-    qcoapinternalrequest \
     qcoapmessage \
     qcoapoption \
-    qcoapreply \
     qcoaprequest \
     qcoapresource
+
+qtConfig(private_tests): SUBDIRS += \
+#    qcoapqudpconnection \
+    qcoapinternalrequest \
+    qcoapinternalreply \
+    qcoapreply

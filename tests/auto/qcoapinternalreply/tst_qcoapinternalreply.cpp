@@ -34,8 +34,6 @@
 #include <private/qcoapinternalreply_p.h>
 #include <private/qcoapreply_p.h>
 
-#ifdef QT_BUILD_INTERNAL
-
 class tst_QCoapInternalReply : public QObject
 {
     Q_OBJECT
@@ -190,21 +188,6 @@ void tst_QCoapInternalReply::updateReply()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     QCOMPARE(reply->readAll(), data);
 }
-
-#else
-
-class tst_QCoapInternalReply : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase()
-    {
-        QSKIP("Not an internal build, nothing to test");
-    }
-};
-
-#endif
 
 QTEST_MAIN(tst_QCoapInternalReply)
 
