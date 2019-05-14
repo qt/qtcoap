@@ -177,33 +177,34 @@ void tst_QCoapInternalRequest::parseUri_data()
                         << QUrl()
                         << QVector<QCoapOption>({
                             QCoapOption(QCoapOption::UriPort, 1234),
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1") });
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")) });
 
     QTest::newRow("path_query")
                         << QUrl("coap://10.20.30.40/test/path1/?rd=25&nd=4")
                         << QUrl()
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1"),
-                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
-                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("rd=25")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("nd=4")) });
 
     QTest::newRow("host_path_query")
                         << QUrl("coap://aa.bb.cc.com:5683/test/path1/?rd=25&nd=4")
                         << QUrl()
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::UriHost, "aa.bb.cc.com"),
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1"),
-                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
-                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+                            QCoapOption(QCoapOption::UriHost, QByteArray("aa.bb.cc.com")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("rd=25")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("nd=4")) });
 
     QTest::newRow("proxy_url")
                         << QUrl("coap://aa.bb.cc.com:5683/test/path1/?rd=25&nd=4")
                         << QUrl("coap://10.20.30.40/test:5684/othertest/path")
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::ProxyUri, "coap://10.20.30.40/test:5684/othertest/path") });
+                            QCoapOption(QCoapOption::ProxyUri,
+                            QByteArray("coap://10.20.30.40/test:5684/othertest/path")) });
 }
 
 void tst_QCoapInternalRequest::parseUri()
@@ -227,9 +228,9 @@ void tst_QCoapInternalRequest::urlOptions_data()
     QTest::addColumn<QVector<QCoapOption>>("options");
 
     QVector<QCoapOption> options = {
-        { QCoapOption::UriHost, "example.com" },
-        { QCoapOption::UriPath, "~sensors" },
-        { QCoapOption::UriPath, "temp.xml" }
+        { QCoapOption::UriHost, QByteArray("example.com") },
+        { QCoapOption::UriPath, QByteArray("~sensors") },
+        { QCoapOption::UriPath, QByteArray("temp.xml") }
     };
 
     QTest::newRow("url_with_default_port")

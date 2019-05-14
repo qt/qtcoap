@@ -124,7 +124,7 @@ void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &opti
     Q_D(QCoapInternalMessage);
 
     //! TODO Cover with tests
-    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.opaqueValue().data());
     const quint8 lastByte = optionData[option.length() - 1];
     quint32 blockNumber = 0;
 

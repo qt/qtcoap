@@ -160,7 +160,7 @@ void tst_QCoapInternalReply::parseReplyPdu()
         QCoapOption option = reply->message()->optionAt(i);
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));
-        QCOMPARE(option.value(), optionsValues.at(i));
+        QCOMPARE(option.opaqueValue(), optionsValues.at(i));
     }
     QCOMPARE(reply->message()->payload(), payload);
 }

@@ -64,10 +64,9 @@ public:
         Size1           = 60
     };
 
-    QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
-    QCoapOption(OptionName name, QStringView value);
-    QCoapOption(OptionName name, const char *value);
-    QCoapOption(OptionName name, quint32 value);
+    QCoapOption(OptionName name = Invalid, const QByteArray &opaqueValue = QByteArray());
+    QCoapOption(OptionName name, const QString &stringValue);
+    QCoapOption(OptionName name, quint32 intValue);
     QCoapOption(const QCoapOption &other);
     QCoapOption(QCoapOption &&other);
     ~QCoapOption();
@@ -76,20 +75,15 @@ public:
     QCoapOption &operator=(QCoapOption &&other) Q_DECL_NOTHROW;
     void swap(QCoapOption &other) Q_DECL_NOTHROW;
 
-    QByteArray value() const;
-    quint32 valueToInt() const;
+    QByteArray opaqueValue() const;
+    quint32 uintValue() const;
+    QString stringValue() const;
     int length() const;
     OptionName name() const;
     bool isValid() const;
 
     bool operator==(const QCoapOption &other) const;
     bool operator!=(const QCoapOption &other) const;
-
-protected:
-    void setValue(const QByteArray &value);
-    void setValue(QStringView value);
-    void setValue(const char *value);
-    void setValue(quint32 value);
 
 private:
     QCoapOptionPrivate *d_ptr;

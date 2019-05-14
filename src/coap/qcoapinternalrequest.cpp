@@ -231,7 +231,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
             if (isOptionLengthExtended)
                 appendByte(&pdu, optionLengthExtended);
 
-            pdu.append(option.value());
+            pdu.append(option.opaqueValue());
 
             lastOptionNumber = option.name();
         }
