@@ -123,7 +123,7 @@ QCoapPrivateKey::QCoapPrivateKey(const QCoapPrivateKey &other)
     Move-constructs a QCoapPrivateKey, making it point to the same
     object as \a other was pointing to.
 */
-QCoapPrivateKey::QCoapPrivateKey(QCoapPrivateKey &&other) Q_DECL_NOTHROW
+QCoapPrivateKey::QCoapPrivateKey(QCoapPrivateKey &&other) noexcept
     : d(other.d)
 {
     other.d = nullptr;
@@ -236,7 +236,7 @@ QCoapSecurityConfiguration::QCoapSecurityConfiguration(const QCoapSecurityConfig
     object as \a other was pointing to.
 */
 QCoapSecurityConfiguration::QCoapSecurityConfiguration(
-        QCoapSecurityConfiguration &&other) Q_DECL_NOTHROW
+        QCoapSecurityConfiguration &&other) noexcept
     : d(other.d)
 {
     other.d = nullptr;

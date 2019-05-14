@@ -84,7 +84,7 @@ QCoapResource &QCoapResource::operator=(const QCoapResource &other)
 /*!
     Swaps this resource with \a other. This operation is very fast and never fails.
  */
-void QCoapResource::swap(QCoapResource &other) Q_DECL_NOTHROW
+void QCoapResource::swap(QCoapResource &other) noexcept
 {
     d.swap(other.d);
 }

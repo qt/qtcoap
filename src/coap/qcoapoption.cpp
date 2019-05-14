@@ -172,7 +172,7 @@ QCoapOption &QCoapOption::operator=(const QCoapOption &other)
 /*!
     Move-assignment operator.
  */
-QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
+QCoapOption &QCoapOption::operator=(QCoapOption &&other) noexcept
 {
     swap(other);
     return *this;
@@ -181,7 +181,7 @@ QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
 /*!
     Swaps this option with \a other. This operation is very fast and never fails.
  */
-void QCoapOption::swap(QCoapOption &other) Q_DECL_NOTHROW
+void QCoapOption::swap(QCoapOption &other) noexcept
 {
     qSwap(d_ptr, other.d_ptr);
 }

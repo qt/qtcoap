@@ -49,14 +49,14 @@ public:
     QCoapPrivateKey(const Qt::HANDLE &handle);
 
     QCoapPrivateKey(const QCoapPrivateKey& other);
-    QCoapPrivateKey(QCoapPrivateKey&& other) Q_DECL_NOTHROW;
+    QCoapPrivateKey(QCoapPrivateKey&& other) noexcept;
     ~QCoapPrivateKey();
 
-    QCoapPrivateKey &operator=(QCoapPrivateKey &&other) Q_DECL_NOTHROW
+    QCoapPrivateKey &operator=(QCoapPrivateKey &&other) noexcept
     { swap(other); return *this; }
     QCoapPrivateKey &operator=(const QCoapPrivateKey &other);
 
-    void swap(QCoapPrivateKey &other) Q_DECL_NOTHROW
+    void swap(QCoapPrivateKey &other) noexcept
     { qSwap(d, other.d); }
 
     bool isNull() const;
@@ -78,12 +78,12 @@ public:
     QCoapSecurityConfiguration(const QCoapSecurityConfiguration &other);
     ~QCoapSecurityConfiguration();
 
-    QCoapSecurityConfiguration(QCoapSecurityConfiguration &&other) Q_DECL_NOTHROW;
-    QCoapSecurityConfiguration &operator=(QCoapSecurityConfiguration &&other) Q_DECL_NOTHROW
+    QCoapSecurityConfiguration(QCoapSecurityConfiguration &&other) noexcept;
+    QCoapSecurityConfiguration &operator=(QCoapSecurityConfiguration &&other) noexcept
     { swap(other); return *this; }
     QCoapSecurityConfiguration &operator=(const QCoapSecurityConfiguration &other);
 
-    void swap(QCoapSecurityConfiguration &other) Q_DECL_NOTHROW
+    void swap(QCoapSecurityConfiguration &other) noexcept
     { qSwap(d, other.d); }
 
     void setPreSharedKeyIdentity(const QByteArray &preSharedKeyIdentity);

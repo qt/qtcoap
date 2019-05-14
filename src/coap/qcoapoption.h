@@ -72,8 +72,8 @@ public:
     ~QCoapOption();
 
     QCoapOption &operator=(const QCoapOption &other);
-    QCoapOption &operator=(QCoapOption &&other) Q_DECL_NOTHROW;
-    void swap(QCoapOption &other) Q_DECL_NOTHROW;
+    QCoapOption &operator=(QCoapOption &&other) noexcept;
+    void swap(QCoapOption &other) noexcept;
 
     QByteArray opaqueValue() const;
     quint32 uintValue() const;

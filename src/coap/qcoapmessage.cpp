@@ -398,7 +398,7 @@ void QCoapMessage::setOptions(const QVector<QCoapOption> &options)
     d->options = options;
 }
 
-void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
+void QCoapMessage::swap(QCoapMessage &other) noexcept
 {
     qSwap(d_ptr, other.d_ptr);
 }
@@ -406,7 +406,7 @@ void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
 /*!
     Move-assignment operator.
  */
-QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
+QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) noexcept
 {
     swap(other);
     return *this;

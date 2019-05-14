@@ -47,7 +47,7 @@ public:
     ~QCoapResource();
     QCoapResource &operator =(const QCoapResource &other);
 
-    void swap(QCoapResource &other) Q_DECL_NOTHROW;
+    void swap(QCoapResource &other) noexcept;
 
     QHostAddress host() const;
     QString path() const;

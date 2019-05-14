@@ -55,9 +55,9 @@ public:
     QCoapMessage(const QCoapMessage &other);
     ~QCoapMessage();
 
-    void swap(QCoapMessage &other) Q_DECL_NOTHROW;
+    void swap(QCoapMessage &other) noexcept;
     QCoapMessage &operator=(const QCoapMessage &other);
-    QCoapMessage &operator=(QCoapMessage &&other) Q_DECL_NOTHROW;
+    QCoapMessage &operator=(QCoapMessage &&other) noexcept;
 
     quint8 version() const;
     Type type() const;
