@@ -45,8 +45,6 @@ private Q_SLOTS:
     void parseReplyPdu();
     void updateReply_data();
     void updateReply();
-    void requestData();
-    void abortRequest();
 };
 
 void tst_QCoapInternalReply::parseReplyPdu_data()
@@ -167,24 +165,6 @@ void tst_QCoapInternalReply::parseReplyPdu()
     QCOMPARE(reply->message()->payload(), payload);
 }
 
-class QCoapReplyForTests : public QCoapReply
-{
-public:
-    QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req) {}
-
-    void setRunning(const QCoapToken &token, QCoapMessageId messageId)
-    {
-        Q_D(QCoapReply);
-        d->_q_setRunning(token, messageId);
-    }
-    void setContentAndFinished(const QCoapInternalReply *internal)
-    {
-        Q_D(QCoapReply);
-        d->_q_setContent(internal->senderAddress(), *internal->message(), internal->responseCode());
-        d->_q_setFinished();
-    }
-};
-
 void tst_QCoapInternalReply::updateReply_data()
 {
     QTest::addColumn<QByteArray>("data");
@@ -196,39 +176,19 @@ void tst_QCoapInternalReply::updateReply()
 {
     QFETCH(QByteArray, data);
 
-    QCoapReplyForTests reply((QCoapRequest()));
+    QScopedPointer<QCoapReply> reply(QCoapReplyPrivate::createCoapReply(QCoapRequest()));
     QCoapInternalReply internalReply;
     internalReply.message()->setPayload(data);
-    QSignalSpy spyReplyFinished(&reply, &QCoapReply::finished);
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
-    reply.setContentAndFinished(&internalReply);
+    QMetaObject::invokeMethod(reply.data(), "_q_setContent",
+                              Q_ARG(QHostAddress, internalReply.senderAddress()),
+                              Q_ARG(QCoapMessage, *internalReply.message()),
+                              Q_ARG(QtCoap::ResponseCode, internalReply.responseCode()));
+    QMetaObject::invokeMethod(reply.data(), "_q_setFinished", Q_ARG(QtCoap::Error, QtCoap::Error::Ok));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
-    QCOMPARE(reply.readAll(), data);
-}
-
-void tst_QCoapInternalReply::requestData()
-{
-    QCoapReplyForTests reply((QCoapRequest()));
-    reply.setRunning("token", 543);
-
-    QCOMPARE(reply.request().token(), QByteArray("token"));
-    QCOMPARE(reply.request().messageId(), 543);
-}
-
-void tst_QCoapInternalReply::abortRequest()
-{
-    QCoapReplyForTests reply((QCoapRequest()));
-    reply.setRunning("token", 543);
-
-    QSignalSpy spyAborted(&reply, &QCoapReply::aborted);
-    QSignalSpy spyFinished(&reply, &QCoapReply::finished);
-    reply.abortRequest();
-
-    QTRY_COMPARE_WITH_TIMEOUT(spyAborted.count(), 1, 1000);
-    QList<QVariant> arguments = spyAborted.takeFirst();
-    QTRY_COMPARE_WITH_TIMEOUT(spyFinished.count(), 1, 1000);
-    QVERIFY(arguments.at(0).toByteArray() == "token");
+    QCOMPARE(reply->readAll(), data);
 }
 
 #else

@@ -243,15 +243,6 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 */
 
 /*!
-    Constructs a new CoAP reply for the \a request and sets \a parent as
-    its parent.
-*/
-QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
-    QCoapReply(*new QCoapReplyPrivate(request), parent)
-{
-}
-
-/*!
     \internal
     Constructs a new CoAP reply with \a dd as the d_ptr.
     This constructor must be used when subclassing internally
@@ -425,6 +416,16 @@ void QCoapReply::abortRequest()
     d->isRunning = false;
     emit aborted(request().token());
     emit finished(this);
+}
+
+/*!
+    \internal
+
+    Creates a new instance of QCoapReply and returns a pointer to it.
+*/
+QCoapReply *QCoapReplyPrivate::createCoapReply(const QCoapRequest &request, QObject *parent)
+{
+    return new QCoapReply(*new QCoapReplyPrivate(request), parent);
 }
 
 QT_END_NAMESPACE

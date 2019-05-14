@@ -100,6 +100,8 @@ void QCoapResourceDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sende
 */
 
 /*!
+    \internal
+
     Constructs a new CoAP discovery reply from the \a request and sets \a parent
     as its parent.
 */

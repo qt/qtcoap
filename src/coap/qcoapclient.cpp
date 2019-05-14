@@ -36,6 +36,7 @@
 #include "qcoapsecurityconfiguration.h"
 #include "qcoapqudpconnection_p.h"
 #include "qcoaprequest_p.h"
+#include "qcoapreply_p.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qloggingcategory.h>
@@ -514,7 +515,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapReply *reply = new QCoapReply(request, q);
+    QCoapReply *reply = QCoapReplyPrivate::createCoapReply(request, q);
 
     if (!send(reply)) {
         delete reply;
