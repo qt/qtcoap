@@ -149,9 +149,9 @@ QCoapPrivateKey &QCoapPrivateKey::operator=(const QCoapPrivateKey &other)
 }
 
 /*!
-    Returns \c true if the private key is empty, returns \c false otherwise.
+    Returns \c true if the private key is null, returns \c false otherwise.
 */
-bool QCoapPrivateKey::isEmpty() const
+bool QCoapPrivateKey::isNull() const
 {
     return d->algorithm == QSsl::Opaque ? !d->opaqueKey : d->key.isEmpty();
 }
@@ -262,9 +262,9 @@ QCoapSecurityConfiguration::~QCoapSecurityConfiguration()
 /*!
     Sets the PSK client identity (to be advised to the server) to \a identity.
 
-    \sa identity()
+    \sa preSharedKeyIdentity()
 */
-void QCoapSecurityConfiguration::setIdentity(const QByteArray &identity)
+void QCoapSecurityConfiguration::setPreSharedKeyIdentity(const QByteArray &identity)
 {
     d->identity = identity;
 }
@@ -272,9 +272,9 @@ void QCoapSecurityConfiguration::setIdentity(const QByteArray &identity)
 /*!
     Returns the PSK client identity.
 
-    \sa setIdentity()
+    \sa setPreSharedKeyIdentity()
 */
-QByteArray QCoapSecurityConfiguration::identity() const
+QByteArray QCoapSecurityConfiguration::preSharedKeyIdentity() const
 {
     return d->identity;
 }

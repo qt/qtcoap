@@ -376,7 +376,7 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
     if (!configuration.localCertificateChain().isEmpty())
         dtlsConfig.setLocalCertificateChain(configuration.localCertificateChain().toList());
 
-    if (!configuration.privateKey().isEmpty()) {
+    if (!configuration.privateKey().isNull()) {
         if (configuration.privateKey().algorithm() != QSsl::Opaque) {
             QSslKey privateKey(configuration.privateKey().key(),
                                configuration.privateKey().algorithm(),
@@ -409,7 +409,7 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
 void QCoapQUdpConnection::pskRequired(QSslPreSharedKeyAuthenticator *authenticator)
 {
     Q_ASSERT(authenticator);
-    authenticator->setIdentity(securityConfiguration().identity());
+    authenticator->setIdentity(securityConfiguration().preSharedKeyIdentity());
     authenticator->setPreSharedKey(securityConfiguration().preSharedKey());
 }
 

@@ -59,7 +59,7 @@ public:
     void swap(QCoapPrivateKey &other) Q_DECL_NOTHROW
     { qSwap(d, other.d); }
 
-    bool isEmpty() const;
+    bool isNull() const;
 
     QByteArray key() const;
     Qt::HANDLE handle() const;
@@ -86,8 +86,8 @@ public:
     void swap(QCoapSecurityConfiguration &other) Q_DECL_NOTHROW
     { qSwap(d, other.d); }
 
-    void setIdentity(const QByteArray &identity);
-    QByteArray identity() const;
+    void setPreSharedKeyIdentity(const QByteArray &preSharedKeyIdentity);
+    QByteArray preSharedKeyIdentity() const;
 
     void setPreSharedKey(const QByteArray &preSharedKey);
     QByteArray preSharedKey() const;

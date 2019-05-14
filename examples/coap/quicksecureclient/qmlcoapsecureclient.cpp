@@ -127,7 +127,7 @@ QmlCoapSecureClient::setSecurityConfiguration(const QString &preSharedKey, const
 {
     QCoapSecurityConfiguration configuration;
     configuration.setPreSharedKey(preSharedKey.toUtf8());
-    configuration.setIdentity(identity.toUtf8());
+    configuration.setPreSharedKeyIdentity(identity.toUtf8());
     m_configuration = configuration;
 }
 
