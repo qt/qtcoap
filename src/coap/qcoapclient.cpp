@@ -626,10 +626,10 @@ void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QV
     As defined in \l {RFC 7390 - Section 2.5}, \c MAX_SERVER_RESPONSE_DELAY is the expected
     maximum response delay over all servers that the client can send a multicast request to.
 */
-void QCoapClient::setMaxServerResponseDelay(uint responseDelay)
+void QCoapClient::setMaximumServerResponseDelay(uint responseDelay)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaxServerResponseDelay", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(d->protocol, "setMaximumServerResponseDelay", Qt::QueuedConnection,
                               Q_ARG(uint, responseDelay));
 }
 
@@ -666,14 +666,14 @@ void QCoapClient::setAckRandomFactor(double ackRandomFactor)
 
 /*!
     Sets the \c MAX_RETRANSMIT value defined in \l {RFC 7252 - Section 4.2}
-    to \a maxRetransmit. This value should be less than or equal to 25.
+    to \a maximumRetransmitCount. This value should be less than or equal to 25.
     The default is 4.
 */
-void QCoapClient::setMaxRetransmit(uint maxRetransmit)
+void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaxRetransmit", Qt::QueuedConnection,
-                              Q_ARG(uint, maxRetransmit));
+    QMetaObject::invokeMethod(d->protocol, "setMaximumRetransmitCount", Qt::QueuedConnection,
+                              Q_ARG(uint, maximumRetransmitCount));
 }
 
 QT_END_NAMESPACE

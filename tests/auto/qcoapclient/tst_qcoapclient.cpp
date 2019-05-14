@@ -478,7 +478,7 @@ void tst_QCoapClient::socketError()
 void tst_QCoapClient::timeout_data()
 {
     QTest::addColumn<int>("timeout");
-    QTest::addColumn<int>("maxRetransmit");
+    QTest::addColumn<int>("maximumRetransmitCount");
 
     QTest::newRow("2000/0") << 2000 << 0;
     QTest::newRow("2000/2") << 2000 << 2;
@@ -489,13 +489,13 @@ void tst_QCoapClient::timeout()
 {
 #ifdef QT_BUILD_INTERNAL
     QFETCH(int, timeout);
-    QFETCH(int, maxRetransmit);
+    QFETCH(int, maximumRetransmitCount);
 
     QCoapClientForTests client;
     // Trigger a network timeout
     client.protocol()->setAckTimeout(timeout);
     client.protocol()->setAckRandomFactor(1);
-    client.protocol()->setMaxRetransmit(maxRetransmit);
+    client.protocol()->setMaximumRetransmitCount(maximumRetransmitCount);
     QUrl url = QUrl("coap://192.0.2.0:5683/"); // Need an url that returns nothing
 
     QElapsedTimer timeoutTimer;
@@ -508,20 +508,20 @@ void tst_QCoapClient::timeout()
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     // Check timeout upper limit
-    int transmissions = maxRetransmit + 1;
+    int transmissions = maximumRetransmitCount + 1;
 
     // 10% Precision expected at least, plus timer precision
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, static_cast<int>(
-                                  1.1 * client.protocol()->maxTransmitWait() + 20 * transmissions));
+                                  1.1 * client.protocol()->maximumTransmitWait() + 20 * transmissions));
 
     // Check timeout lower limit
     qint64 elapsedTime = timeoutTimer.elapsed();
     QString errorMessage = QString("Timeout was triggered after %1ms, while expecting about %2ms")
                            .arg(QString::number(elapsedTime),
-                                QString::number(client.protocol()->maxTransmitWait()));
+                                QString::number(client.protocol()->maximumTransmitWait()));
 
     // 10% Precision expected at least, minus timer precision
-    QVERIFY2(elapsedTime > 0.9 * client.protocol()->maxTransmitWait() - 20 * transmissions,
+    QVERIFY2(elapsedTime > 0.9 * client.protocol()->maximumTransmitWait() - 20 * transmissions,
              qPrintable(errorMessage));
 
     QCOMPARE(qvariant_cast<QtCoap::Error>(spyReplyError.first().at(1)),

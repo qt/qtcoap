@@ -66,17 +66,17 @@ public:
 
     uint ackTimeout() const;
     double ackRandomFactor() const;
-    uint maxRetransmit() const;
+    uint maximumRetransmitCount() const;
     quint16 blockSize() const;
-    uint maxTransmitSpan() const;
-    uint maxTransmitWait() const;
-    static constexpr uint maxLatency();
+    uint maximumTransmitSpan() const;
+    uint maximumTransmitWait() const;
+    uint maximumLatency() const;
 
-    uint minTimeout() const;
-    uint maxTimeout() const;
+    uint minimumTimeout() const;
+    uint maximumTimeout() const;
 
     uint nonConfirmLifetime() const;
-    uint maxServerResponseDelay() const;
+    uint maximumServerResponseDelay() const;
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
@@ -87,9 +87,9 @@ Q_SIGNALS:
 public:
     Q_INVOKABLE void setAckTimeout(uint ackTimeout);
     Q_INVOKABLE void setAckRandomFactor(double ackRandomFactor);
-    Q_INVOKABLE void setMaxRetransmit(uint maxRetransmit);
+    Q_INVOKABLE void setMaximumRetransmitCount(uint maximumRetransmitCount);
     Q_INVOKABLE void setBlockSize(quint16 blockSize);
-    Q_INVOKABLE void setMaxServerResponseDelay(uint responseDelay);
+    Q_INVOKABLE void setMaximumServerResponseDelay(uint responseDelay);
 
 private:
     Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
@@ -157,9 +157,9 @@ public:
     CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
-    uint maxRetransmit = 4;
+    uint maximumRetransmitCount = 4;
     uint ackTimeout = 2000;
-    uint maxServerResponseDelay = 250 * 1000;
+    uint maximumServerResponseDelay = 250 * 1000;
     double ackRandomFactor = 1.5;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)

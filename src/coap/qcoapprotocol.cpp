@@ -145,7 +145,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     });
 
     auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
-    internalRequest->setMaxTransmissionWait(maxTransmitWait());
+    internalRequest->setMaxTransmissionWait(maximumTransmitWait());
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     if (internalRequest->isMulticast()) {
@@ -157,8 +157,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
         // The timeout interval is chosen based on
         // https://tools.ietf.org/html/rfc7390#section-2.5
         internalRequest->setMulticastTimeout(nonConfirmLifetime()
-                                             + maxLatency()
-                                             + maxServerResponseDelay());
+                                             + maximumLatency()
+                                             + maximumServerResponseDelay());
     }
 
     // Set a unique Message Id and Token
@@ -181,9 +181,9 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (requestMessage->type() == QCoapMessage::Type::Confirmable)
-        internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minTimeout(), maxTimeout()));
+        internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minimumTimeout(), maximumTimeout()));
     else
-        internalRequest->setTimeout(maxTimeout());
+        internalRequest->setTimeout(maximumTimeout());
 
     connect(internalRequest.data(), &QCoapInternalRequest::timeout,
             [this](QCoapInternalRequest *request) {
@@ -242,7 +242,7 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
         return;
 
     if (request->message()->type() == QCoapMessage::Type::Confirmable
-            && request->retransmissionCounter() < maxRetransmit) {
+            && request->retransmissionCounter() < maximumRetransmitCount) {
         sendRequest(request);
     } else {
         onRequestError(request, QtCoap::Error::TimeOut);
@@ -894,7 +894,7 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id) const
     Returns the ACK_TIMEOUT value in milliseconds.
     The default is 2000.
 
-    \sa minTimeout(), setAckTimeout()
+    \sa minimumTimeout(), setAckTimeout()
 */
 uint QCoapProtocol::ackTimeout() const
 {
@@ -923,18 +923,18 @@ double QCoapProtocol::ackRandomFactor() const
     retransmissions of a message, before notifying a timeout error.
     The default is 4.
 
-    \sa setMaxRetransmit()
+    \sa setMaximumRetransmitCount()
 */
-uint QCoapProtocol::maxRetransmit() const
+uint QCoapProtocol::maximumRetransmitCount() const
 {
     Q_D(const QCoapProtocol);
-    return d->maxRetransmit;
+    return d->maximumRetransmitCount;
 }
 
 /*!
     \internal
 
-    Returns the max block size wanted.
+    Returns the maximum block size wanted.
     The default is 0, which invites the server to choose the block size.
 
     \sa setBlockSize()
@@ -954,9 +954,9 @@ quint16 QCoapProtocol::blockSize() const
     It is the maximum time from the first transmission of a Confirmable
     message to its last retransmission.
 */
-uint QCoapProtocol::maxTransmitSpan() const
+uint QCoapProtocol::maximumTransmitSpan() const
 {
-    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
+    return static_cast<uint>(ackTimeout() * (1u << (maximumRetransmitCount() - 1)) * ackRandomFactor());
 }
 
 /*!
@@ -969,9 +969,9 @@ uint QCoapProtocol::maxTransmitSpan() const
     message to the time when the sender gives up on receiving an
     acknowledgment or reset.
 */
-uint QCoapProtocol::maxTransmitWait() const
+uint QCoapProtocol::maximumTransmitWait() const
 {
-    return static_cast<uint>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1)
+    return static_cast<uint>(ackTimeout() * ((1u << (maximumRetransmitCount() + 1)) - 1)
                              * ackRandomFactor());
 }
 
@@ -985,7 +985,7 @@ uint QCoapProtocol::maxTransmitWait() const
     It is the maximum time a datagram is expected to take from the start of
     its transmission to the completion of its reception.
 */
-constexpr uint QCoapProtocol::maxLatency()
+uint QCoapProtocol::maximumLatency() const
 {
     return 100 * 1000;
 }
@@ -994,12 +994,12 @@ constexpr uint QCoapProtocol::maxLatency()
     \internal
 
     Returns the minimum duration for messages timeout. The timeout is defined
-    as a random value between minTimeout() and maxTimeout(). This is a
+    as a random value between minimumTimeout() and maximumTimeout(). This is a
     convenience method identical to ackTimeout().
 
     \sa ackTimeout(), setAckTimeout()
 */
-uint QCoapProtocol::minTimeout() const
+uint QCoapProtocol::minimumTimeout() const
 {
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
@@ -1010,9 +1010,9 @@ uint QCoapProtocol::minTimeout() const
 
     Returns the maximum duration for messages timeout in milliseconds.
 
-    \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
+    \sa maximumTimeout(), setAckTimeout(), setAckRandomFactor()
 */
-uint QCoapProtocol::maxTimeout() const
+uint QCoapProtocol::maximumTimeout() const
 {
     Q_D(const QCoapProtocol);
     return static_cast<uint>(d->ackTimeout * d->ackRandomFactor);
@@ -1029,7 +1029,7 @@ uint QCoapProtocol::maxTimeout() const
 */
 uint QCoapProtocol::nonConfirmLifetime() const
 {
-    return maxTransmitSpan() + maxLatency();
+    return maximumTransmitSpan() + maximumLatency();
 }
 
 /*!
@@ -1041,12 +1041,12 @@ uint QCoapProtocol::nonConfirmLifetime() const
     It is the expected maximum response delay over all servers that the client
     can send a multicast request to.
 
-    \sa setMaxServerResponseDelay()
+    \sa setMaximumServerResponseDelay()
 */
-uint QCoapProtocol::maxServerResponseDelay() const
+uint QCoapProtocol::maximumServerResponseDelay() const
 {
     Q_D(const QCoapProtocol);
-    return d->maxServerResponseDelay;
+    return d->maximumServerResponseDelay;
 }
 
 /*!
@@ -1059,7 +1059,7 @@ uint QCoapProtocol::maxServerResponseDelay() const
     reliable transmissions is a random value between ackTimeout() and
     ackTimeout() * ackRandomFactor().
 
-    \sa ackTimeout(), setAckRandomFactor(), minTimeout(), maxTimeout()
+    \sa ackTimeout(), setAckRandomFactor(), minimumTimeout(), maximumTimeout()
 */
 void QCoapProtocol::setAckTimeout(uint ackTimeout)
 {
@@ -1088,28 +1088,28 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 /*!
     \internal
 
-    Sets the MAX_RETRANSMIT value to \a maxRetransmit, but never
+    Sets the MAX_RETRANSMIT value to \a maximumRetransmitCount, but never
     to more than 25.
     The default is 4.
 
-    \sa maxRetransmit()
+    \sa maximumRetransmitCount()
 */
-void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
+void QCoapProtocol::setMaximumRetransmitCount(uint maximumRetransmitCount)
 {
     Q_D(QCoapProtocol);
 
-    if (maxRetransmit > 25) {
-        qCWarning(lcCoapProtocol, "Max retransmit count is capped at 25.");
-        maxRetransmit = 25;
+    if (maximumRetransmitCount > 25) {
+        qCWarning(lcCoapProtocol, "Maximum retransmit count is capped at 25.");
+        maximumRetransmitCount = 25;
     }
 
-    d->maxRetransmit = maxRetransmit;
+    d->maximumRetransmitCount = maximumRetransmitCount;
 }
 
 /*!
     \internal
 
-    Sets the max block size wanted to \a blockSize.
+    Sets the maximum block size wanted to \a blockSize.
 
     The \a blockSize should be zero, or range from 16 to 1024 and be a
     power of 2. A size of 0 invites the server to choose the block size.
@@ -1143,12 +1143,12 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
     As defined in \l {RFC 7390 - Section 2.5}, \c MAX_SERVER_RESPONSE_DELAY is the expected
     maximum response delay over all servers that the client can send a multicast request to.
 
-    \sa maxServerResponseDelay()
+    \sa maximumServerResponseDelay()
 */
-void QCoapProtocol::setMaxServerResponseDelay(uint responseDelay)
+void QCoapProtocol::setMaximumServerResponseDelay(uint responseDelay)
 {
     Q_D(QCoapProtocol);
-    d->maxServerResponseDelay = responseDelay;
+    d->maximumServerResponseDelay = responseDelay;
 }
 
 QT_END_NAMESPACE

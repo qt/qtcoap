@@ -85,10 +85,10 @@ public:
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     void setBlockSize(quint16 blockSize);
     void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
-    void setMaxServerResponseDelay(uint responseDelay);
+    void setMaximumServerResponseDelay(uint responseDelay);
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
+    void setMaximumRetransmitCount(uint maximumRetransmitCount);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
