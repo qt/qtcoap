@@ -52,12 +52,18 @@ class Q_AUTOTEST_EXPORT QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
     QCoapRequestPrivate(const QUrl &url = QUrl(),
-            QCoapMessage::MessageType type = QCoapMessage::MessageType::NonConfirmable,
-            const QUrl &proxyUrl = QUrl());
+                        QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable,
+                        const QUrl &proxyUrl = QUrl());
     QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
     ~QCoapRequestPrivate();
 
     void setUrl(const QUrl &url);
+    void adjustUrl(bool secure);
+
+    static QCoapRequest createRequest(const QCoapRequest &other, QtCoap::Method method,
+                                      bool isSecure = false);
+    static QUrl adjustedUrl(const QUrl &url, bool secure);
+    static bool isUrlValid(const QUrl &url);
 
     QUrl uri;
     QUrl proxyUri;

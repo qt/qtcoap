@@ -39,8 +39,8 @@ class tst_QCoapMessage : public QObject
 
 private Q_SLOTS:
     void copyAndDetach();
-    void setMessageType_data();
-    void setMessageType();
+    void setType_data();
+    void setType();
     void addOption();
     void addOption_string_data();
     void addOption_string();
@@ -59,7 +59,7 @@ void tst_QCoapMessage::copyAndDetach()
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
-    a.setType(QCoapMessage::MessageType::Acknowledgment);
+    a.setType(QCoapMessage::Type::Acknowledgment);
     a.setVersion(5);
 
     // Test the copy
@@ -67,7 +67,7 @@ void tst_QCoapMessage::copyAndDetach()
     QVERIFY2(b.messageId() == 3, "Message not copied correctly");
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
-    QVERIFY2(b.type() == QCoapMessage::MessageType::Acknowledgment, "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Type::Acknowledgment, "Message not copied correctly");
     QVERIFY2(b.version() == 5, "Message not copied correctly");
 
     // Detach
@@ -76,19 +76,19 @@ void tst_QCoapMessage::copyAndDetach()
     QCOMPARE(a.messageId(), 3);
 }
 
-void tst_QCoapMessage::setMessageType_data()
+void tst_QCoapMessage::setType_data()
 {
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
 
-    QTest::newRow("acknowledgment") << QCoapMessage::MessageType::Acknowledgment;
-    QTest::newRow("confirmable") << QCoapMessage::MessageType::Confirmable;
-    QTest::newRow("non-confirmable") << QCoapMessage::MessageType::NonConfirmable;
-    QTest::newRow("reset") << QCoapMessage::MessageType::Reset;
+    QTest::newRow("acknowledgment") << QCoapMessage::Type::Acknowledgment;
+    QTest::newRow("confirmable") << QCoapMessage::Type::Confirmable;
+    QTest::newRow("non-confirmable") << QCoapMessage::Type::NonConfirmable;
+    QTest::newRow("reset") << QCoapMessage::Type::Reset;
 }
 
-void tst_QCoapMessage::setMessageType()
+void tst_QCoapMessage::setType()
 {
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);
@@ -123,7 +123,7 @@ void tst_QCoapMessage::addOption()
 
     QVERIFY(std::all_of(message.options().cbegin(), message.options().cend(),
                         [value](const QCoapOption opt) -> bool {
-                            return opt.value() == value;
+                            return opt.opaqueValue() == value;
            }));
 }
 
@@ -131,7 +131,7 @@ void tst_QCoapMessage::addOption_string_data()
 {
     QTest::addColumn<QVector<QCoapOption>>("options");
 
-    QVector<QCoapOption> single_char_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> single_string_option = { { QCoapOption::LocationPath, QString("path1") } };
     QVector<QCoapOption> single_ba_option = {
         { QCoapOption::LocationPath, QByteArray("\xAF\x01\xC2") }
     };
@@ -140,7 +140,7 @@ void tst_QCoapMessage::addOption_string_data()
         { QCoapOption::LocationPath, QString("str_path3") }
     };
 
-    QTest::newRow("single_char_option") << single_char_option;
+    QTest::newRow("single_char_option") << single_string_option;
     QTest::newRow("single_ba_option") << single_ba_option;
     QTest::newRow("multiple_string_options") << multiple_string_options;
 }
@@ -184,18 +184,18 @@ void tst_QCoapMessage::addOption_uint()
     message.addOption(option);
 
     QCOMPARE(message.options(name).size(), 1);
-    QCOMPARE(message.option(name).valueToInt(), value);
-    QCOMPARE(option.value().size(), size);
+    QCOMPARE(message.option(name).uintValue(), value);
+    QCOMPARE(option.opaqueValue().size(), size);
 }
 
 void tst_QCoapMessage::removeOption_data()
 {
     QTest::addColumn<QVector<QCoapOption>>("options");
 
-    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
     QVector<QCoapOption> multiple_options = {
-        { QCoapOption::LocationPath, "path2" },
-        { QCoapOption::LocationPath, "path3" }
+        { QCoapOption::LocationPath, QByteArray("path2") },
+        { QCoapOption::LocationPath, QByteArray("path3") }
     };
 
     QTest::newRow("single_option") << single_option;
@@ -227,10 +227,10 @@ void tst_QCoapMessage::removeOptionByName_data()
     QTest::addColumn<QVector<QCoapOption>>("options");
     QTest::addColumn<QCoapOption::OptionName>("name");
 
-    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, "path1" } };
+    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
     QVector<QCoapOption> multiple_options = {
-        { QCoapOption::LocationPath, "path2" },
-        { QCoapOption::LocationPath, "path3" }
+        { QCoapOption::LocationPath, QByteArray("path2") },
+        { QCoapOption::LocationPath, QByteArray("path3") }
     };
 
     QTest::newRow("remove_single_option") << single_option << single_option.back().name();
@@ -256,7 +256,7 @@ void tst_QCoapMessage::removeAll()
     message.addOption(QCoapOption::LocationPath, "path");
     message.addOption(QCoapOption::ProxyUri, "proxy1");
     message.addOption(QCoapOption::ProxyUri, "proxy2");
-    message.removeAllOptions();
+    message.clearOptions();
 
     QVERIFY(message.options().isEmpty());
 }

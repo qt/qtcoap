@@ -37,19 +37,13 @@
 #include <QtNetwork/qudpsocket.h>
 #include <QtNetwork/qnetworkdatagram.h>
 #include <QtCoap/qcoapglobal.h>
-#include <QtCoap/qcoapqudpconnection.h>
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapqudpconnection_p.h>
 #include <private/qcoapinternalrequest_p.h>
+#include <private/qcoaprequest_p.h>
 #include "../coapnetworksettings.h"
 
 using namespace QtCoapNetworkSettings;
-
-struct QCoapRequestForTest : public QCoapRequest
-{
-    QCoapRequestForTest(const QUrl &url) : QCoapRequest(url) {}
-    using QCoapRequest::setMethod;
-};
 
 class tst_QCoapQUdpConnection : public QObject
 {
@@ -68,7 +62,7 @@ class QCoapQUdpConnectionForTest : public QCoapQUdpConnection
     Q_OBJECT
 public:
     QCoapQUdpConnectionForTest(QObject *parent = nullptr) :
-        QCoapQUdpConnection(QtCoap::SecurityMode::NoSec, parent)
+        QCoapQUdpConnection(QtCoap::SecurityMode::NoSecurity, parent)
     {}
 
     void bindSocketForTest() { d_func()->bindSocket(); }
@@ -86,7 +80,6 @@ void tst_QCoapQUdpConnection::ctor()
 
 void tst_QCoapQUdpConnection::connectToHost()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapQUdpConnectionForTest connection;
 
     QUdpSocket *socket = qobject_cast<QUdpSocket*>(connection.socket());
@@ -101,14 +94,10 @@ void tst_QCoapQUdpConnection::connectToHost()
     QTRY_COMPARE(spySocketStateChanged.count(), 1);
     QTRY_COMPARE(spyConnectionBound.count(), 1);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 void tst_QCoapQUdpConnection::reconnect()
 {
-#ifdef QT_BUILD_INTERNAL
     QCoapQUdpConnectionForTest connection;
 
     // This will trigger connection.bind()
@@ -124,9 +113,6 @@ void tst_QCoapQUdpConnection::reconnect()
     connection.sendRequest(QByteArray(), QString(), 0);
     QTRY_COMPARE(connectionBoundSpy.count(), 2);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 void tst_QCoapQUdpConnection::sendRequest_data()
@@ -180,7 +166,6 @@ void tst_QCoapQUdpConnection::sendRequest_data()
 
 void tst_QCoapQUdpConnection::sendRequest()
 {
-#ifdef QT_BUILD_INTERNAL
     QFETCH(QString, protocol);
     QFETCH(QString, host);
     QFETCH(QString, path);
@@ -194,10 +179,10 @@ void tst_QCoapQUdpConnection::sendRequest()
     QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
     QSignalSpy spyConnectionReadyRead(&connection, &QCoapQUdpConnection::readyRead);
 
-    QCoapRequestForTest request(protocol + host + path);
+    QCoapRequest request =
+            QCoapRequestPrivate::createRequest(QCoapRequest(protocol + host + path), method);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
-    request.setMethod(method);
     QVERIFY(connection.socket() != nullptr);
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);
@@ -208,9 +193,6 @@ void tst_QCoapQUdpConnection::sendRequest()
     QByteArray data = spyConnectionReadyRead.first().first().value<QByteArray>();
     QVERIFY(QString(data.toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(data.toHex()).endsWith(dataHexaPayload));
-#else
-    QSKIP("Not an internal build, skipping this test");
-#endif
 }
 
 QTEST_MAIN(tst_QCoapQUdpConnection)

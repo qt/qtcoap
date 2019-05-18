@@ -44,7 +44,7 @@ class QCoapMessagePrivate;
 class Q_COAP_EXPORT QCoapMessage
 {
 public:
-    enum class MessageType : quint8 {
+    enum class Type : quint8 {
         Confirmable,
         NonConfirmable,
         Acknowledgment,
@@ -55,25 +55,25 @@ public:
     QCoapMessage(const QCoapMessage &other);
     ~QCoapMessage();
 
-    void swap(QCoapMessage &other) Q_DECL_NOTHROW;
+    void swap(QCoapMessage &other) noexcept;
     QCoapMessage &operator=(const QCoapMessage &other);
-    QCoapMessage &operator=(QCoapMessage &&other) Q_DECL_NOTHROW;
+    QCoapMessage &operator=(QCoapMessage &&other) noexcept;
 
     quint8 version() const;
-    MessageType type() const;
+    Type type() const;
     QByteArray token() const;
     quint8 tokenLength() const;
     quint16 messageId() const;
     QByteArray payload() const;
     void setVersion(quint8 version);
-    void setType(const MessageType &type);
+    void setType(const Type &type);
     void setToken(const QByteArray &token);
     void setMessageId(quint16);
     void setPayload(const QByteArray &payload);
+    void setOptions(const QVector<QCoapOption> &options);
 
-    QCoapOption option(int index) const;
+    QCoapOption optionAt(int index) const;
     QCoapOption option(QCoapOption::OptionName name) const;
-    QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
     bool hasOption(QCoapOption::OptionName name) const;
     const QVector<QCoapOption> &options() const;
     QVector<QCoapOption> options(QCoapOption::OptionName name) const;
@@ -82,7 +82,7 @@ public:
     void addOption(const QCoapOption &option);
     void removeOption(const QCoapOption &option);
     void removeOption(QCoapOption::OptionName name);
-    void removeAllOptions();
+    void clearOptions();
 
 protected:
     explicit QCoapMessage(QCoapMessagePrivate &dd);
@@ -99,6 +99,6 @@ Q_DECLARE_SHARED(QCoapMessage)
 QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(QCoapMessage)
-Q_DECLARE_METATYPE(QCoapMessage::MessageType)
+Q_DECLARE_METATYPE(QCoapMessage::Type)
 
 #endif // QCOAPMESSAGE_H

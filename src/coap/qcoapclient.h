@@ -40,7 +40,7 @@
 QT_BEGIN_NAMESPACE
 
 class QCoapReply;
-class QCoapDiscoveryReply;
+class QCoapResourceDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
 class QCoapConnection;
@@ -53,7 +53,7 @@ class Q_COAP_EXPORT QCoapClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSec,
+    explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSecurity,
                          QObject *parent = nullptr);
     explicit QCoapClient(QCoapConnection *connection, QObject *parent = nullptr);
     ~QCoapClient();
@@ -74,19 +74,21 @@ public:
     void cancelObserve(const QUrl &url);
     void disconnect();
 
-    QCoapDiscoveryReply *discover(QtCoap::MulticastGroup group = QtCoap::MulticastGroup::AllCoapNodesIPv4,
-                                  int port = QtCoap::DefaultPort,
-                                  const QString &discoveryPath = QLatin1String("/.well-known/core"));
-    QCoapDiscoveryReply *discover(const QUrl &baseUrl,
-                                  const QString &discoveryPath = QLatin1String("/.well-known/core"));
+    QCoapResourceDiscoveryReply *discover(
+            QtCoap::MulticastGroup group = QtCoap::MulticastGroup::AllCoapNodesIPv4,
+            int port = QtCoap::DefaultPort,
+            const QString &discoveryPath = QLatin1String("/.well-known/core"));
+    QCoapResourceDiscoveryReply *discover(
+            const QUrl &baseUrl,
+            const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     void setBlockSize(quint16 blockSize);
     void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
-    void setMaxServerResponseDelay(uint responseDelay);
+    void setMaximumServerResponseDelay(uint responseDelay);
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
+    void setMaximumRetransmitCount(uint maximumRetransmitCount);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
@@ -95,9 +97,6 @@ Q_SIGNALS:
     void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:
-    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection,
-                         QObject *parent = nullptr);
-
     Q_DECLARE_PRIVATE(QCoapClient)
 };
 

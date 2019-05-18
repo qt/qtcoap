@@ -30,6 +30,8 @@
 
 #include "qcoapreply_p.h"
 #include "qcoapinternalreply_p.h"
+#include "qcoapnamespace_p.h"
+
 #include <QtCore/qmath.h>
 #include <QtCore/qloggingcategory.h>
 
@@ -161,7 +163,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::Error newError)
 */
 void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 {
-    _q_setError(QtCoap::responseCodeError(code));
+    _q_setError(QtCoap::errorForResponseCode(code));
 }
 
 /*!
@@ -181,7 +183,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     For \e Observe requests specifically, the notified() signal is emitted
     whenever a notification is received.
 
-    \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
+    \sa QCoapClient, QCoapRequest, QCoapResourceDiscoveryReply
 */
 
 /*!
@@ -239,15 +241,6 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 
     \sa finished(), error()
 */
-
-/*!
-    Constructs a new CoAP reply for the \a request and sets \a parent as
-    its parent.
-*/
-QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
-    QCoapReply(*new QCoapReplyPrivate(request), parent)
-{
-}
 
 /*!
     \internal
@@ -423,6 +416,16 @@ void QCoapReply::abortRequest()
     d->isRunning = false;
     emit aborted(request().token());
     emit finished(this);
+}
+
+/*!
+    \internal
+
+    Creates a new instance of QCoapReply and returns a pointer to it.
+*/
+QCoapReply *QCoapReplyPrivate::createCoapReply(const QCoapRequest &request, QObject *parent)
+{
+    return new QCoapReply(*new QCoapReplyPrivate(request), parent);
 }
 
 QT_END_NAMESPACE

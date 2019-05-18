@@ -78,7 +78,7 @@ private:
 private slots:
     void onFinished(QCoapReply *reply);
     void onError(QCoapReply *reply, QtCoap::Error error);
-    void onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
+    void onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources);
     void onNotified(QCoapReply *reply, const QCoapMessage &message);
 
     void on_runButton_clicked();

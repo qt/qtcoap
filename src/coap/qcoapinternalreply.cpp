@@ -92,7 +92,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
 
     // Parse Header and Token
     d->message.setVersion((pduData[0] >> 6) & 0x03);
-    d->message.setType(QCoapMessage::MessageType((pduData[0] >> 4) & 0x03));
+    d->message.setType(QCoapMessage::Type((pduData[0] >> 4) & 0x03));
     quint8 tokenLength = (pduData[0]) & 0x0F;
     d->responseCode = static_cast<QtCoap::ResponseCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
@@ -188,7 +188,7 @@ int QCoapInternalReply::nextBlockToSend() const
     if (!option.isValid())
         return -1;
 
-    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.opaqueValue().data());
     const quint8 lastByte = optionData[option.length() - 1];
 
     // M field

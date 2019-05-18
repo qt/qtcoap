@@ -33,8 +33,7 @@
 
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapinternalrequest_p.h>
-
-#ifdef QT_BUILD_INTERNAL
+#include <private/qcoaprequest_p.h>
 
 class tst_QCoapInternalRequest : public QObject
 {
@@ -53,17 +52,11 @@ private Q_SLOTS:
     void isMulticast();
 };
 
-struct QCoapRequestForTest : public QCoapRequest
-{
-    QCoapRequestForTest(const QUrl& url) : QCoapRequest(url) {}
-    using QCoapRequest::setMethod;
-};
-
 void tst_QCoapInternalRequest::requestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
+    QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
     QTest::addColumn<QString>("pduHeader");
@@ -72,7 +65,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_with_option_and_payload")
         << QUrl("coap://10.20.30.40:5683/test")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
@@ -81,7 +74,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_domain")
         << QUrl("coap://domain.com:5683/test")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09b3a646f6d61696e2e636f6d8474657374ff"
@@ -90,7 +83,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_ipv6")
         << QUrl("coap://[::ffff:ac11:3]:5683/test")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
@@ -99,7 +92,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_without_payload")
         << QUrl("coap://10.20.30.40:5683/test")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374"
@@ -108,7 +101,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_without_option")
         << QUrl("coap://10.20.30.40:5683/")
         << QtCoap::Method::Put
-        << QCoapRequest::MessageType::Confirmable
+        << QCoapRequest::Type::Confirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "4403dc504647f09bff"
@@ -117,7 +110,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_only")
         << QUrl("coap://10.20.30.40:5683/")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09b"
@@ -126,7 +119,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_with_multiple_options")
         << QUrl("coap://10.20.30.40:5683/test/oui")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374036f7569"
@@ -135,7 +128,7 @@ void tst_QCoapInternalRequest::requestToFrame_data()
     QTest::newRow("request_with_big_option_number")
         << QUrl("coap://10.20.30.40:5683/test")
         << QtCoap::Method::Get
-        << QCoapRequest::MessageType::NonConfirmable
+        << QCoapRequest::Type::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f70"
@@ -147,15 +140,14 @@ void tst_QCoapInternalRequest::requestToFrame()
 {
     QFETCH(QUrl, url);
     QFETCH(QtCoap::Method, method);
-    QFETCH(QCoapMessage::MessageType, type);
+    QFETCH(QCoapMessage::Type, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
     QFETCH(QString, pduHeader);
     QFETCH(QString, pduPayload);
 
-    QCoapRequestForTest request(url);
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(url), method);
     request.setType(type);
-    request.setMethod(method);
     request.setPayload(pduPayload.toUtf8());
     request.setMessageId(messageId);
     request.setToken(token);
@@ -183,33 +175,34 @@ void tst_QCoapInternalRequest::parseUri_data()
                         << QUrl()
                         << QVector<QCoapOption>({
                             QCoapOption(QCoapOption::UriPort, 1234),
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1") });
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")) });
 
     QTest::newRow("path_query")
                         << QUrl("coap://10.20.30.40/test/path1/?rd=25&nd=4")
                         << QUrl()
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1"),
-                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
-                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("rd=25")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("nd=4")) });
 
     QTest::newRow("host_path_query")
                         << QUrl("coap://aa.bb.cc.com:5683/test/path1/?rd=25&nd=4")
                         << QUrl()
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::UriHost, "aa.bb.cc.com"),
-                            QCoapOption(QCoapOption::UriPath, "test"),
-                            QCoapOption(QCoapOption::UriPath, "path1"),
-                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
-                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+                            QCoapOption(QCoapOption::UriHost, QByteArray("aa.bb.cc.com")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("test")),
+                            QCoapOption(QCoapOption::UriPath, QByteArray("path1")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("rd=25")),
+                            QCoapOption(QCoapOption::UriQuery, QByteArray("nd=4")) });
 
     QTest::newRow("proxy_url")
                         << QUrl("coap://aa.bb.cc.com:5683/test/path1/?rd=25&nd=4")
                         << QUrl("coap://10.20.30.40/test:5684/othertest/path")
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::ProxyUri, "coap://10.20.30.40/test:5684/othertest/path") });
+                            QCoapOption(QCoapOption::ProxyUri,
+                            QByteArray("coap://10.20.30.40/test:5684/othertest/path")) });
 }
 
 void tst_QCoapInternalRequest::parseUri()
@@ -218,7 +211,7 @@ void tst_QCoapInternalRequest::parseUri()
     QFETCH(QUrl, proxyUri);
     QFETCH(QVector<QCoapOption>, options);
 
-    QCoapRequest request(uri, QCoapMessage::MessageType::NonConfirmable, proxyUri);
+    QCoapRequest request(uri, QCoapMessage::Type::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
     for (QCoapOption opt : options)
@@ -233,9 +226,9 @@ void tst_QCoapInternalRequest::urlOptions_data()
     QTest::addColumn<QVector<QCoapOption>>("options");
 
     QVector<QCoapOption> options = {
-        { QCoapOption::UriHost, "example.com" },
-        { QCoapOption::UriPath, "~sensors" },
-        { QCoapOption::UriPath, "temp.xml" }
+        { QCoapOption::UriHost, QByteArray("example.com") },
+        { QCoapOption::UriPath, QByteArray("~sensors") },
+        { QCoapOption::UriPath, QByteArray("temp.xml") }
     };
 
     QTest::newRow("url_with_default_port")
@@ -319,21 +312,6 @@ void tst_QCoapInternalRequest::isMulticast()
     const QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.isMulticast(), result);
 }
-
-#else
-
-class tst_QCoapInternalRequest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void initTestCase()
-    {
-        QSKIP("Not an internal build, nothing to test");
-    }
-};
-
-#endif
 
 QTEST_APPLESS_MAIN(tst_QCoapInternalRequest)
 

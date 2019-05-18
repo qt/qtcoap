@@ -45,6 +45,8 @@ QT_BEGIN_NAMESPACE
 Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
 
 /*!
+    \internal
+
     \class QCoapQUdpConnection
     \inmodule QtCoap
 
@@ -68,7 +70,7 @@ Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
     sets \a parent as the parent object.
 
     \note Since QtCoap::RawPublicKey is not supported yet, the connection
-    will fall back to the QtCoap::NoSec in the QtCoap::RawPublicKey mode.
+    will fall back to the QtCoap::NoSecurity in the QtCoap::RawPublicKey mode.
     That is, the connection won't be secure in this mode.
 */
 QCoapQUdpConnection::QCoapQUdpConnection(QtCoap::SecurityMode securityMode, QObject *parent) :
@@ -104,7 +106,7 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
         case QtCoap::SecurityMode::RawPublicKey:
             qCWarning(lcCoapConnection, "RawPublicKey security is not supported yet,"
                                         "disabling security");
-            d->securityMode = QtCoap::SecurityMode::NoSec;
+            d->securityMode = QtCoap::SecurityMode::NoSecurity;
             break;
         case QtCoap::SecurityMode::PreSharedKey:
             d->dtls = new QDtls(QSslSocket::SslClientMode, this);
@@ -125,8 +127,8 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
             break;
         }
 #else
-        qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSec mode.");
-        d->securityMode = QtCoap::SecurityMode::NoSec;
+        qCWarning(lcCoapConnection, "DTLS is disabled, falling back to QtCoap::NoSecurity mode.");
+        d->securityMode = QtCoap::SecurityMode::NoSecurity;
 #endif
     }
 }
@@ -266,6 +268,8 @@ void QCoapQUdpConnection::close()
 }
 
 /*!
+    \internal
+
     Sets the QUdpSocket socket \a option to \a value.
 */
 void QCoapQUdpConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
@@ -339,6 +343,8 @@ void QCoapQUdpConnectionPrivate::socketReadyRead()
 }
 
 /*!
+    \internal
+
     Returns the socket.
 */
 QUdpSocket *QCoapQUdpConnection::socket() const
@@ -370,7 +376,7 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
     if (!configuration.localCertificateChain().isEmpty())
         dtlsConfig.setLocalCertificateChain(configuration.localCertificateChain().toList());
 
-    if (!configuration.privateKey().isEmpty()) {
+    if (!configuration.privateKey().isNull()) {
         if (configuration.privateKey().algorithm() != QSsl::Opaque) {
             QSslKey privateKey(configuration.privateKey().key(),
                                configuration.privateKey().algorithm(),
@@ -403,7 +409,7 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
 void QCoapQUdpConnection::pskRequired(QSslPreSharedKeyAuthenticator *authenticator)
 {
     Q_ASSERT(authenticator);
-    authenticator->setIdentity(securityConfiguration().identity());
+    authenticator->setIdentity(securityConfiguration().preSharedKeyIdentity());
     authenticator->setPreSharedKey(securityConfiguration().preSharedKey());
 }
 
@@ -468,5 +474,3 @@ void QCoapQUdpConnectionPrivate::handleEncryptedDatagram()
 #endif // dtls
 
 QT_END_NAMESPACE
-
-#include "moc_qcoapqudpconnection.cpp"

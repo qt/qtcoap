@@ -32,7 +32,8 @@
 #include <QCoreApplication>
 
 #include <QtCoap/qcoapresource.h>
-#include <QtCoap/qcoapdiscoveryreply.h>
+#include <QtCoap/qcoapresourcediscoveryreply.h>
+#include <private/qcoapresourcediscoveryreply_p.h>
 
 class tst_QCoapResource : public QObject
 {
@@ -133,6 +134,7 @@ void tst_QCoapResource::parseCoreLink_data()
 
 void tst_QCoapResource::parseCoreLink()
 {
+#ifdef QT_BUILD_INTERNAL
     QFETCH(int, resourceNumber);
     QFETCH(QString, senderAddress);
     QFETCH(QList<QString>, pathList);
@@ -145,7 +147,8 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QByteArray, coreLinkList);
 
     const QVector<QCoapResource> resourceList =
-            QCoapDiscoveryReply::resourcesFromCoreLinkList(QHostAddress(senderAddress), coreLinkList);
+            QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(
+                QHostAddress(senderAddress), coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
 
@@ -161,6 +164,9 @@ void tst_QCoapResource::parseCoreLink()
         QCOMPARE(resource.observable(), observableList[resourceIndex]);
         ++resourceIndex;
     }
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapResource)

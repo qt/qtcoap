@@ -44,7 +44,7 @@ const auto CoapScheme = QLatin1String("coap");
 const auto CoapSecureScheme = QLatin1String("coaps");
 }
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type,
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::Type type,
                                          const QUrl &proxyUrl) :
     QCoapMessagePrivate(type),
     proxyUri(proxyUrl)
@@ -107,14 +107,14 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     The QCoapRequest contains data needed to make CoAP frames that can be
     sent to the URL it holds.
 
-    \sa QCoapClient, QCoapReply, QCoapDiscoveryReply
+    \sa QCoapClient, QCoapReply, QCoapResourceDiscoveryReply
 */
 
 /*!
     Constructs a QCoapRequest object with the target \a url,
     the proxy URL \a proxyUrl and the \a type of the message.
 */
-QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
+QCoapRequest::QCoapRequest(const QUrl &url, Type type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
 {
 }
@@ -122,7 +122,7 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 /*!
     Constructs a QCoapRequest from a string literal
 */
-QCoapRequest::QCoapRequest(const char *url, MessageType type) :
+QCoapRequest::QCoapRequest(const char *url, Type type) :
     QCoapMessage(*new QCoapRequestPrivate(QUrl(QString::fromUtf8(url)), type))
 {
 }
@@ -135,19 +135,6 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(*new QCoapRequestPrivate(*other.d_func()))
 {
-}
-
-/*!
-    \internal
-
-    Constructs a copy of the \a other QCoapRequest and sets the request
-    method to \a method.
-*/
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
-    QCoapRequest(other)
-{
-    if (method != QtCoap::Method::Invalid)
-        setMethod(method);
 }
 
 /*!
@@ -225,19 +212,6 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 }
 
 /*!
-    \internal
-
-    Sets the method of the request to the given \a method.
-
-    \sa method()
-*/
-void QCoapRequest::setMethod(QtCoap::Method method)
-{
-    Q_D(QCoapRequest);
-    d->method = method;
-}
-
-/*!
     Sets the observe to \c true to make an observe request.
 
     \sa isObserve()
@@ -251,6 +225,8 @@ void QCoapRequest::enableObserve()
 }
 
 /*!
+    \internal
+
     Adjusts the request URL by setting the correct default scheme and port
     (if not indicated) based on the \a secure parameter.
 
@@ -258,10 +234,9 @@ void QCoapRequest::enableObserve()
     its port will default to \e 5683. In secure mode the scheme will default to
     \c coaps, and the port will default to \e 5684.
 */
-void QCoapRequest::adjustUrl(bool secure)
+void QCoapRequestPrivate::adjustUrl(bool secure)
 {
-    Q_D(QCoapRequest);
-    d->uri = adjustedUrl(d->uri, secure);
+    uri = adjustedUrl(uri, secure);
 }
 
 /*!
@@ -274,17 +249,11 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 }
 
 /*!
-    Returns \c true if the request is valid, \c false otherwise.
-*/
-bool QCoapRequest::isValid() const
-{
-    return isUrlValid(url()) && method() != QtCoap::Method::Invalid;
-}
+    \internal
 
-/*!
     Returns \c true if the \a url is a valid CoAP URL.
 */
-bool QCoapRequest::isUrlValid(const QUrl &url)
+bool QCoapRequestPrivate::isUrlValid(const QUrl &url)
 {
     return (url.isValid() && !url.isLocalFile() && !url.isRelative()
             && (url.scheme() == CoapScheme || url.scheme() == CoapSecureScheme)
@@ -292,6 +261,8 @@ bool QCoapRequest::isUrlValid(const QUrl &url)
 }
 
 /*!
+    \internal
+
     Adjusts the \a url by setting the correct default scheme and port
     (if not indicated) based on the \a secure parameter. Returns the
     adjusted URL.
@@ -300,7 +271,7 @@ bool QCoapRequest::isUrlValid(const QUrl &url)
     its port will default to \e 5683. In secure mode the scheme will default to
     \c coaps, and the port will default to \e 5684.
 */
-QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
+QUrl QCoapRequestPrivate::adjustedUrl(const QUrl &url, bool secure)
 {
     if (url.isEmpty() || !url.isValid())
         return QUrl();
@@ -336,6 +307,21 @@ QUrl QCoapRequest::adjustedUrl(const QUrl &url, bool secure)
 QCoapRequestPrivate* QCoapRequest::d_func()
 {
     return static_cast<QCoapRequestPrivate*>(d_ptr.data());
+}
+
+/*!
+    \internal
+
+    Creates a copy of \a other request and sets \a method as its request method.
+    Adjusts the request URL based on \a isSecure parameter.
+*/
+QCoapRequest
+QCoapRequestPrivate::createRequest(const QCoapRequest &other, QtCoap::Method method, bool isSecure)
+{
+    QCoapRequest request(other);
+    request.d_func()->method = method;
+    request.d_func()->adjustUrl(isSecure);
+    return request;
 }
 
 QT_END_NAMESPACE

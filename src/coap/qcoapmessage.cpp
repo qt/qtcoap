@@ -32,7 +32,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapMessagePrivate::QCoapMessagePrivate(QCoapMessage::MessageType _type) :
+QCoapMessagePrivate::QCoapMessagePrivate(QCoapMessage::Type _type) :
     type(_type)
 {
 }
@@ -64,7 +64,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 */
 
 /*!
-    \enum QCoapMessage::MessageType
+    \enum QCoapMessage::Type
 
     Indicates the type of the message.
 
@@ -179,7 +179,7 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 /*!
     Removes all options.
 */
-void QCoapMessage::removeAllOptions()
+void QCoapMessage::clearOptions()
 {
     Q_D(QCoapMessage);
     d->options.clear();
@@ -201,7 +201,7 @@ quint8 QCoapMessage::version() const
 
     \sa setType()
 */
-QCoapMessage::MessageType QCoapMessage::type() const
+QCoapMessage::Type QCoapMessage::type() const
 {
     Q_D(const QCoapMessage);
     return d->type;
@@ -252,7 +252,7 @@ QByteArray QCoapMessage::payload() const
 /*!
     Returns the option at \a index position.
 */
-QCoapOption QCoapMessage::option(int index) const
+QCoapOption QCoapMessage::optionAt(int index) const
 {
     Q_D(const QCoapMessage);
     return d->options.at(index);
@@ -260,25 +260,27 @@ QCoapOption QCoapMessage::option(int index) const
 
 /*!
     Finds and returns the first option with the given \a name.
-    If there is no such option, returns an Invalid CoapOption with an empty value.
+    If there is no such option, returns an invalid QCoapOption with an empty value.
 */
 QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
 {
     Q_D(const QCoapMessage);
 
-    auto it = findOption(name);
+    auto it = d->findOption(name);
     return it != d->options.end() ? *it : QCoapOption();
 }
 
 /*!
+    \internal
+
     Finds and returns a constant iterator to the first option
     with the given \a name.
     If there is no such option, returns \c d->options.end().
 */
-QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::OptionName name) const
+QVector<QCoapOption>::const_iterator
+QCoapMessagePrivate::findOption(QCoapOption::OptionName name) const
 {
-    Q_D(const QCoapMessage);
-    return std::find_if(d->options.begin(), d->options.end(), [name](const QCoapOption &option) {
+    return std::find_if(options.begin(), options.end(), [name](const QCoapOption &option) {
         return option.name() == name;
     });
 }
@@ -290,7 +292,7 @@ QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::Optio
 bool QCoapMessage::hasOption(QCoapOption::OptionName name) const
 {
     Q_D(const QCoapMessage);
-    return findOption(name) != d->options.end();
+    return d->findOption(name) != d->options.end();
 }
 
 /*!
@@ -342,7 +344,7 @@ void QCoapMessage::setVersion(quint8 version)
 
     \sa type()
 */
-void QCoapMessage::setType(const MessageType &type)
+void QCoapMessage::setType(const Type &type)
 {
     Q_D(QCoapMessage);
     d->type = type;
@@ -387,7 +389,16 @@ void QCoapMessage::setPayload(const QByteArray &payload)
     d->payload = payload;
 }
 
-void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
+/*!
+    Sets the message options to \a options.
+*/
+void QCoapMessage::setOptions(const QVector<QCoapOption> &options)
+{
+    Q_D(QCoapMessage);
+    d->options = options;
+}
+
+void QCoapMessage::swap(QCoapMessage &other) noexcept
 {
     qSwap(d_ptr, other.d_ptr);
 }
@@ -395,7 +406,7 @@ void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
 /*!
     Move-assignment operator.
  */
-QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
+QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) noexcept
 {
     swap(other);
     return *this;

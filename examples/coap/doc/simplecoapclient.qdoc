@@ -134,8 +134,8 @@
     \printuntil onDiscovered
     \dots
 
-    \note Instead of QCoapReply class, we use the QCoapDiscoveryReply to keep
-    the reply for a discovery request. It has the QCoapDiscoveryReply::discovered
+    \note Instead of QCoapReply class, we use the QCoapResourceDiscoveryReply to keep
+    the reply for a discovery request. It has the QCoapResourceDiscoveryReply::discovered
     signal, which returns the list of QCoapResources that has been discovered.
 
     If there are \e observable resources on the server (meaning that they have the

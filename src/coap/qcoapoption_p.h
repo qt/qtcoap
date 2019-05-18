@@ -52,6 +52,10 @@ class Q_AUTOTEST_EXPORT QCoapOptionPrivate
 public:
     QCoapOptionPrivate() = default;
 
+    void setValue(const QByteArray &opaqueValue);
+    void setValue(const QString &value);
+    void setValue(quint32 value);
+
     QCoapOption::OptionName name = QCoapOption::Invalid;
     QByteArray value;
 };

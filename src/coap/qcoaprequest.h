@@ -46,10 +46,9 @@ class Q_COAP_EXPORT QCoapRequest : public QCoapMessage
 {
 public:
     explicit QCoapRequest(const QUrl &url = QUrl(),
-                 MessageType type = MessageType::NonConfirmable,
-                 const QUrl &proxyUrl = QUrl());
-    explicit QCoapRequest(const char* url,
-                 MessageType type = MessageType::NonConfirmable);
+                          Type type = Type::NonConfirmable,
+                          const QUrl &proxyUrl = QUrl());
+    explicit QCoapRequest(const char* url, Type type = Type::NonConfirmable);
     QCoapRequest(const QCoapRequest &other);
     ~QCoapRequest();
 
@@ -62,16 +61,6 @@ public:
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
     void enableObserve();
-    void adjustUrl(bool secure);
-
-    bool isValid() const;
-    static bool isUrlValid(const QUrl &url);
-    static QUrl adjustedUrl(const QUrl &url, bool secure);
-
-protected:
-    QCoapRequest(const QCoapRequest &other, QtCoap::Method method);
-
-    void setMethod(QtCoap::Method method);
 
 private:
     // Q_DECLARE_PRIVATE equivalent for shared data pointers
@@ -79,7 +68,7 @@ private:
     const QCoapRequestPrivate* d_func() const
     { return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData()); }
 
-    friend class QCoapClient;
+    friend class QCoapRequestPrivate;
 };
 
 QT_END_NAMESPACE

@@ -31,10 +31,12 @@
 #include "qcoapclient_p.h"
 #include "qcoapprotocol_p.h"
 #include "qcoapreply.h"
-#include "qcoapdiscoveryreply.h"
+#include "qcoapresourcediscoveryreply.h"
 #include "qcoapnamespace.h"
 #include "qcoapsecurityconfiguration.h"
-#include "qcoapqudpconnection.h"
+#include "qcoapqudpconnection_p.h"
+#include "qcoaprequest_p.h"
+#include "qcoapreply_p.h"
 #include <QtCore/qiodevice.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qloggingcategory.h>
@@ -107,11 +109,11 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     When a reply arrives, the QCoapClient emits a finished() signal.
 
-    \note For a discovery request, the returned object is a QCoapDiscoveryReply.
+    \note For a discovery request, the returned object is a QCoapResourceDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
     resources.
 
-    \sa QCoapRequest, QCoapReply, QCoapDiscoveryReply
+    \sa QCoapRequest, QCoapReply, QCoapResourceDiscoveryReply
 */
 
 /*!
@@ -152,7 +154,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     Constructs a QCoapClient object for the given \a securityMode and
     sets \a parent as the parent object.
 
-    The default for \a securityMode is SecurityMode::NoSec, which
+    The default for \a securityMode is QtCoap::NoSecurity, which
     disables security.
 
     This connects using a QCoapQUdpConnection; to use a custom transport,
@@ -160,7 +162,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     constructors.
 */
 QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
-    QCoapClient(new QCoapProtocol, new QCoapQUdpConnection(securityMode), parent)
+    QCoapClient(new QCoapQUdpConnection(securityMode), parent)
 {
 }
 
@@ -169,23 +171,14 @@ QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
     sets \a parent as the parent object.
 */
 QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
-    QCoapClient(new QCoapProtocol, connection, parent)
-{
-}
-
-/*!
-    Base constructor, taking the \a protocol, \a connection, and \a parent
-    as arguments.
-*/
-QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent) :
-    QObject(*new QCoapClientPrivate(protocol, connection), parent)
+    QObject(*new QCoapClientPrivate(new QCoapProtocol, connection), parent)
 {
     Q_D(QCoapClient);
 
     qRegisterMetaType<QCoapReply *>();
     qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
-    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
+    qRegisterMetaType<QPointer<QCoapResourceDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection *>();
     qRegisterMetaType<QtCoap::Error>();
     qRegisterMetaType<QtCoap::ResponseCode>();
@@ -236,9 +229,8 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Get);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get,
+                                                                  d->connection->isSecure());
     return d->sendRequest(copyRequest);
 }
 
@@ -265,10 +257,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Put);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Put,
+                                                                  d->connection->isSecure());
     copyRequest.setPayload(data);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
     return d->sendRequest(copyRequest);
 }
 
@@ -311,10 +302,9 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Post);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Post,
+                                                                  d->connection->isSecure());
     copyRequest.setPayload(data);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
     return d->sendRequest(copyRequest);
 }
 
@@ -360,9 +350,8 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QtCoap::Method::Delete);
-    copyRequest.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Delete,
+                                                                  d->connection->isSecure());
     return d->sendRequest(copyRequest);
 }
 
@@ -382,8 +371,8 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
     \overload
 
     Discovers the resources available at the endpoints which have joined
-    the \a group at the given \a port. Returns a new QCoapDiscoveryReply
-    object which emits the \l QCoapDiscoveryReply::discovered() signal whenever
+    the \a group at the given \a port. Returns a new QCoapResourceDiscoveryReply
+    object which emits the \l QCoapResourceDiscoveryReply::discovered() signal whenever
     a response arrives. The \a group is one of the CoAP multicast group addresses
     and defaults to QtCoap::AllCoapNodesIPv4.
 
@@ -393,7 +382,7 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
-QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int port,
+QCoapResourceDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int port,
                                            const QString &discoveryPath)
 {
     Q_D(QCoapClient);
@@ -416,17 +405,17 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
     discoveryUrl.setPath(discoveryPath);
     discoveryUrl.setPort(port);
 
-    QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Method::Get);
-    request.adjustUrl(d->connection->isSecure());
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(discoveryUrl),
+                                                              QtCoap::Method::Get,
+                                                              d->connection->isSecure());
 
     return d->sendDiscovery(request);
 }
 
 /*!
     Discovers the resources available at the given \a url and returns
-    a new QCoapDiscoveryReply object which emits the
-    \l QCoapDiscoveryReply::discovered() signal whenever the response
+    a new QCoapResourceDiscoveryReply object which emits the
+    \l QCoapResourceDiscoveryReply::discovered() signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed
@@ -435,17 +424,16 @@ QCoapDiscoveryReply *QCoapClient::discover(QtCoap::MulticastGroup group, int por
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
-QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
+QCoapResourceDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
 {
     Q_D(QCoapClient);
 
     QUrl discoveryUrl(url);
     discoveryUrl.setPath(url.path() + discoveryPath);
 
-    QCoapRequest request(discoveryUrl);
-    request.setMethod(QtCoap::Method::Get);
-    request.adjustUrl(d->connection->isSecure());
-
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest(discoveryUrl),
+                                                              QtCoap::Method::Get,
+                                                              d->connection->isSecure());
     return d->sendDiscovery(request);
 }
 
@@ -458,7 +446,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    QCoapRequest copyRequest(request, QtCoap::Method::Get);
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get);
     copyRequest.enableObserve();
 
     return get(copyRequest);
@@ -503,7 +491,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 void QCoapClient::cancelObserve(const QUrl &url)
 {
     Q_D(QCoapClient);
-    const auto adjustedUrl = QCoapRequest::adjustedUrl(url, d->connection->isSecure());
+    const auto adjustedUrl = QCoapRequestPrivate::adjustedUrl(url, d->connection->isSecure());
     QMetaObject::invokeMethod(d->protocol, "cancelObserve", Q_ARG(QUrl, adjustedUrl));
 }
 
@@ -527,7 +515,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapReply *reply = new QCoapReply(request, q);
+    QCoapReply *reply = QCoapReplyPrivate::createCoapReply(request, q);
 
     if (!send(reply)) {
         delete reply;
@@ -541,14 +529,14 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     \internal
 
     Sends the CoAP \a request to its own URL and returns a
-    new QCoapDiscoveryReply object.
+    new QCoapResourceDiscoveryReply object.
 */
-QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
+QCoapResourceDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(request, q);
+    QCoapResourceDiscoveryReply *reply = new QCoapResourceDiscoveryReply(request, q);
 
     if (!send(reply)) {
         delete reply;
@@ -571,7 +559,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    if (!QCoapRequest::isUrlValid(reply->request().url())) {
+    if (!QCoapRequestPrivate::isUrlValid(reply->request().url())) {
         qCWarning(lcCoapClient, "Failed to send request for an invalid URL.");
         return false;
     }
@@ -579,7 +567,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     // According to https://tools.ietf.org/html/rfc7252#section-8.1,
     // multicast requests MUST be Non-confirmable.
     if (QHostAddress(reply->url().host()).isMulticast()
-            && reply->request().type() == QCoapMessage::MessageType::Confirmable) {
+            && reply->request().type() == QCoapMessage::Type::Confirmable) {
         qCWarning(lcCoapClient, "Failed to send request, "
                                 "multicast requests must be non-confirmable.");
         return false;
@@ -594,7 +582,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 
 /*!
     Sets the security configuration parameters from \a configuration.
-    Configuration will be ignored if the QtCoap::NoSec mode is used.
+    Configuration will be ignored if the QtCoap::NoSecurity mode is used.
 
     \note This method must be called before the handshake starts.
 */
@@ -610,8 +598,6 @@ void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &con
     Sets the maximum block size used by the protocol to \a blockSize
     when sending requests and receiving replies. The block size must be
     a power of two.
-
-    \sa QCoapProtocol::setBlockSize()
 */
 void QCoapClient::setBlockSize(quint16 blockSize)
 {
@@ -640,10 +626,10 @@ void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QV
     As defined in \l {RFC 7390 - Section 2.5}, \c MAX_SERVER_RESPONSE_DELAY is the expected
     maximum response delay over all servers that the client can send a multicast request to.
 */
-void QCoapClient::setMaxServerResponseDelay(uint responseDelay)
+void QCoapClient::setMaximumServerResponseDelay(uint responseDelay)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaxServerResponseDelay", Qt::QueuedConnection,
+    QMetaObject::invokeMethod(d->protocol, "setMaximumServerResponseDelay", Qt::QueuedConnection,
                               Q_ARG(uint, responseDelay));
 }
 
@@ -680,14 +666,14 @@ void QCoapClient::setAckRandomFactor(double ackRandomFactor)
 
 /*!
     Sets the \c MAX_RETRANSMIT value defined in \l {RFC 7252 - Section 4.2}
-    to \a maxRetransmit. This value should be less than or equal to 25.
+    to \a maximumRetransmitCount. This value should be less than or equal to 25.
     The default is 4.
 */
-void QCoapClient::setMaxRetransmit(uint maxRetransmit)
+void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaxRetransmit", Qt::QueuedConnection,
-                              Q_ARG(uint, maxRetransmit));
+    QMetaObject::invokeMethod(d->protocol, "setMaximumRetransmitCount", Qt::QueuedConnection,
+                              Q_ARG(uint, maximumRetransmitCount));
 }
 
 QT_END_NAMESPACE

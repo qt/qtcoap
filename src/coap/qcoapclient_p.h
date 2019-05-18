@@ -31,9 +31,7 @@
 #ifndef QCOAPCLIENT_P_H
 #define QCOAPCLIENT_P_H
 
-#include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
 #include <QtCore/qthread.h>
 #include <QtCore/qpointer.h>
 #include <private/qobject_p.h>
@@ -62,7 +60,7 @@ public:
     QThread *workerThread = nullptr;
 
     QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
+    QCoapResourceDiscoveryReply *sendDiscovery(const QCoapRequest &request);
     bool send(QCoapReply *reply);
 
     Q_DECLARE_PUBLIC(QCoapClient)

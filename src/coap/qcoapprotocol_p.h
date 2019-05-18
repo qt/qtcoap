@@ -31,10 +31,13 @@
 #ifndef QCOAPPROTOCOL_P_H
 #define QCOAPPROTOCOL_P_H
 
-#include <QtCoap/qcoapprotocol.h>
+#include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapreply.h>
+#include <QtCoap/qcoapresource.h>
 #include <QtCore/qvector.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpointer.h>
+#include <QtCore/qobject.h>
 #include <private/qobject_p.h>
 
 //
@@ -49,6 +52,55 @@
 //
 
 QT_BEGIN_NAMESPACE
+
+class QCoapInternalRequest;
+class QCoapInternalReply;
+class QCoapProtocolPrivate;
+class QCoapConnection;
+class Q_AUTOTEST_EXPORT QCoapProtocol : public QObject
+{
+    Q_OBJECT
+public:
+    explicit QCoapProtocol(QObject *parent = nullptr);
+    ~QCoapProtocol();
+
+    uint ackTimeout() const;
+    double ackRandomFactor() const;
+    uint maximumRetransmitCount() const;
+    quint16 blockSize() const;
+    uint maximumTransmitSpan() const;
+    uint maximumTransmitWait() const;
+    uint maximumLatency() const;
+
+    uint minimumTimeout() const;
+    uint maximumTimeout() const;
+
+    uint nonConfirmLifetime() const;
+    uint maximumServerResponseDelay() const;
+
+Q_SIGNALS:
+    void finished(QCoapReply *reply);
+    void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage &message,
+                                     const QHostAddress &sender);
+    void error(QCoapReply *reply, QtCoap::Error error);
+
+public:
+    Q_INVOKABLE void setAckTimeout(uint ackTimeout);
+    Q_INVOKABLE void setAckRandomFactor(double ackRandomFactor);
+    Q_INVOKABLE void setMaximumRetransmitCount(uint maximumRetransmitCount);
+    Q_INVOKABLE void setBlockSize(quint16 blockSize);
+    Q_INVOKABLE void setMaximumServerResponseDelay(uint responseDelay);
+
+private:
+    Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
+    Q_INVOKABLE void cancelObserve(QPointer<QCoapReply> reply) const;
+    Q_INVOKABLE void cancelObserve(const QUrl &url) const;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapProtocol)
+
+    friend class QCoapClient;
+};
 
 struct CoapExchangeData {
     QPointer<QCoapReply> userReply;
@@ -105,14 +157,16 @@ public:
     CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
-    uint maxRetransmit = 4;
+    uint maximumRetransmitCount = 4;
     uint ackTimeout = 2000;
-    uint maxServerResponseDelay = 250 * 1000;
+    uint maximumServerResponseDelay = 250 * 1000;
     double ackRandomFactor = 1.5;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };
 
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QHostAddress)
 
 #endif // QCOAPPROTOCOL_P_H

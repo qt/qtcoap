@@ -28,54 +28,42 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPQUDPCONNECTION_H
-#define QCOAPQUDPCONNECTION_H
+#ifndef QCOAPRESOURCEDISCOVERYREPLY_P_H
+#define QCOAPRESOURCEDISCOVERYREPLY_P_H
 
-#include <QtCoap/qcoapconnection.h>
-#include <QtCoap/qcoapnamespace.h>
-#include <QtCoap/qcoapglobal.h>
+#include <QtCore/qlist.h>
+#include <QtCoap/qcoapresourcediscoveryreply.h>
+#include <QtCoap/qcoapresource.h>
+#include <private/qcoapreply_p.h>
 
-#include <QtCore/qglobal.h>
-#include <QtCore/qstring.h>
-#include <QtNetwork/qudpsocket.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API. It exists purely as an
+// implementation detail. This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 QT_BEGIN_NAMESPACE
 
-class QCoapQUdpConnectionPrivate;
-class QSslPreSharedKeyAuthenticator;
-class Q_COAP_EXPORT QCoapQUdpConnection : public QCoapConnection
+class Q_AUTOTEST_EXPORT QCoapResourceDiscoveryReplyPrivate : public QCoapReplyPrivate
 {
-    Q_OBJECT
-
 public:
-    explicit QCoapQUdpConnection(QtCoap::SecurityMode security = QtCoap::SecurityMode::NoSec,
-                                 QObject *parent = nullptr);
+    QCoapResourceDiscoveryReplyPrivate(const QCoapRequest &request);
 
-    ~QCoapQUdpConnection() override = default;
+    void _q_setContent(const QHostAddress &sender, const QCoapMessage &, QtCoap::ResponseCode) override;
 
-    QUdpSocket *socket() const;
+    static QVector<QCoapResource> resourcesFromCoreLinkList(
+            const QHostAddress &sender, const QByteArray &data);
 
-public Q_SLOTS:
-    void setSocketOption(QAbstractSocket::SocketOption, const QVariant &value);
+    QVector<QCoapResource> resources;
 
-#if QT_CONFIG(dtls)
-private Q_SLOTS:
-    void pskRequired(QSslPreSharedKeyAuthenticator *authenticator);
-    void handshakeTimeout();
-#endif
-
-protected:
-    explicit QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject *parent = nullptr);
-
-    void bind(const QString &host, quint16 port) override;
-    void writeData(const QByteArray &data, const QString &host, quint16 port) override;
-    void close() override;
-
-    void createSocket();
-
-    Q_DECLARE_PRIVATE(QCoapQUdpConnection)
+    Q_DECLARE_PUBLIC(QCoapResourceDiscoveryReply)
 };
 
 QT_END_NAMESPACE
 
-#endif // QCOAPQUDPCONNECTION_H
+#endif // QCOAPRESOURCEDISCOVERYREPLY_P_H

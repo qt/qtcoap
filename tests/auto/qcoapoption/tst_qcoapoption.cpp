@@ -38,8 +38,7 @@ class tst_QCoapOption : public QObject
 
 private Q_SLOTS:
     void constructWithQByteArray();
-    void constructWithQStringView();
-    void constructWithCString();
+    void constructWithQString();
     void constructWithInteger();
     void constructWithUtf8Characters();
 };
@@ -49,23 +48,15 @@ void tst_QCoapOption::constructWithQByteArray()
     QByteArray ba = "some data";
     QCoapOption option(QCoapOption::LocationPath, ba);
 
-    QCOMPARE(option.value(), ba);
+    QCOMPARE(option.opaqueValue(), ba);
 }
 
-void tst_QCoapOption::constructWithQStringView()
+void tst_QCoapOption::constructWithQString()
 {
     QString str = "some data";
     QCoapOption option(QCoapOption::LocationPath, str);
 
-    QCOMPARE(option.value(), str.toUtf8());
-}
-
-void tst_QCoapOption::constructWithCString()
-{
-    const char *str = "some data";
-    QCoapOption option(QCoapOption::LocationPath, str);
-
-    QCOMPARE(option.value(), QByteArray(str));
+    QCOMPARE(option.opaqueValue(), str.toUtf8());
 }
 
 void tst_QCoapOption::constructWithInteger()
@@ -73,7 +64,7 @@ void tst_QCoapOption::constructWithInteger()
     quint32 value = 64000;
     QCoapOption option(QCoapOption::Size1, value);
 
-    QCOMPARE(option.valueToInt(), value);
+    QCOMPARE(option.uintValue(), value);
 }
 
 void tst_QCoapOption::constructWithUtf8Characters()
@@ -81,7 +72,7 @@ void tst_QCoapOption::constructWithUtf8Characters()
     QByteArray ba = "\xc3\xa9~\xce\xbb\xe2\x82\xb2";
     QCoapOption option(QCoapOption::LocationPath, ba);
 
-    QCOMPARE(option.value(), ba);
+    QCOMPARE(option.opaqueValue(), ba);
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapOption)

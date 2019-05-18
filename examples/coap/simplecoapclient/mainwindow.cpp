@@ -52,7 +52,7 @@
 #include "optiondialog.h"
 #include "ui_mainwindow.h"
 
-#include <QCoapDiscoveryReply>
+#include <QCoapResourceDiscoveryReply>
 #include <QCoapReply>
 #include <QDateTime>
 #include <QFileDialog>
@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    m_client = new QCoapClient(QtCoap::SecurityMode::NoSec, this);
+    m_client = new QCoapClient(QtCoap::SecurityMode::NoSecurity, this);
     connect(m_client, &QCoapClient::finished, this, &MainWindow::onFinished);
     connect(m_client, &QCoapClient::error, this, &MainWindow::onError);
 
@@ -122,7 +122,7 @@ void MainWindow::onError(QCoapReply *reply, QtCoap::Error error)
     addMessage(errorMessage(errorCode), true);
 }
 
-void MainWindow::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
+void MainWindow::onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources)
 {
     if (reply->errorReceived() != QtCoap::Error::Ok)
         return;
@@ -154,8 +154,8 @@ static QString tryToResolveHostName(const QString hostName)
 
 void MainWindow::on_runButton_clicked()
 {
-    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::MessageType::Confirmable
-                                                          : QCoapMessage::MessageType::NonConfirmable;
+    const auto msgType = ui->msgTypeCheckBox->isChecked() ? QCoapMessage::Type::Confirmable
+                                                          : QCoapMessage::Type::NonConfirmable;
     QUrl url;
     url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
@@ -192,9 +192,9 @@ void MainWindow::on_discoverButton_clicked()
     url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
 
-    QCoapDiscoveryReply *discoverReply = m_client->discover(url, ui->discoveryPathEdit->text());
+    QCoapResourceDiscoveryReply *discoverReply = m_client->discover(url, ui->discoveryPathEdit->text());
     if (discoverReply)
-        connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &MainWindow::onDiscovered);
+        connect(discoverReply, &QCoapResourceDiscoveryReply::discovered, this, &MainWindow::onDiscovered);
     else
         QMessageBox::critical(this, "Error", "Something went wrong, discovery request failed.");
 }

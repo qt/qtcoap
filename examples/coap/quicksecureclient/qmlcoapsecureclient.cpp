@@ -61,7 +61,7 @@ Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 QmlCoapSecureClient::QmlCoapSecureClient(QObject *parent)
     : QObject(parent)
     , m_coapClient(nullptr)
-    , m_securityMode(QtCoap::SecurityMode::NoSec)
+    , m_securityMode(QtCoap::SecurityMode::NoSecurity)
 {
 }
 
@@ -127,7 +127,7 @@ QmlCoapSecureClient::setSecurityConfiguration(const QString &preSharedKey, const
 {
     QCoapSecurityConfiguration configuration;
     configuration.setPreSharedKey(preSharedKey.toUtf8());
-    configuration.setIdentity(identity.toUtf8());
+    configuration.setPreSharedKeyIdentity(identity.toUtf8());
     m_configuration = configuration;
 }
 

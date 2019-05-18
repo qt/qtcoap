@@ -104,7 +104,7 @@ namespace QtCoap
     Q_ENUM_NS(Port)
 
     enum class SecurityMode : quint8 {
-        NoSec = 0,
+        NoSecurity = 0,
         PreSharedKey,
         RawPublicKey,
         Certificate
@@ -117,10 +117,6 @@ namespace QtCoap
         AllCoapNodesIPv6SiteLocal
     };
     Q_ENUM_NS(MulticastGroup)
-
-    Q_COAP_EXPORT bool isError(ResponseCode code);
-    Q_COAP_EXPORT Error responseCodeError(ResponseCode code);
-    Q_COAP_EXPORT QRandomGenerator &randomGenerator();
 
     Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 }

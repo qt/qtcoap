@@ -45,8 +45,6 @@ class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
-
-    explicit QCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
     ~QCoapReply() override;
 
     QtCoap::ResponseCode responseCode() const;
@@ -68,11 +66,6 @@ Q_SIGNALS:
     void aborted(const QCoapToken &token);
 
 protected:
-    friend class QCoapProtocol;
-    friend class QCoapProtocolPrivate;
-
-    explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
-
     qint64 readData(char *data, qint64 maxSize) override;
     qint64 writeData(const char *data, qint64 maxSize) override;
 
@@ -85,6 +78,10 @@ protected:
     Q_PRIVATE_SLOT(d_func(), void _q_setFinished(QtCoap::Error))
     Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::ResponseCode))
     Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::Error))
+
+private:
+    explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
+    friend class QCoapResourceDiscoveryReply;
 };
 
 QT_END_NAMESPACE

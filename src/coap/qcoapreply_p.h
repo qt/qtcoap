@@ -62,6 +62,8 @@ public:
     void _q_setError(QtCoap::ResponseCode code);
     void _q_setError(QtCoap::Error);
 
+    static QCoapReply *createCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
+
     QCoapRequest request;
     QCoapMessage message;
     QtCoap::ResponseCode responseCode = QtCoap::ResponseCode::InvalidCode;

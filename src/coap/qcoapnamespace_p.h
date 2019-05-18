@@ -1,7 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Witekio.
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCoap module.
@@ -28,36 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPDISCOVERYREPLY_H
-#define QCOAPDISCOVERYREPLY_H
+#ifndef QCOAPNAMESPACE_P_H
+#define QCOAPNAMESPACE_P_H
 
-#include <QtCoap/qcoapreply.h>
-#include <QtCoap/qcoapresource.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCore/qlist.h>
+#include "qcoapnamespace.h"
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API. It exists purely as an
+// implementation detail. This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 QT_BEGIN_NAMESPACE
 
-class QCoapDiscoveryReplyPrivate;
-class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
+namespace QtCoap
 {
-    Q_OBJECT
-
-public:
-    explicit QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent = nullptr);
-
-    QVector<QCoapResource> resources() const;
-
-    static QVector<QCoapResource> resourcesFromCoreLinkList(
-            const QHostAddress &sender, const QByteArray &data);
-
-Q_SIGNALS:
-    void discovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
-
-private:
-    Q_DECLARE_PRIVATE(QCoapDiscoveryReply)
-};
+    bool Q_AUTOTEST_EXPORT isError(QtCoap::ResponseCode code);
+    Error Q_AUTOTEST_EXPORT errorForResponseCode(QtCoap::ResponseCode code);
+    QRandomGenerator Q_AUTOTEST_EXPORT &randomGenerator();
+}
 
 QT_END_NAMESPACE
 
-#endif // QCOAPDISCOVERYREPLY_H
+#endif // QCOAPNAMESPACE_P_H

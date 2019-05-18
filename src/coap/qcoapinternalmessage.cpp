@@ -29,6 +29,7 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
+#include "qcoaprequest_p.h"
 #include <QtCoap/qcoaprequest.h>
 
 #include <QtCore/qloggingcategory.h>
@@ -123,7 +124,7 @@ void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &opti
     Q_D(QCoapInternalMessage);
 
     //! TODO Cover with tests
-    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.opaqueValue().data());
     const quint8 lastByte = optionData[option.length() - 1];
     quint32 blockNumber = 0;
 
@@ -261,7 +262,7 @@ bool QCoapInternalMessage::isValid() const
 */
 bool QCoapInternalMessage::isUrlValid(const QUrl &url)
 {
-    return QCoapRequest::isUrlValid(url);
+    return QCoapRequestPrivate::isUrlValid(url);
 }
 
 QT_END_NAMESPACE

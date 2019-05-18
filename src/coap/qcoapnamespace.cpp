@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "qcoapnamespace.h"
+#include "qcoapnamespace_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -238,7 +238,7 @@ QT_BEGIN_NAMESPACE
   Specifies the security mode used for securing a CoAP connection, as defined in
   \l{https://tools.ietf.org/html/rfc7252#section-9}{RFC 7252}.
 
-  \value NoSec              There is no protocol-level security (DTLS is disabled).
+  \value NoSecurity         There is no protocol-level security (DTLS is disabled).
 
   \value PreSharedKey       DTLS is enabled. PSK authentication will be used for security.
 
@@ -269,6 +269,8 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
+    \internal
+
     Returns \c true if \a code corresponds to an error, returns \c false otherwise.
 */
 bool QtCoap::isError(QtCoap::ResponseCode code)
@@ -277,10 +279,12 @@ bool QtCoap::isError(QtCoap::ResponseCode code)
 }
 
 /*!
+    \internal
+
     Returns the QtCoap::Error corresponding to the \a code passed to this
     method.
 */
-QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
+QtCoap::Error QtCoap::errorForResponseCode(QtCoap::ResponseCode code)
 {
     if (!isError(code))
         return QtCoap::Error::Ok;
@@ -295,6 +299,8 @@ QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 }
 
 /*!
+    \internal
+
     Returns the internal random generator used for generating token values and
     message IDs.
 */

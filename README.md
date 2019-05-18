@@ -55,7 +55,7 @@ The notified signal will provide the `QCoapReply` and most recent message.
 For machine to machine communication, CoAP Discovery requests is used to query the resources
 available to an endpoint, or to the complete network.
 ```c++
-QCoapDiscoveryReply* reply = client->discover("coap://coap.me/");
+QCoapResourceDiscoveryReply *reply = client->discover("coap://coap.me/");
 connect(reply, &QCoapReply::discovered, this, &MyClass::onDiscovered);
 ```
 
@@ -63,7 +63,7 @@ For multicast discovery use one of the groups from the `QtCoap::MulticastGroup` 
 specifying the discovery path:
 
 ```c++
-QCoapDiscoveryReply* reply = client->discover(QtCoap::AllCoapNodesIPv6LinkLocal);
+QCoapResourceDiscoveryReply *reply = client->discover(QtCoap::AllCoapNodesIPv6LinkLocal);
 ```
 
 If no group is specified, `QtCoap::AllCoapNodesIPv4` will be used by default.

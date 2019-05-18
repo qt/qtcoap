@@ -36,6 +36,8 @@ QT_BEGIN_NAMESPACE
 Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
 /*!
+    \internal
+
     \class QCoapConnection
     \inmodule QtCoap
 
@@ -47,6 +49,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \enum QCoapConnection::ConnectionState
 
     This enum specifies the state of the underlying transport.
@@ -60,6 +64,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::error(QAbstractSocket::SocketError error)
 
     This signal is emitted when a connection error occurs. The \a error
@@ -67,6 +73,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::readyRead(const QByteArray &data, const QHostAddress &sender)
 
     This signal is emitted when a network reply is available. The \a data
@@ -75,6 +83,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::bound()
 
     This signal is emitted when the underlying transport is ready for data transmission.
@@ -91,6 +101,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::bind(const QString &host, quint16 port)
 
     Prepares the underlying transport for data transmission to to the given \a host
@@ -102,6 +114,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::close()
 
     Closes the open sockets and connections to free the underlying transport.
@@ -111,6 +125,8 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 */
 
 /*!
+    \internal
+
     \fn void QCoapConnection::writeData(const QByteArray &data, const QString &host, quint16 port)
 
     Sends the given \a data frame to the host address \a host at port \a port.
@@ -151,6 +167,8 @@ QCoapConnection::QCoapConnection(QObjectPrivate &dd, QObject *parent)
 }
 
 /*!
+    \internal
+
     Releases any resources held by QCoapConnection.
 */
 QCoapConnection::~QCoapConnection()
@@ -182,15 +200,19 @@ QCoapConnectionPrivate::sendRequest(const QByteArray &request, const QString &ho
 }
 
 /*!
+    \internal
+
     Returns \c true if security is used, returns \c false otherwise.
 */
 bool QCoapConnection::isSecure() const
 {
     Q_D(const QCoapConnection);
-    return d->securityMode != QtCoap::SecurityMode::NoSec;
+    return d->securityMode != QtCoap::SecurityMode::NoSecurity;
 }
 
 /*!
+    \internal
+
     Returns the security mode.
 */
 QtCoap::SecurityMode QCoapConnection::securityMode() const
@@ -200,6 +222,8 @@ QtCoap::SecurityMode QCoapConnection::securityMode() const
 }
 
 /*!
+    \internal
+
     Returns the connection state.
 */
 QCoapConnection::ConnectionState QCoapConnection::state() const
@@ -225,8 +249,8 @@ void QCoapConnection::startToSendRequest()
 
 /*!
     Sets the security configuration parameters from the \a configuration.
-    The security configuration will be ignored if the QtCoap::NoSec mode is used
-    for connection.
+    The security configuration will be ignored if the QtCoap::NoSecurity mode is
+    used for connection.
 
     \note This method must be called before the handshake starts.
 */
@@ -243,6 +267,8 @@ void QCoapConnection::setSecurityConfiguration(const QCoapSecurityConfiguration 
 }
 
 /*!
+    \internal
+
     Returns the security configuration.
 */
 QCoapSecurityConfiguration QCoapConnection::securityConfiguration() const
@@ -252,6 +278,8 @@ QCoapSecurityConfiguration QCoapConnection::securityConfiguration() const
 }
 
 /*!
+    \internal
+
     Closes the open sockets and connections to free the transport and clears
     the connection state.
 */

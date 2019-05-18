@@ -88,59 +88,45 @@ Q_LOGGING_CATEGORY(lcCoapOption, "qt.coap.option")
 
 /*!
     Constructs a new CoAP option with the given \a name
-    and QByteArray \a value.
+    and QByteArray \a opaqueValue.
     If no parameters are passed, constructs an Invalid object.
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
+QCoapOption::QCoapOption(OptionName name, const QByteArray &opaqueValue) :
     d_ptr(new QCoapOptionPrivate)
 {
     Q_D(QCoapOption);
     d->name = name;
-    setValue(value);
+    d->setValue(opaqueValue);
 }
 
 /*!
     Constructs a new CoAP option with the given \a name
-    and the QStringView \a value.
+    and the QString \a stringValue.
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name, QStringView value) :
+QCoapOption::QCoapOption(OptionName name, const QString &stringValue) :
     d_ptr(new QCoapOptionPrivate)
 {
     Q_D(QCoapOption);
     d->name = name;
-    setValue(value);
+    d->setValue(stringValue);
 }
 
 /*!
     Constructs a new CoAP option with the given \a name
-    and the string \a value.
+    and the unsigned integer \a intValue.
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name, const char *value) :
+QCoapOption::QCoapOption(OptionName name, quint32 intValue) :
     d_ptr(new QCoapOptionPrivate)
 {
     Q_D(QCoapOption);
     d->name = name;
-    setValue(value);
-}
-
-/*!
-    Constructs a new CoAP option with the given \a name
-    and the unsigned integer \a value.
-
-    \sa isValid()
- */
-QCoapOption::QCoapOption(OptionName name, quint32 value) :
-    d_ptr(new QCoapOptionPrivate)
-{
-    Q_D(QCoapOption);
-    d->name = name;
-    setValue(value);
+    d->setValue(intValue);
 }
 
 /*!
@@ -186,7 +172,7 @@ QCoapOption &QCoapOption::operator=(const QCoapOption &other)
 /*!
     Move-assignment operator.
  */
-QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
+QCoapOption &QCoapOption::operator=(QCoapOption &&other) noexcept
 {
     swap(other);
     return *this;
@@ -195,7 +181,7 @@ QCoapOption &QCoapOption::operator=(QCoapOption &&other) Q_DECL_NOTHROW
 /*!
     Swaps this option with \a other. This operation is very fast and never fails.
  */
-void QCoapOption::swap(QCoapOption &other) Q_DECL_NOTHROW
+void QCoapOption::swap(QCoapOption &other) noexcept
 {
     qSwap(d_ptr, other.d_ptr);
 }
@@ -203,7 +189,7 @@ void QCoapOption::swap(QCoapOption &other) Q_DECL_NOTHROW
 /*!
     Returns the value of the option.
  */
-QByteArray QCoapOption::value() const
+QByteArray QCoapOption::opaqueValue() const
 {
     Q_D(const QCoapOption);
     return d->value;
@@ -212,7 +198,7 @@ QByteArray QCoapOption::value() const
 /*!
     Returns the integer value of the option.
  */
-quint32 QCoapOption::valueToInt() const
+quint32 QCoapOption::uintValue() const
 {
     Q_D(const QCoapOption);
 
@@ -221,6 +207,15 @@ quint32 QCoapOption::valueToInt() const
         intValue |= static_cast<quint8>(d->value.at(i)) << (8 * i);
 
     return intValue;
+}
+
+/*!
+    Returns the QString value of the option.
+*/
+QString QCoapOption::stringValue() const
+{
+    Q_D(const QCoapOption);
+    return QString::fromUtf8(d->value);
 }
 
 /*!
@@ -269,95 +264,88 @@ bool QCoapOption::operator!=(const QCoapOption &other) const
 }
 
 /*!
+    \internal
+
     Sets the \a value for the option.
  */
-void QCoapOption::setValue(const QByteArray &value)
+void QCoapOptionPrivate::setValue(const QByteArray &opaqueValue)
 {
-    Q_D(QCoapOption);
     bool oversized = false;
 
     // Check for value maximum size, according to section 5.10 of RFC 7252
     // https://tools.ietf.org/html/rfc7252#section-5.10
-    switch (d_ptr->name) {
-    case IfNoneMatch:
-        if (value.size() > 0)
+    switch (name) {
+    case QCoapOption::IfNoneMatch:
+        if (opaqueValue.size() > 0)
             oversized = true;
         break;
 
-    case UriPort:
-    case ContentFormat:
-    case Accept:
-        if (value.size() > 2)
+    case QCoapOption::UriPort:
+    case QCoapOption::ContentFormat:
+    case QCoapOption::Accept:
+        if (opaqueValue.size() > 2)
             oversized = true;
         break;
 
-    case MaxAge:
-    case Size1:
-        if (value.size() > 4)
+    case QCoapOption::MaxAge:
+    case QCoapOption::Size1:
+        if (opaqueValue.size() > 4)
             oversized = true;
         break;
 
-    case IfMatch:
-    case Etag:
-        if (value.size() > 8)
+    case QCoapOption::IfMatch:
+    case QCoapOption::Etag:
+        if (opaqueValue.size() > 8)
             oversized = true;
         break;
 
-    case UriHost:
-    case LocationPath:
-    case UriPath:
-    case UriQuery:
-    case LocationQuery:
-    case ProxyScheme:
-        if (value.size() > 255)
+    case QCoapOption::UriHost:
+    case QCoapOption::LocationPath:
+    case QCoapOption::UriPath:
+    case QCoapOption::UriQuery:
+    case QCoapOption::LocationQuery:
+    case QCoapOption::ProxyScheme:
+        if (opaqueValue.size() > 255)
             oversized = true;
         break;
 
-    case ProxyUri:
-        if (value.size() > 1034)
+    case QCoapOption::ProxyUri:
+        if (opaqueValue.size() > 1034)
             oversized = true;
         break;
 
-    case Observe:
-    case Block2:
-    case Block1:
-    case Size2:
+    case QCoapOption::Observe:
+    case QCoapOption::Block2:
+    case QCoapOption::Block1:
+    case QCoapOption::Size2:
     default:
         break;
     }
 
     if (oversized)
-        qCWarning(lcCoapOption) << "Value" << value << "is probably too big for option" << d->name;
+        qCWarning(lcCoapOption) << "Value" << opaqueValue << "is probably too big for option" << name;
 
-    d->value = value;
+    value = opaqueValue;
 }
 
 /*!
+    \internal
     \overload
 
     Sets the \a value for the option.
  */
-void QCoapOption::setValue(QStringView value)
+void QCoapOptionPrivate::setValue(const QString &value)
 {
     setValue(value.toUtf8());
 }
 
 /*!
+    \internal
     \overload
 
     Sets the \a value for the option.
  */
-void QCoapOption::setValue(const char *value)
-{
-    setValue(QByteArray(value, static_cast<int>(strlen(value))));
-}
-
-/*!
-    \overload
-
-    Sets the \a value for the option.
- */
-void QCoapOption::setValue(quint32 value)
+void QCoapOptionPrivate::setValue(quint32 value)
 {
     QByteArray data;
     for (; value; value >>= 8)
