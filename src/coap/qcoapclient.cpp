@@ -460,7 +460,10 @@ QCoapResourceDiscoveryReply *QCoapClient::discover(const QUrl &url, const QStrin
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get);
+    Q_D(QCoapClient);
+
+    QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Get,
+                                                                  d->connection->isSecure());
     copyRequest.enableObserve();
 
     return get(copyRequest);
