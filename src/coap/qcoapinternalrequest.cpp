@@ -315,7 +315,6 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
 {
     Q_D(const QCoapInternalRequest);
 
-    //! TODO Cover this in tests
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
     Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 

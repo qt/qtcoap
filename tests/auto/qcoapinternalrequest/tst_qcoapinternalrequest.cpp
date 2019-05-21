@@ -50,6 +50,10 @@ private Q_SLOTS:
     void invalidUrls();
     void isMulticast_data();
     void isMulticast();
+    void parseBlockOption_data();
+    void parseBlockOption();
+    void createBlockOption_data();
+    void createBlockOption();
 };
 
 void tst_QCoapInternalRequest::requestToFrame_data()
@@ -311,6 +315,140 @@ void tst_QCoapInternalRequest::isMulticast()
     const QCoapRequest request(url);
     const QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.isMulticast(), result);
+}
+
+void tst_QCoapInternalRequest::parseBlockOption_data()
+{
+    QTest::addColumn<QByteArray>("value");
+    QTest::addColumn<uint>("blockNumber");
+    QTest::addColumn<bool>("hasNext");
+    QTest::addColumn<uint>("blockSize");
+
+    QTest::newRow("block_option_1byte_more_blocks") << QByteArray::fromHex("3B")
+                                                    << 3u
+                                                    << true
+                                                    << 128u;
+    QTest::newRow("block_option_1byte_no_more_blocks") << QByteArray::fromHex("93")
+                                                       << 9u
+                                                       << false
+                                                       << 128u;
+    QTest::newRow("block_option_2bytes_more_blocks") << QByteArray::fromHex("12A")
+                                                     << 18u
+                                                     << true
+                                                     << 64u;
+    QTest::newRow("block_option_2bytes_no_more_blocks") << QByteArray::fromHex("132")
+                                                        << 19u
+                                                        << false
+                                                        << 64u;
+    QTest::newRow("block_option_3bytes_more_blocks") << QByteArray::fromHex("3AB2A")
+                                                     << 15026u
+                                                     << true
+                                                     << 64u;
+    QTest::newRow("block_option_3bytes_no_more_blocks") << QByteArray::fromHex("3AB22")
+                                                        << 15026u
+                                                        << false
+                                                        << 64u;
+}
+
+void tst_QCoapInternalRequest::parseBlockOption()
+{
+    QFETCH(QByteArray, value);
+    QFETCH(uint, blockNumber);
+    QFETCH(bool, hasNext);
+    QFETCH(uint, blockSize);
+
+    QCoapInternalRequest request;
+    request.addOption(QCoapOption::Block1, value);
+
+    QCOMPARE(request.currentBlockNumber(), blockNumber);
+    QCOMPARE(request.hasMoreBlocksToReceive(), hasNext);
+    QCOMPARE(request.blockSize(), blockSize);
+}
+
+void tst_QCoapInternalRequest::createBlockOption_data()
+{
+    QTest::addColumn<QByteArray>("payload");
+    QTest::addColumn<uint>("blockNumber");
+    QTest::addColumn<uint>("blockSize");
+    QTest::addColumn<QCoapOption>("expectedOption");
+
+    QByteArray data;
+    for (uint i = 0; i < 1024; ++i)
+        data.append(0xF);
+
+    QByteArray largeData;
+    for (uint i = 0; i < 32; ++i)
+        largeData.append(data);
+
+    QTest::newRow("block1_option_1byte_more_blocks")
+            << data
+            << 3u
+            << 64u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("3A"));
+    QTest::newRow("block1_option_1byte_no_more_blocks")
+            << data
+            << 8u
+            << 128u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("83"));
+    QTest::newRow("block2_option_1byte")
+            << data
+            << 3u
+            << 64u
+            << QCoapOption(QCoapOption::Block2, QByteArray::fromHex("32"));
+    QTest::newRow("block1_option_2bytes_more_blocks")
+            << data
+            << 29u
+            << 32u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("1D9"));
+    QTest::newRow("block1_option_2bytes_no_more_blocks")
+            << data
+            << 32u
+            << 32u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("201"));
+    QTest::newRow("block2_option_2bytes")
+            << data
+            << 29u
+            << 32u
+            << QCoapOption(QCoapOption::Block2, QByteArray::fromHex("1D1"));
+    QTest::newRow("block1_option_3bytes_more_blocks")
+            << largeData
+            << 4096u
+            << 4u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("10008"));
+    QTest::newRow("block1_option_3bytes_no_more_blocks")
+            << largeData
+            << 8192u
+            << 4u
+            << QCoapOption(QCoapOption::Block1, QByteArray::fromHex("20000"));
+    QTest::newRow("block2_option_3bytes")
+            << largeData
+            << 4096u
+            << 4u
+            << QCoapOption(QCoapOption::Block2, QByteArray::fromHex("10000"));
+}
+
+void tst_QCoapInternalRequest::createBlockOption()
+{
+    QFETCH(QByteArray, payload);
+    QFETCH(uint, blockNumber);
+    QFETCH(uint, blockSize);
+    QFETCH(QCoapOption, expectedOption);
+
+    QCoapRequest request;
+    request.setPayload(payload);
+    QCoapInternalRequest internalRequest(request);
+    if (expectedOption.name() == QCoapOption::Block1)
+        internalRequest.setToSendBlock(blockNumber, blockSize);
+    else if (expectedOption.name() == QCoapOption::Block2)
+        internalRequest.setToRequestBlock(blockNumber, blockSize);
+    else
+        QFAIL("Incorrect option, the test expects Block1 or Block2 options.");
+
+    QCOMPARE(internalRequest.message()->options().size(), 1);
+
+    const auto option = internalRequest.message()->options().back();
+    QCOMPARE(option.name(), expectedOption.name());
+    QCOMPARE(option.opaqueValue(), expectedOption.opaqueValue());
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapInternalRequest)
