@@ -88,6 +88,7 @@ public:
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
     void setMaximumRetransmitCount(uint maximumRetransmitCount);
+    void setMinumumTokenSize(int tokenSize);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);

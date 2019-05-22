@@ -690,9 +690,7 @@ QCoapToken QCoapProtocolPrivate::generateUniqueToken() const
     // TODO: Store used token for the period specified by CoAP spec
     QCoapToken token;
     while (isTokenRegistered(token)) {
-        // TODO: Allow setting minimum token size as a security setting
-        quint8 length = static_cast<quint8>(QtCoap::randomGenerator().bounded(1, 8));
-
+        quint8 length = static_cast<quint8>(QtCoap::randomGenerator().bounded(minimumTokenSize, 9));
         token.resize(length);
         quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
         for (int i = 0; i < token.size(); ++i)
@@ -1149,6 +1147,26 @@ void QCoapProtocol::setMaximumServerResponseDelay(uint responseDelay)
 {
     Q_D(QCoapProtocol);
     d->maximumServerResponseDelay = responseDelay;
+}
+
+/*!
+    \internal
+
+    Sets the minimum token size to \a tokenSize in bytes. For security reasons it is
+    recommended to use tokens with a length of at least 4 bytes. The default value for
+    this parameter is 4 bytes.
+*/
+void QCoapProtocol::setMinumumTokenSize(int tokenSize)
+{
+    Q_D(QCoapProtocol);
+
+    if (tokenSize > 0 && tokenSize <= 8) {
+        d->minimumTokenSize = tokenSize;
+    } else {
+        qCWarning(lcCoapProtocol,
+                  "Failed to set the minimum token size,"
+                  "it should not be more than 8 bytes and cannot be 0.");
+    }
 }
 
 QT_END_NAMESPACE

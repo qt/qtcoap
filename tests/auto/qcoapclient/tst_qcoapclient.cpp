@@ -77,6 +77,8 @@ private Q_SLOTS:
     void confirmableMulticast();
     void multicast();
     void multicast_blockwise();
+    void setMinimumTokenSize_data();
+    void setMinimumTokenSize();
 };
 
 #ifdef QT_BUILD_INTERNAL
@@ -866,6 +868,49 @@ void tst_QCoapClient::multicast_blockwise()
     QCOMPARE(message1.payload(), "Reply3Reply4");
     QHostAddress sender1 = qvariant_cast<QHostAddress>(spyMulticastResponse.at(1).at(2));
     QCOMPARE(sender1, host1);
+#else
+    QSKIP("Not an internal build, skipping this test");
+#endif
+}
+
+void tst_QCoapClient::setMinimumTokenSize_data()
+{
+    QTest::addColumn<int>("minTokenSize");
+    QTest::addColumn<int>("expectedMinSize");
+
+    QTest::newRow("in_range") << 6 << 6;
+    QTest::newRow("out_of_range_small") << 0 << 4;
+    QTest::newRow("out_of_range_big") << 9 << 4;
+}
+
+void noMessageOutput(QtMsgType, const QMessageLogContext &, const QString &) {}
+
+void tst_QCoapClient::setMinimumTokenSize()
+{
+#ifdef QT_BUILD_INTERNAL
+    // Don't show warning messages for the out of range values
+    qInstallMessageHandler(noMessageOutput);
+
+    QFETCH(int, minTokenSize);
+    QFETCH(int, expectedMinSize);
+
+    const int maxSize = 8;
+
+    for (int i = 0; i < 20; ++i) {
+        QCoapClientForSocketErrorTests client;
+        client.setMinumumTokenSize(minTokenSize);
+
+        // With QCoapClientForSocketErrorTests the request will fail, but it doesn't matter,
+        // we are interested only in the generated token.
+        QSignalSpy spyClientError(&client, &QCoapClient::error);
+
+        QScopedPointer<QCoapReply> reply;
+        reply.reset(client.get(QCoapRequest("127.0.0.1")));
+
+        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 10);
+        QVERIFY(reply->request().tokenLength() >= expectedMinSize);
+        QVERIFY(reply->request().tokenLength() <= maxSize);
+    }
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif

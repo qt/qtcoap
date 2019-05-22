@@ -690,4 +690,16 @@ void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
                               Q_ARG(uint, maximumRetransmitCount));
 }
 
+/*!
+    Sets the minimum token size to \a tokenSize in bytes. For security reasons it is
+    recommended to use tokens with a length of at least 4 bytes. The default value for
+    this parameter is 4 bytes.
+*/
+void QCoapClient::setMinumumTokenSize(int tokenSize)
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "setMinumumTokenSize", Qt::QueuedConnection,
+                              Q_ARG(int, tokenSize));
+}
+
 QT_END_NAMESPACE
