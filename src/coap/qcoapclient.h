@@ -55,7 +55,6 @@ class Q_COAP_EXPORT QCoapClient : public QObject
 public:
     explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSecurity,
                          QObject *parent = nullptr);
-    explicit QCoapClient(QCoapConnection *connection, QObject *parent = nullptr);
     ~QCoapClient();
 
     QCoapReply *get(const QCoapRequest &request);

@@ -108,9 +108,11 @@ private:
 class QCoapClientForSocketErrorTests : public QCoapClient
 {
 public:
-    QCoapClientForSocketErrorTests() :
-        QCoapClient(new QCoapQUdpConnectionSocketTests)
-    {}
+    QCoapClientForSocketErrorTests()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
+        privateClient->setConnection(new QCoapQUdpConnectionSocketTests());
+    }
 
     QCoapQUdpConnection *connection()
     {
@@ -162,9 +164,11 @@ public:
 class QCoapClientForMulticastTests : public QCoapClient
 {
 public:
-    QCoapClientForMulticastTests() :
-        QCoapClient(new QCoapConnectionMulticastTests)
-    {}
+    QCoapClientForMulticastTests()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
+        privateClient->setConnection(new QCoapConnectionMulticastTests());
+    }
 
     QCoapConnection *connection()
     {

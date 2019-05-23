@@ -100,6 +100,7 @@ private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
 
     friend class QCoapClient;
+    friend class QCoapClientPrivate;
 };
 
 struct CoapExchangeData {

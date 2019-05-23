@@ -63,6 +63,8 @@ public:
     QCoapResourceDiscoveryReply *sendDiscovery(const QCoapRequest &request);
     bool send(QCoapReply *reply);
 
+    void setConnection(QCoapConnection *customConnection);
+
     Q_DECLARE_PUBLIC(QCoapClient)
 };
 
