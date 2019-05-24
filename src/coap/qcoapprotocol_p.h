@@ -90,7 +90,7 @@ public:
     Q_INVOKABLE void setMaximumRetransmitCount(uint maximumRetransmitCount);
     Q_INVOKABLE void setBlockSize(quint16 blockSize);
     Q_INVOKABLE void setMaximumServerResponseDelay(uint responseDelay);
-    Q_INVOKABLE void setMinumumTokenSize(int tokenSize);
+    Q_INVOKABLE void setMinimumTokenSize(int tokenSize);
 
 private:
     Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);

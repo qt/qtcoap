@@ -898,7 +898,7 @@ void tst_QCoapClient::setMinimumTokenSize()
 
     for (int i = 0; i < 20; ++i) {
         QCoapClientForSocketErrorTests client;
-        client.setMinumumTokenSize(minTokenSize);
+        client.setMinimumTokenSize(minTokenSize);
 
         // With QCoapClientForSocketErrorTests the request will fail, but it doesn't matter,
         // we are interested only in the generated token.

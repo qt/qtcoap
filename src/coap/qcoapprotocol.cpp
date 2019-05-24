@@ -1156,7 +1156,7 @@ void QCoapProtocol::setMaximumServerResponseDelay(uint responseDelay)
     recommended to use tokens with a length of at least 4 bytes. The default value for
     this parameter is 4 bytes.
 */
-void QCoapProtocol::setMinumumTokenSize(int tokenSize)
+void QCoapProtocol::setMinimumTokenSize(int tokenSize)
 {
     Q_D(QCoapProtocol);
 
