@@ -162,16 +162,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
     constructors.
 */
 QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
-    QCoapClient(new QCoapQUdpConnection(securityMode), parent)
-{
-}
-
-/*!
-    Constructs a QCoapClient object with the given \a connection and
-    sets \a parent as the parent object.
-*/
-QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
-    QObject(*new QCoapClientPrivate(new QCoapProtocol, connection), parent)
+    QObject(*new QCoapClientPrivate(new QCoapProtocol, new QCoapQUdpConnection(securityMode)),
+            parent)
 {
     Q_D(QCoapClient);
 
@@ -207,6 +199,28 @@ QCoapClient::QCoapClient(QCoapConnection *connection, QObject *parent) :
             this, &QCoapClient::responseToMulticastReceived);
     connect(d->protocol, &QCoapProtocol::error,
             this, &QCoapClient::error);
+}
+
+/*!
+    \internal
+
+    Sets the client's connection to \a customConnection.
+*/
+void QCoapClientPrivate::setConnection(QCoapConnection *customConnection)
+{
+    Q_Q(QCoapClient);
+
+    delete connection;
+    connection = customConnection;
+
+    q->connect(connection, &QCoapConnection::readyRead, protocol,
+            [this](const QByteArray &data, const QHostAddress &sender) {
+                    protocol->d_func()->onFrameReceived(data, sender);
+            });
+    q->connect(connection, &QCoapConnection::error, protocol,
+            [this](QAbstractSocket::SocketError socketError) {
+                    protocol->d_func()->onConnectionError(socketError);
+            });
 }
 
 /*!
@@ -674,6 +688,18 @@ void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "setMaximumRetransmitCount", Qt::QueuedConnection,
                               Q_ARG(uint, maximumRetransmitCount));
+}
+
+/*!
+    Sets the minimum token size to \a tokenSize in bytes. For security reasons it is
+    recommended to use tokens with a length of at least 4 bytes. The default value for
+    this parameter is 4 bytes.
+*/
+void QCoapClient::setMinimumTokenSize(int tokenSize)
+{
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "setMinimumTokenSize", Qt::QueuedConnection,
+                              Q_ARG(int, tokenSize));
 }
 
 QT_END_NAMESPACE
