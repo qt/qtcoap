@@ -90,6 +90,7 @@ public:
     Q_INVOKABLE void setMaximumRetransmitCount(uint maximumRetransmitCount);
     Q_INVOKABLE void setBlockSize(quint16 blockSize);
     Q_INVOKABLE void setMaximumServerResponseDelay(uint responseDelay);
+    Q_INVOKABLE void setMinimumTokenSize(int tokenSize);
 
 private:
     Q_INVOKABLE void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
@@ -100,6 +101,7 @@ private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
 
     friend class QCoapClient;
+    friend class QCoapClientPrivate;
 };
 
 struct CoapExchangeData {
@@ -160,6 +162,7 @@ public:
     uint maximumRetransmitCount = 4;
     uint ackTimeout = 2000;
     uint maximumServerResponseDelay = 250 * 1000;
+    int minimumTokenSize = 4;
     double ackRandomFactor = 1.5;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
