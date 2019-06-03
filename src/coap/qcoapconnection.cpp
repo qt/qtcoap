@@ -243,8 +243,10 @@ void QCoapConnection::startToSendRequest()
     Q_D(QCoapConnection);
 
     Q_ASSERT(!d->framesToSend.isEmpty());
-    const CoapFrame frame = d->framesToSend.dequeue();
-    writeData(frame.currentPdu, frame.host, frame.port);
+    while (!d->framesToSend.isEmpty()) {
+        const CoapFrame frame = d->framesToSend.dequeue();
+        writeData(frame.currentPdu, frame.host, frame.port);
+    }
 }
 
 /*!

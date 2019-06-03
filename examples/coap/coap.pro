@@ -1,7 +1,11 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    quicksecureclient \
-    quickmulticastclient \
     simplecoapclient \
     consolecoapclient
+
+qtHaveModule(quick) {
+    SUBDIRS += \
+        quicksecureclient \
+        quickmulticastclient
+}
