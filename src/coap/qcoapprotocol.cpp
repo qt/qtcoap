@@ -383,8 +383,8 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
     }
 
     // Send next block, ask for next block, or process the final reply
-    if (reply->hasMoreBlocksToSend()) {
-        request->setToSendBlock(reply->nextBlockToSend(), blockSize);
+    if (reply->hasMoreBlocksToSend() && reply->nextBlockToSend() >= 0) {
+        request->setToSendBlock(static_cast<uint>(reply->nextBlockToSend()), blockSize);
         request->setMessageId(generateUniqueMessageId());
         sendRequest(request);
     } else if (reply->hasMoreBlocksToReceive()) {
