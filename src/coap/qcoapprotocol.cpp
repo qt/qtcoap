@@ -954,7 +954,9 @@ quint16 QCoapProtocol::blockSize() const
 */
 uint QCoapProtocol::maximumTransmitSpan() const
 {
-    return static_cast<uint>(ackTimeout() * (1u << (maximumRetransmitCount() - 1)) * ackRandomFactor());
+    return static_cast<uint>(ackTimeout()
+                             * ((1u << maximumRetransmitCount()) - 1)
+                             * ackRandomFactor());
 }
 
 /*!
