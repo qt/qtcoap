@@ -188,7 +188,8 @@ int QCoapInternalReply::nextBlockToSend() const
     if (!option.isValid())
         return -1;
 
-    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.opaqueValue().data());
+    const auto value = option.opaqueValue();
+    const quint8 *optionData = reinterpret_cast<const quint8 *>(value.data());
     const quint8 lastByte = optionData[option.length() - 1];
 
     // M field
