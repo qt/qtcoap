@@ -224,7 +224,7 @@ void tst_QCoapClient::incorrectUrls()
     else if (qstrcmp(QTest::currentDataTag(), "discover") == 0)
         reply.reset(client.discover(url));
     else {
-        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
@@ -275,7 +275,7 @@ void tst_QCoapClient::methods()
     else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0)
         reply.reset(client.deleteResource(request));
     else {
-        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
@@ -303,7 +303,7 @@ void tst_QCoapClient::methods()
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->responseCode(), QtCoap::ResponseCode::Deleted);
         } else {
-            QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+            QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
             QFAIL(qPrintable(error));
         }
     }
