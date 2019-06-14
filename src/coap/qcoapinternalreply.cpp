@@ -58,15 +58,6 @@ QCoapInternalReply::QCoapInternalReply(QObject *parent) :
 
 /*!
     \internal
-    Constructs a copy of \a other with \a parent as the parent obect.
-*/
-QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject *parent) :
-    QCoapInternalMessage(*new QCoapInternalReplyPrivate(*other.d_func()), parent)
-{
-}
-
-/*!
-    \internal
     Creates a QCoapInternalReply from the CoAP \a reply frame.
 
     For more details, refer to section

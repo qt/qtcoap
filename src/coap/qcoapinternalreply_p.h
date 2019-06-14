@@ -55,7 +55,6 @@ class Q_AUTOTEST_EXPORT QCoapInternalReply : public QCoapInternalMessage
     Q_OBJECT
 public:
     explicit QCoapInternalReply(QObject *parent = nullptr);
-    QCoapInternalReply(const QCoapInternalReply &other, QObject *parent = nullptr);
 
     static QCoapInternalReply *createFromFrame(const QByteArray &frame, QObject *parent = nullptr);
     void appendData(const QByteArray &data);
@@ -83,7 +82,5 @@ public:
 };
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QCoapInternalReply)
 
 #endif // QCOAPINTERNALREPLY_H
