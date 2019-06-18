@@ -224,7 +224,7 @@ void tst_QCoapClient::incorrectUrls()
     else if (qstrcmp(QTest::currentDataTag(), "discover") == 0)
         reply.reset(client.discover(url));
     else {
-        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
@@ -275,7 +275,7 @@ void tst_QCoapClient::methods()
     else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0)
         reply.reset(client.deleteResource(request));
     else {
-        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
@@ -303,7 +303,7 @@ void tst_QCoapClient::methods()
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->responseCode(), QtCoap::ResponseCode::Deleted);
         } else {
-            QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
+            QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
             QFAIL(qPrintable(error));
         }
     }
@@ -362,7 +362,7 @@ void tst_QCoapClient::setBlockSize()
     QFETCH(int, blockSizeExpected);
 
     QCoapClientForTests client;
-    client.setBlockSize(blockSizeSet);
+    client.setBlockSize(static_cast<quint16>(blockSizeSet));
 
     QEventLoop eventLoop;
     QTimer::singleShot(1000, &eventLoop, &QEventLoop::quit);
@@ -483,19 +483,19 @@ void tst_QCoapClient::socketError()
 }
 void tst_QCoapClient::timeout_data()
 {
-    QTest::addColumn<int>("timeout");
-    QTest::addColumn<int>("maximumRetransmitCount");
+    QTest::addColumn<uint>("timeout");
+    QTest::addColumn<uint>("maximumRetransmitCount");
 
-    QTest::newRow("2000/0") << 2000 << 0;
-    QTest::newRow("2000/2") << 2000 << 2;
-    QTest::newRow("4000/0") << 4000 << 0;
+    QTest::newRow("2000/0") << 2000u << 0u;
+    QTest::newRow("2000/2") << 2000u << 2u;
+    QTest::newRow("4000/0") << 4000u << 0u;
 }
 
 void tst_QCoapClient::timeout()
 {
 #ifdef QT_BUILD_INTERNAL
-    QFETCH(int, timeout);
-    QFETCH(int, maximumRetransmitCount);
+    QFETCH(uint, timeout);
+    QFETCH(uint, maximumRetransmitCount);
 
     QCoapClientForTests client;
     // Trigger a network timeout
@@ -514,7 +514,7 @@ void tst_QCoapClient::timeout()
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     // Check timeout upper limit
-    int transmissions = maximumRetransmitCount + 1;
+    uint transmissions = maximumRetransmitCount + 1;
 
     // 10% Precision expected at least, plus timer precision
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, static_cast<int>(
