@@ -54,7 +54,6 @@ class Q_AUTOTEST_EXPORT QCoapInternalMessage : public QObject
 public:
     explicit QCoapInternalMessage(QObject *parent = nullptr);
     explicit QCoapInternalMessage(const QCoapMessage &message, QObject *parent = nullptr);
-    QCoapInternalMessage(const QCoapInternalMessage &other, QObject *parent = nullptr);
     virtual ~QCoapInternalMessage() {}
 
     void addOption(QCoapOption::OptionName name, const QByteArray &value);
@@ -84,7 +83,6 @@ class Q_AUTOTEST_EXPORT QCoapInternalMessagePrivate : public QObjectPrivate
 {
 public:
     QCoapInternalMessagePrivate() = default;
-    QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) = default;
     ~QCoapInternalMessagePrivate();
 
     QCoapMessage message;

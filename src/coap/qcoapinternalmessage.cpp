@@ -90,16 +90,6 @@ QCoapInternalMessage::QCoapInternalMessage(const QCoapMessage &message, QObject 
 
 /*!
     \internal
-
-    Constructs a copy of \a other and sets \a parent as the parent object.
-*/
-QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage &other, QObject *parent) :
-    QObject(*new QCoapInternalMessagePrivate(*other.d_func()), parent)
-{
-}
-
-/*!
-    \internal
     Constructs a new QCoapInternalMessage with \a dd as the d_ptr.
     This constructor must be used when subclassing internally
     the QCoapInternalMessage class.
