@@ -180,10 +180,17 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
             internalRequest->setToSendBlock(0, d->blockSize);
     }
 
-    if (requestMessage->type() == QCoapMessage::Type::Confirmable)
-        internalRequest->setTimeout(QtCoap::randomGenerator().bounded(minimumTimeout(), maximumTimeout()));
-    else
+    if (requestMessage->type() == QCoapMessage::Type::Confirmable) {
+        const auto minTimeout = minimumTimeout();
+        const auto maxTimeout = maximumTimeout();
+        Q_ASSERT(minTimeout <= maxTimeout);
+
+        internalRequest->setTimeout(minTimeout == maxTimeout
+                                    ? minTimeout
+                                    : QtCoap::randomGenerator().bounded(minTimeout, maxTimeout));
+    } else {
         internalRequest->setTimeout(maximumTimeout());
+    }
 
     connect(internalRequest.data(), &QCoapInternalRequest::timeout,
             [this](QCoapInternalRequest *request) {
