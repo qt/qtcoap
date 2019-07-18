@@ -153,7 +153,12 @@ QCoapSecurityConfiguration createConfiguration(QtCoap::SecurityMode securityMode
         QFile privateKey(privateKeyPath);
         if (privateKey.open(QIODevice::ReadOnly)) {
             QCoapPrivateKey key(privateKey.readAll(), QSsl::Ec);
-            configuration.setPrivateKey(key);
+            if (key.isNull()) {
+                qWarning() << "Failed to set a private key, the key" << privateKeyPath
+                           << "is not valid.";
+            } else {
+                configuration.setPrivateKey(key);
+            }
         } else {
             qWarning() << "Failed to read the private key" << privateKeyPath;
         }

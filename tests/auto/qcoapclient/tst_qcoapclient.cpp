@@ -95,10 +95,13 @@ public:
             setSecurityConfiguration(createConfiguration(security));
     }
 
-    bool securityMissing() const
+    bool securitySetupMissing() const
     {
 #if QT_CONFIG(dtls)
         if (securityMode == QtCoap::SecurityMode::PreSharedKey) {
+            // The Californium test server accepts only PSK-AES128-CCM8 and PSK-AES128-CBC-SHA256
+            // ciphers. Make sure that the required ciphers are present, otherwise the test
+            // should be skipped.
             const auto ciphers = QSslConfiguration::defaultDtlsConfiguration().ciphers();
             const auto it = std::find_if(ciphers.cbegin(), ciphers.cend(),
                                          [](const QSslCipher &cipher) {
@@ -107,10 +110,18 @@ public:
                                          });
             return it == ciphers.cend();
         }
+        // For all other modes the setup should be OK, return false.
         return false;
 #else
-        return true;
+        // If dtls is not configured, the setup for the secure modes is missing,
+        // but it is OK if security is not used.
+        return isSecure();
 #endif
+    }
+
+    bool isSecure() const
+    {
+        return securityMode != QtCoap::SecurityMode::NoSecurity;
     }
 
 private:
@@ -345,7 +356,7 @@ void tst_QCoapClient::methods()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     QCoapRequest request(url);
@@ -369,7 +380,7 @@ void tst_QCoapClient::methods()
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
 #ifdef QT_BUILD_INTERNAL
     QCOMPARE(reply->url(),
-             QCoapRequestPrivate::adjustedUrl(url, security != QtCoap::SecurityMode::NoSecurity));
+             QCoapRequestPrivate::adjustedUrl(url, client.isSecure()));
 #endif
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
@@ -523,7 +534,7 @@ void tst_QCoapClient::multipleRequests()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     QUrl url = QUrl(testServerResource());
@@ -750,7 +761,7 @@ void tst_QCoapClient::blockwiseReply()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     QCoapRequest request(url);
@@ -820,7 +831,7 @@ void tst_QCoapClient::blockwiseRequest()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     client.setBlockSize(16);
@@ -866,7 +877,7 @@ void tst_QCoapClient::discover()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     QScopedPointer<QCoapResourceDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
@@ -878,7 +889,7 @@ void tst_QCoapClient::discover()
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
 #ifdef QT_BUILD_INTERNAL
     QCOMPARE(resourcesReply->url(),
-             QCoapRequestPrivate::adjustedUrl(discoverUrl, security != QtCoap::SecurityMode::NoSecurity));
+             QCoapRequestPrivate::adjustedUrl(discoverUrl, client.isSecure()));
 #endif
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
     QCOMPARE(resourcesReply->request().method(), QtCoap::Method::Get);
@@ -958,7 +969,7 @@ void tst_QCoapClient::observe()
     QFETCH(QtCoap::SecurityMode, security);
 
     QCoapClientForSecurityTests client(security);
-    if (client.securityMissing())
+    if (client.securitySetupMissing())
         QSKIP("Skipping this test, security is not configured properly");
 
     QCoapRequest request(url);
@@ -974,7 +985,7 @@ void tst_QCoapClient::observe()
     client.cancelObserve(reply.data());
 #ifdef QT_BUILD_INTERNAL
     QCOMPARE(reply->url(),
-             QCoapRequestPrivate::adjustedUrl(url, security != QtCoap::SecurityMode::NoSecurity));
+             QCoapRequestPrivate::adjustedUrl(url, client.isSecure()));
 #endif
     QCOMPARE(reply->request().method(), QtCoap::Method::Get);
 
