@@ -486,8 +486,8 @@ QCoapReply *QCoapClient::observe(const QUrl &url)
 /*!
     \overload
 
-    Cancels the observation of a resource using the reply returned by the
-    observe() method.
+    Cancels the observation of a resource using the reply \a notifiedReply returned by
+    the observe() method.
 
     \sa observe()
 */
@@ -514,6 +514,11 @@ void QCoapClient::cancelObserve(const QUrl &url)
 
 /*!
     Closes the open sockets and connections to free the transport.
+
+    \note In the secure mode this needs to be called before changing
+    the security configuration or connecting to another server.
+
+    \sa setSecurityConfiguration()
 */
 void QCoapClient::disconnect()
 {
@@ -601,7 +606,11 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     Sets the security configuration parameters from \a configuration.
     Configuration will be ignored if the QtCoap::NoSecurity mode is used.
 
-    \note This method must be called before the handshake starts.
+    \note This method must be called before the handshake starts. If you need
+    to change the security configuration after establishing a secure connection
+    with the server, the client needs to be disconnected first.
+
+    \sa disconnect()
 */
 void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &configuration)
 {
