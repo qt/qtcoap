@@ -1,4 +1,4 @@
-QT = testlib network core-private core coap coap-private
+QT = testlib network core coap coap-private
 CONFIG += testcase
 
 SOURCES += tst_qcoapresource.cpp
