@@ -1,8 +1,8 @@
 TEMPLATE = subdirs
 
-SUBDIRS += \
-    simplecoapclient \
-    consolecoapclient
+SUBDIRS += consolecoapclient
+
+qtHaveModule(gui) SUBDIRS += simplecoapclient
 
 qtHaveModule(quick) {
     SUBDIRS += \
