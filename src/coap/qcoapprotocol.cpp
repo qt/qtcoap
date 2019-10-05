@@ -139,14 +139,14 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
             || !QCoapRequestPrivate::isUrlValid(reply->request().url()))
         return;
 
-    connect(reply, &QCoapReply::aborted, this, [this](const QCoapToken &token) {
+    connect(reply.data(), &QCoapReply::aborted, this, [this](const QCoapToken &token) {
         Q_D(QCoapProtocol);
         d->onRequestAborted(token);
     });
 
     auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
     internalRequest->setMaxTransmissionWait(maximumTransmitWait());
-    connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
+    connect(reply.data(), &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     if (internalRequest->isMulticast()) {
         connect(internalRequest.data(), &QCoapInternalRequest::multicastRequestExpired, this,
