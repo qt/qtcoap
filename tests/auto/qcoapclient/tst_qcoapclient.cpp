@@ -433,10 +433,9 @@ void tst_QCoapClient::removeReply()
     QCoapClient client;
     QCoapReply *reply = client.get(QUrl(testServerResource()));
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
+    connect(reply, &QCoapReply::finished, this, [reply]() { reply->deleteLater(); });
 
     try {
-        reply->deleteLater();
-
         QEventLoop eventLoop;
         QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
         eventLoop.exec();
@@ -1109,7 +1108,7 @@ void tst_QCoapClient::setMinimumTokenSize()
         QScopedPointer<QCoapReply> reply;
         reply.reset(client.get(QCoapRequest("127.0.0.1")));
 
-        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 100);
+        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 300);
         QVERIFY(reply->request().tokenLength() >= expectedMinSize);
         QVERIFY(reply->request().tokenLength() <= maxSize);
     }
