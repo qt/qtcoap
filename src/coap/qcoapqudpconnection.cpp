@@ -113,15 +113,17 @@ QCoapQUdpConnection::QCoapQUdpConnection(QCoapQUdpConnectionPrivate &dd, QObject
             configuration.setPeerVerifyMode(QSslSocket::VerifyNone);
             d->dtls->setDtlsConfiguration(configuration);
 
-            connect(d->dtls, &QDtls::pskRequired, this, &QCoapQUdpConnection::pskRequired);
-            connect(d->dtls, &QDtls::handshakeTimeout, this, &QCoapQUdpConnection::handshakeTimeout);
+            connect(d->dtls.data(), &QDtls::pskRequired, this, &QCoapQUdpConnection::pskRequired);
+            connect(d->dtls.data(), &QDtls::handshakeTimeout,
+                    this, &QCoapQUdpConnection::handshakeTimeout);
             break;
         case QtCoap::SecurityMode::Certificate:
             d->dtls = new QDtls(QSslSocket::SslClientMode, this);
             configuration.setPeerVerifyMode(QSslSocket::VerifyPeer);
             d->dtls->setDtlsConfiguration(configuration);
 
-            connect(d->dtls, &QDtls::handshakeTimeout, this, &QCoapQUdpConnection::handshakeTimeout);
+            connect(d->dtls.data(), &QDtls::handshakeTimeout,
+                    this, &QCoapQUdpConnection::handshakeTimeout);
             break;
         default:
             break;
@@ -145,11 +147,11 @@ void QCoapQUdpConnection::createSocket()
 
     d->udpSocket = new QUdpSocket(this);
 
-    connect(d->udpSocket, &QUdpSocket::readyRead, [this]() {
+    connect(d->udpSocket.data(), &QUdpSocket::readyRead, [this]() {
         Q_D(QCoapQUdpConnection);
         d->socketReadyRead();
     });
-    connect(d->udpSocket, QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
+    connect(d->udpSocket.data(), QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
             [this](QAbstractSocket::SocketError socketError) {
                     qCWarning(lcCoapConnection) << "CoAP UDP socket error" << socketError
                                                 << socket()->errorString();
