@@ -1,4 +1,4 @@
-QT       += core gui network coap widgets
+QT       += core network coap widgets
 
 TARGET = simplecoapclient
 TEMPLATE = app
