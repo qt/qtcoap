@@ -82,7 +82,7 @@ public:
 
 Q_SIGNALS:
     void discovered(const QmlCoapResource &resource);
-    void finished(QtCoap::Error error);
+    void finished(int error);
 
 public slots:
     void onDiscovered(QCoapResourceDiscoveryReply *reply, const QVector<QCoapResource> &resources);
