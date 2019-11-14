@@ -4,8 +4,7 @@
 ## qcoapinternalreply Test:
 #####################################################################
 
-add_qt_test(qcoapinternalreply
-    GUI
+qt_add_test(qcoapinternalreply
     SOURCES
         tst_qcoapinternalreply.cpp
     LIBRARIES

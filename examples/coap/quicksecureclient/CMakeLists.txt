@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(INSTALL_EXAMPLEDIR "examples")
+set(INSTALL_EXAMPLEDIR "examples/coap/quicksecureclient")
 
 find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
@@ -24,6 +24,7 @@ add_qt_gui_executable(quicksecureclient
 target_compile_definitions(quicksecureclient PUBLIC
     QT_DEPRECATED_WARNINGS
 )
+
 target_link_libraries(quicksecureclient PUBLIC
     Qt::Coap
     Qt::Core
@@ -32,19 +33,19 @@ target_link_libraries(quicksecureclient PUBLIC
     Qt::Quick
 )
 
+
 # Resources:
 set(qml_resource_files
     "FilePicker.qml"
     "main.qml"
 )
 
-QT6_ADD_RESOURCES(quicksecureclient "qml"
+qt6_add_resources(quicksecureclient "qml"
     PREFIX
         "/"
     FILES
         ${qml_resource_files}
 )
-
 
 install(TARGETS quicksecureclient
     RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"

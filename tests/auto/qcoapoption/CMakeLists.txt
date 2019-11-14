@@ -4,8 +4,7 @@
 ## qcoapoption Test:
 #####################################################################
 
-add_qt_test(qcoapoption
-    GUI
+qt_add_test(qcoapoption
     SOURCES
         tst_qcoapoption.cpp
     LIBRARIES

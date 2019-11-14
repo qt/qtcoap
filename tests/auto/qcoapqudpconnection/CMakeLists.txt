@@ -4,8 +4,7 @@
 ## qcoapqudpconnection Test:
 #####################################################################
 
-add_qt_test(qcoapqudpconnection
-    GUI
+qt_add_test(qcoapqudpconnection
     SOURCES
         ../coapnetworksettings.h
         tst_qcoapqudpconnection.cpp
@@ -24,7 +23,7 @@ add_qt_test(qcoapqudpconnection
 #####################################################################
 
 # special case begin
-extend_target(qcoapqudpconnection CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
+qt_extend_target(qcoapqudpconnection CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
     DEFINES
         COAP_TEST_SERVER_IP=\\\"$ENV{COAP_TEST_SERVER_IP}\\\"
 )

@@ -4,8 +4,7 @@
 ## qcoaprequest Test:
 #####################################################################
 
-add_qt_test(qcoaprequest
-    GUI
+qt_add_test(qcoaprequest
     SOURCES
         tst_qcoaprequest.cpp
     LIBRARIES

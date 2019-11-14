@@ -4,7 +4,7 @@
 ## qcoapclient Test:
 #####################################################################
 
-add_qt_test(qcoapclient
+qt_add_test(qcoapclient
     EXCEPTIONS # special case
     GUI
     SOURCES
@@ -25,7 +25,7 @@ add_qt_test(qcoapclient
 #####################################################################
 
 # special case begin
-extend_target(qcoapclient CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
+qt_extend_target(qcoapclient CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
     DEFINES
         COAP_TEST_SERVER_IP=\\\"$ENV{COAP_TEST_SERVER_IP}\\\"
 )

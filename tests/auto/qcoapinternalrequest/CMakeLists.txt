@@ -4,8 +4,7 @@
 ## qcoapinternalrequest Test:
 #####################################################################
 
-add_qt_test(qcoapinternalrequest
-    GUI
+qt_add_test(qcoapinternalrequest
     SOURCES
         tst_qcoapinternalrequest.cpp
     LIBRARIES

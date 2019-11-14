@@ -4,8 +4,7 @@
 ## qcoapresource Test:
 #####################################################################
 
-add_qt_test(qcoapresource
-    GUI
+qt_add_test(qcoapresource
     SOURCES
         tst_qcoapresource.cpp
     LIBRARIES

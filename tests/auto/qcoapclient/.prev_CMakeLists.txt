@@ -4,8 +4,7 @@
 ## qcoapclient Test:
 #####################################################################
 
-add_qt_test(qcoapclient
-    GUI
+qt_add_test(qcoapclient
     SOURCES
         ../coapnetworksettings.h
         tst_qcoapclient.cpp
@@ -23,7 +22,7 @@ add_qt_test(qcoapclient
 ## Scopes:
 #####################################################################
 
-extend_target(qcoapclient CONDITION NOT COAP_TEST_SERVER_IP_ISEMPTY
+qt_extend_target(qcoapclient CONDITION NOT COAP_TEST_SERVER_IP_ISEMPTY
     DEFINES
-        COAP_TEST_SERVER_IP=\\\"$$(COAP_TEST_SERVER_IP)\\\"
+        COAP_TEST_SERVER_IP=\\\"$ENV{COAP_TEST_SERVER_IP}\\\"
 )

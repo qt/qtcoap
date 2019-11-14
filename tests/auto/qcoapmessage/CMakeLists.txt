@@ -4,8 +4,7 @@
 ## qcoapmessage Test:
 #####################################################################
 
-add_qt_test(qcoapmessage
-    GUI
+qt_add_test(qcoapmessage
     SOURCES
         tst_qcoapmessage.cpp
     LIBRARIES

@@ -4,8 +4,7 @@
 ## qcoapreply Test:
 #####################################################################
 
-add_qt_test(qcoapreply
-    GUI
+qt_add_test(qcoapreply
     SOURCES
         tst_qcoapreply.cpp
     LIBRARIES

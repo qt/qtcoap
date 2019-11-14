@@ -4,7 +4,7 @@
 ## Coap Module:
 #####################################################################
 
-add_qt_module(Coap
+qt_add_module(Coap
     SOURCES
         qcoapclient.cpp qcoapclient.h qcoapclient_p.h
         qcoapconnection.cpp qcoapconnection_p.h
@@ -28,10 +28,7 @@ add_qt_module(Coap
     PUBLIC_LIBRARIES
         Qt::Core
 )
-
-#### Keys ignored in scope 1:.:.:coap.pro:<TRUE>:
-# _LOADED = "qt_module"
-add_qt_docs(
+qt_add_docs(Coap
     doc/qtcoap.qdocconf
 )
 
