@@ -72,7 +72,7 @@ Window {
         onDiscovered: addResource(resource)
 
         onFinished: {
-            statusLabel.text = (error === QtCoap.NoError)
+            statusLabel.text = (error === QtCoap.Error.Ok)
                     ? qsTr("Finished resource discovery.")
                     : qsTr("Resource discovery failed with error code: %1").arg(error)
         }
