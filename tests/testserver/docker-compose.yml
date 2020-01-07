@@ -1,14 +1,24 @@
 version: '2.1'
 
-# The tag of images is used by docker compose file to launch the corresponding
-# docker containers. The value of tag comes from the provisioning script
-# (coin/provisioning/.../testserver/docker_testserver.sh). The script gets SHA-1
-# of each server context as the tag of docker images. If one of the server
-# contexts gets changes, please make sure to update this compose file as well.
-# You can run command 'docker images' to list all the tag of test server images.
+
+# The tag of images is used by docker compose file to launch the correct
+# docker containers. By default we always launch the "latest" tag.
+#
+# But in the "docker build" phase, we also tag the images with a unique tag,
+# the SHA1 hash of all files used for "docker build" - see sha1tree() in
+# provisioning.
+#
+# So if you want to update the docker image at a specific time, make sure that
+#   1. you modify this file to run the specific image's SHA1 tag, instead of
+#      "latest"
+#   2. you build two docker images in provisioning, the currently used one,
+#      plus the new one that you tag as "latest"
+#   3. you switch this file to the "latest" tag when ready
+
+# You can run `docker images` to list all the tags of available images:
 # For example:
 # REPOSITORY              TAG
-# qt-test-server-apache2  537fe302f61851d1663f41495230d8e3554a4a13
+# qt-test-server-californium 537fe302f61851d1663f41495230d8e3554a4a13
 
 services:
     californium:
@@ -20,7 +30,7 @@ services:
         build:
             context: .
             args:
-                provisioningImage: qt-test-server-californium:dd4a2ab0b113fbd45c5d6e92b43341f5eb521926
+                provisioningImage: qt-test-server-californium:latest
                 serviceDir: ./californium
         ports:
             - "5683:5683/udp"
@@ -36,7 +46,7 @@ services:
         build:
             context: .
             args:
-                provisioningImage: qt-test-server-freecoap:e2d7208ea82e623e2769d9ee1f052b58537d2f35
+                provisioningImage: qt-test-server-freecoap:latest
                 serviceDir: ./freecoap
         ports:
             - "5685:5685/udp"
