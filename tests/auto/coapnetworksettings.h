@@ -130,7 +130,8 @@ QCoapSecurityConfiguration createConfiguration(QtCoap::SecurityMode securityMode
         }
 
         const auto localCertPath = directory + QDir::separator() +"local_cert.pem";
-        const auto localCerts = QSslCertificate::fromPath(localCertPath);
+        const auto localCerts = QSslCertificate::fromPath(
+                localCertPath, QSsl::Pem, QSslCertificate::PatternSyntax::FixedString);
         if (localCerts.isEmpty()) {
             qWarning() << "Failed to load local certificates, the"
                        << localCertPath
@@ -140,7 +141,8 @@ QCoapSecurityConfiguration createConfiguration(QtCoap::SecurityMode securityMode
         }
 
         const auto caCertPath = directory + QDir::separator() + "ca_cert.pem";
-        const auto caCerts = QSslCertificate::fromPath(caCertPath);
+        const auto caCerts = QSslCertificate::fromPath(caCertPath, QSsl::Pem,
+                                                       QSslCertificate::PatternSyntax::FixedString);
         if (caCerts.isEmpty()) {
             qWarning() << "Failed to load CA certificates, the"
                        << caCertPath
