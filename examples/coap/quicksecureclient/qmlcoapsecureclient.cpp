@@ -137,13 +137,16 @@ void QmlCoapSecureClient::setSecurityConfiguration(const QString &localCertifica
 {
     QCoapSecurityConfiguration configuration;
 
-    const auto localCerts = QSslCertificate::fromPath(QUrl(localCertificatePath).toLocalFile());
+    const auto localCerts =
+            QSslCertificate::fromPath(QUrl(localCertificatePath).toLocalFile(), QSsl::Pem,
+                                      QSslCertificate::PatternSyntax::FixedString);
     if (localCerts.isEmpty())
         qCWarning(lcCoapClient, "The specified local certificate file is not valid.");
     else
         configuration.setLocalCertificateChain(localCerts.toVector());
 
-    const auto caCerts = QSslCertificate::fromPath(QUrl(caCertificatePath).toLocalFile());
+    const auto caCerts = QSslCertificate::fromPath(QUrl(caCertificatePath).toLocalFile(), QSsl::Pem,
+                                                   QSslCertificate::PatternSyntax::FixedString);
     if (caCerts.isEmpty())
         qCWarning(lcCoapClient, "The specified CA certificate file is not valid.");
     else

@@ -151,7 +151,7 @@ void QCoapQUdpConnection::createSocket()
         Q_D(QCoapQUdpConnection);
         d->socketReadyRead();
     });
-    connect(d->udpSocket.data(), QOverload<QAbstractSocket::SocketError>::of(&QUdpSocket::error),
+    connect(d->udpSocket.data(), &QUdpSocket::errorOccurred,
             [this](QAbstractSocket::SocketError socketError) {
                     qCWarning(lcCoapConnection) << "CoAP UDP socket error" << socketError
                                                 << socket()->errorString();
