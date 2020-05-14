@@ -123,7 +123,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     }
 
     // Parse Payload
-    if (pduData[i] == 0xFF) {
+    if (i < reply.length() && pduData[i] == 0xFF) {
         // -1 because of 0xFF at the beginning
         QByteArray currentPayload = reply.mid(i + 1);
         d->message.setPayload(d->message.payload().append(currentPayload));
