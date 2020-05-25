@@ -363,16 +363,19 @@ void tst_QCoapClient::methods()
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
+    const QByteArray payload = "test payload";
     QScopedPointer<QCoapReply> reply;
-    if (qstrncmp(QTest::currentDataTag(), "get", 3) == 0)
+    if (qstrncmp(QTest::currentDataTag(), "get", 3) == 0) {
         reply.reset(client.get(request));
-    else if (qstrncmp(QTest::currentDataTag(), "post", 4) == 0)
+    } else if (qstrncmp(QTest::currentDataTag(), "post", 4) == 0) {
+        request.setPayload(payload);
         reply.reset(client.post(request));
-    else if (qstrncmp(QTest::currentDataTag(), "put", 3) == 0)
+    } else if (qstrncmp(QTest::currentDataTag(), "put", 3) == 0) {
+        request.setPayload(payload);
         reply.reset(client.put(request));
-    else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0)
+    } else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0) {
         reply.reset(client.deleteResource(request));
-    else {
+    } else {
         QString error = QLatin1String("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
@@ -395,9 +398,11 @@ void tst_QCoapClient::methods()
         } else if (qstrncmp(QTest::currentDataTag(), "post", 4) == 0) {
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->responseCode(), QtCoap::ResponseCode::Created);
+            QCOMPARE(reply->request().payload(), payload);
         } else if (qstrncmp(QTest::currentDataTag(), "put", 3) == 0) {
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->responseCode(), QtCoap::ResponseCode::Changed);
+            QCOMPARE(reply->request().payload(), payload);
         } else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0) {
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->responseCode(), QtCoap::ResponseCode::Deleted);

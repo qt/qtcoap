@@ -263,7 +263,8 @@ QCoapReply *QCoapClient::get(const QUrl &url)
 
 /*!
     Sends the \a request using the PUT method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    object. Uses \a data as the payload for this request. If \a data is empty,
+    the payload of the \a request will be used.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
@@ -273,7 +274,8 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 
     QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Put,
                                                                   d->connection->isSecure());
-    copyRequest.setPayload(data);
+    if (!data.isEmpty())
+        copyRequest.setPayload(data);
     return d->sendRequest(copyRequest);
 }
 
@@ -308,7 +310,8 @@ QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 
 /*!
     Sends the \a request using the POST method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    object. Uses \a data as the payload for this request. If \a data is empty,
+    the payload of the \a request will be used.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -318,7 +321,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 
     QCoapRequest copyRequest = QCoapRequestPrivate::createRequest(request, QtCoap::Method::Post,
                                                                   d->connection->isSecure());
-    copyRequest.setPayload(data);
+    if (!data.isEmpty())
+        copyRequest.setPayload(data);
     return d->sendRequest(copyRequest);
 }
 
