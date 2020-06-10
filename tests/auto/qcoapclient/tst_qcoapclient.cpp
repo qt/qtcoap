@@ -193,16 +193,16 @@ public:
 
     void bind(const QString &host, quint16 port) override
     {
-        Q_UNUSED(host);
-        Q_UNUSED(port);
+        Q_UNUSED(host)
+        Q_UNUSED(port)
         // Do nothing
     }
 
     void writeData(const QByteArray &data, const QString &host, quint16 port) override
     {
-        Q_UNUSED(data);
-        Q_UNUSED(host);
-        Q_UNUSED(port);
+        Q_UNUSED(data)
+        Q_UNUSED(host)
+        Q_UNUSED(port)
         // Do nothing
     }
 
@@ -361,7 +361,7 @@ void tst_QCoapClient::methods()
 
     QCoapRequest request(url);
 
-    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyClientFinished(&client, &QCoapClient::finished);
 
     const QByteArray payload = "test payload";
     QScopedPointer<QCoapReply> reply;
@@ -385,7 +385,7 @@ void tst_QCoapClient::methods()
     QCOMPARE(reply->url(),
              QCoapRequestPrivate::adjustedUrl(url, client.isSecure()));
 #endif
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
     QTRY_COMPARE(spyReplyFinished.count(), 1);
     QTRY_COMPARE(spyClientFinished.count(), 1);
 
@@ -422,7 +422,7 @@ void tst_QCoapClient::separateMethod()
     QScopedPointer<QCoapReply> reply(client.get(QUrl(testServerUrl() + "/separate")));
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
     QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
@@ -509,7 +509,7 @@ void tst_QCoapClient::requestWithQIODevice()
         reply.reset(client.put(request, &buffer));
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
     QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
@@ -542,7 +542,7 @@ void tst_QCoapClient::multipleRequests()
         QSKIP("Skipping this test, security is not configured properly");
 
     QUrl url = QUrl(testServerResource());
-    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyClientFinished(&client, &QCoapClient::finished);
 
     const uint8_t requestCount = 4;
     QVector<QSharedPointer<QCoapReply>> replies;
@@ -559,7 +559,7 @@ void tst_QCoapClient::multipleRequests()
         replies.push_back(reply);
 
         QSharedPointer<QSignalSpy> signalSpy(
-                new QSignalSpy(reply.data(), SIGNAL(finished(QCoapReply *))));
+                new QSignalSpy(reply.data(), &QCoapReply::finished));
         signalSpies.push_back(signalSpy);
     }
 
@@ -587,7 +587,7 @@ void tst_QCoapClient::socketError()
     QVERIFY2(connection, "Failed to get coap connection!");
     QUdpSocket *socket = connection->socket();
     QVERIFY2(socket, "Socket not properly created with connection");
-    QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
+    QSignalSpy spySocketError(socket, &QUdpSocket::errorOccurred);
     QScopedPointer<QCoapReply> reply(client.get(url));
     QSignalSpy spyClientError(&client, &QCoapClient::error);
 
@@ -846,7 +846,7 @@ void tst_QCoapClient::blockwiseRequest()
 
     QScopedPointer<QCoapReply> reply(client.post(request, requestData));
     QVERIFY(!reply.isNull());
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
@@ -886,7 +886,7 @@ void tst_QCoapClient::discover()
 
     QScopedPointer<QCoapResourceDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
     QVERIFY(!resourcesReply.isNull());
-    QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyFinished(resourcesReply.data(), &QCoapReply::finished);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
