@@ -434,16 +434,16 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
     // 8. Add path segments to options
     const auto path = uri.path();
-    const auto listPath = path.splitRef('/');
-    for (const QStringRef &pathPart : listPath) {
+    const auto listPath = QStringView{path}.split(QLatin1Char('/'));
+    for (auto pathPart : listPath) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption(QCoapOption::UriPath, pathPart.toString()));
     }
 
     // 9. Add queries to options
     QString query = uri.query();
-    const auto listQuery = query.splitRef('&');
-    for (const QStringRef &queryElement : listQuery) {
+    const auto listQuery = QStringView{query}.split(QLatin1Char('&'));
+    for (auto queryElement : listQuery) {
         if (!queryElement.isEmpty())
             addOption(QCoapOption(QCoapOption::UriQuery, queryElement.toString()));
     }
