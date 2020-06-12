@@ -27,6 +27,9 @@ qt_add_module(Coap
         Qt::Network
     PUBLIC_LIBRARIES
         Qt::Core
+    PRIVATE_MODULE_INTERFACE
+        Qt::CorePrivate
+        Qt::Network
 )
 qt_add_docs(Coap
     doc/qtcoap.qdocconf
