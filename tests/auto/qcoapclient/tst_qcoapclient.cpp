@@ -545,8 +545,8 @@ void tst_QCoapClient::multipleRequests()
     QSignalSpy spyClientFinished(&client, &QCoapClient::finished);
 
     const uint8_t requestCount = 4;
-    QVector<QSharedPointer<QCoapReply>> replies;
-    QVector<QSharedPointer<QSignalSpy>> signalSpies;
+    QList<QSharedPointer<QCoapReply>> replies;
+    QList<QSharedPointer<QSignalSpy>> signalSpies;
     for (uint8_t i = 0; i < requestCount; ++i) {
         QCoapRequest request;
         const auto token = "token" + QByteArray::number(i);

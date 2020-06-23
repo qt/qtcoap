@@ -183,7 +183,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
     // Insert Options
     if (!d->message.options().isEmpty()) {
-        QVector<QCoapOption> options = d->message.options();
+        const auto options = d->message.options();
 
         // Options should be sorted in order of their option numbers
         Q_ASSERT(std::is_sorted(d->message.options().cbegin(), d->message.options().cend(),

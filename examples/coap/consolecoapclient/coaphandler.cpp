@@ -105,7 +105,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
     qCInfo(lcCoapClient) << "Received Observe notification with payload:" << reply->readAll();
 }
 
-void CoapHandler::onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources)
+void CoapHandler::onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapResource> resources)
 {
     Q_UNUSED(reply)
 

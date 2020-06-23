@@ -55,13 +55,13 @@ public:
     QCoapMessagePrivate(const QCoapMessagePrivate &other);
     ~QCoapMessagePrivate();
 
-    QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
+    QList<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
 
     quint8 version = 1;
     QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable;
     quint16 messageId = 0;
     QByteArray token;
-    QVector<QCoapOption> options;
+    QList<QCoapOption> options;
     QByteArray payload;
 };
 

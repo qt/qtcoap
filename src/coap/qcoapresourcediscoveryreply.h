@@ -43,10 +43,10 @@ class Q_COAP_EXPORT QCoapResourceDiscoveryReply : public QCoapReply
     Q_OBJECT
 
 public:
-    QVector<QCoapResource> resources() const;
+    QList<QCoapResource> resources() const;
 
 Q_SIGNALS:
-    void discovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources);
+    void discovered(QCoapResourceDiscoveryReply *reply, QList<QCoapResource> resources);
 
 private:
     explicit QCoapResourceDiscoveryReply(const QCoapRequest &request, QObject *parent = nullptr);

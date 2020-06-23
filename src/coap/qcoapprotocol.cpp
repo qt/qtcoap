@@ -440,7 +440,7 @@ QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &t
 
     Returns the replies for the exchange identified by \a token.
 */
-QVector<QSharedPointer<QCoapInternalReply>>
+QList<QSharedPointer<QCoapInternalReply>>
 QCoapProtocolPrivate::repliesForToken(const QCoapToken &token) const
 {
     auto it = exchangeMap.find(token);
@@ -772,7 +772,7 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
                                             QSharedPointer<QCoapInternalRequest> request)
 {
     CoapExchangeData data = { reply, request,
-                              QVector<QSharedPointer<QCoapInternalReply> >()
+                              QList<QSharedPointer<QCoapInternalReply> >()
                             };
 
     exchangeMap.insert(token, data);

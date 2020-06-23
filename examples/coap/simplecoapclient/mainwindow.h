@@ -78,7 +78,7 @@ private:
 private slots:
     void onFinished(QCoapReply *reply);
     void onError(QCoapReply *reply, QtCoap::Error error);
-    void onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources);
+    void onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapResource> resources);
     void onNotified(QCoapReply *reply, const QCoapMessage &message);
 
     void on_runButton_clicked();
@@ -92,7 +92,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QCoapClient *m_client;
-    QVector<QCoapOption> m_options;
+    QList<QCoapOption> m_options;
     QByteArray m_currentData;
 };
 

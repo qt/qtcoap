@@ -184,7 +184,7 @@
     And in certificate mode:
     \code
     QCoapClient *client = new QCoapClient(this, QtCoap::Certificate);
-    QVector<QSslCertificate> localCertificates, caCertificates;
+    QList<QSslCertificate> localCertificates, caCertificates;
     QCoapPrivateKey key;
     // Initialize the key and certificates
     QCoapSecurityConfiguration config;

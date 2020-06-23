@@ -122,7 +122,7 @@ void MainWindow::onError(QCoapReply *reply, QtCoap::Error error)
     addMessage(errorMessage(errorCode), true);
 }
 
-void MainWindow::onDiscovered(QCoapResourceDiscoveryReply *reply, QVector<QCoapResource> resources)
+void MainWindow::onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapResource> resources)
 {
     if (reply->errorReceived() != QtCoap::Error::Ok)
         return;

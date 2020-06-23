@@ -29,9 +29,9 @@
 
 #include "qcoapsecurityconfiguration.h"
 
-#include <QtCore/QVector>
 #include <QtCore/QByteArray>
 #include <QtCore/QIODevice>
+#include <QtCore/QList>
 #include <QtNetwork/QSslCertificate>
 
 QT_BEGIN_NAMESPACE
@@ -52,8 +52,8 @@ public:
     QByteArray identity;
     QByteArray preSharedKey;
     QString defaultCipherString;
-    QVector<QSslCertificate> caCertificates;
-    QVector<QSslCertificate> localCertificateChain;
+    QList<QSslCertificate> caCertificates;
+    QList<QSslCertificate> localCertificateChain;
     QCoapPrivateKey privateKey;
 };
 
@@ -333,7 +333,7 @@ QString QCoapSecurityConfiguration::defaultCipherString() const
 
     \sa caCertificates()
 */
-void QCoapSecurityConfiguration::setCaCertificates(const QVector<QSslCertificate> &certificates)
+void QCoapSecurityConfiguration::setCaCertificates(const QList<QSslCertificate> &certificates)
 {
     d->caCertificates = certificates;
 }
@@ -343,7 +343,7 @@ void QCoapSecurityConfiguration::setCaCertificates(const QVector<QSslCertificate
 
     \sa setCaCertificates()
 */
-QVector<QSslCertificate> QCoapSecurityConfiguration::caCertificates() const
+QList<QSslCertificate> QCoapSecurityConfiguration::caCertificates() const
 {
     return d->caCertificates;
 }
@@ -354,7 +354,7 @@ QVector<QSslCertificate> QCoapSecurityConfiguration::caCertificates() const
 
     \sa localCertificateChain()
  */
-void QCoapSecurityConfiguration::setLocalCertificateChain(const QVector<QSslCertificate> &localChain)
+void QCoapSecurityConfiguration::setLocalCertificateChain(const QList<QSslCertificate> &localChain)
 {
     d->localCertificateChain = localChain;
 }
@@ -364,7 +364,7 @@ void QCoapSecurityConfiguration::setLocalCertificateChain(const QVector<QSslCert
 
     \sa setLocalCertificateChain()
 */
-QVector<QSslCertificate> QCoapSecurityConfiguration::localCertificateChain() const
+QList<QSslCertificate> QCoapSecurityConfiguration::localCertificateChain() const
 {
     return  d->localCertificateChain;
 }

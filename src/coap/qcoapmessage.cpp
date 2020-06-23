@@ -277,7 +277,7 @@ QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
     with the given \a name.
     If there is no such option, returns \c d->options.end().
 */
-QVector<QCoapOption>::const_iterator
+QList<QCoapOption>::const_iterator
 QCoapMessagePrivate::findOption(QCoapOption::OptionName name) const
 {
     return std::find_if(options.begin(), options.end(), [name](const QCoapOption &option) {
@@ -298,7 +298,7 @@ bool QCoapMessage::hasOption(QCoapOption::OptionName name) const
 /*!
     Returns the list of options.
 */
-const QVector<QCoapOption> &QCoapMessage::options() const
+const QList<QCoapOption> &QCoapMessage::options() const
 {
     Q_D(const QCoapMessage);
     return d->options;
@@ -307,11 +307,11 @@ const QVector<QCoapOption> &QCoapMessage::options() const
 /*!
     Finds and returns the list of options with the given \a name.
 */
-QVector<QCoapOption> QCoapMessage::options(QCoapOption::OptionName name) const
+QList<QCoapOption> QCoapMessage::options(QCoapOption::OptionName name) const
 {
     Q_D(const QCoapMessage);
 
-    QVector<QCoapOption> result;
+    QList<QCoapOption> result;
     std::copy_if(d->options.cbegin(), d->options.cend(), std::back_inserter(result),
                  [name](const QCoapOption &option) {
                             return option.name() == name;
@@ -392,7 +392,7 @@ void QCoapMessage::setPayload(const QByteArray &payload)
 /*!
     Sets the message options to \a options.
 */
-void QCoapMessage::setOptions(const QVector<QCoapOption> &options)
+void QCoapMessage::setOptions(const QList<QCoapOption> &options)
 {
     Q_D(QCoapMessage);
     d->options = options;

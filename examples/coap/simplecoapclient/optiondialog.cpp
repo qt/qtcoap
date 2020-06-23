@@ -68,7 +68,7 @@ OptionDialog::~OptionDialog()
     delete ui;
 }
 
-QVector<QCoapOption> OptionDialog::options() const
+QList<QCoapOption> OptionDialog::options() const
 {
     return m_options;
 }

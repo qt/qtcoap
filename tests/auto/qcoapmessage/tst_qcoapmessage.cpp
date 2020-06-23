@@ -129,13 +129,13 @@ void tst_QCoapMessage::addOption()
 
 void tst_QCoapMessage::addOption_string_data()
 {
-    QTest::addColumn<QVector<QCoapOption>>("options");
+    QTest::addColumn<QList<QCoapOption>>("options");
 
-    QVector<QCoapOption> single_string_option = { { QCoapOption::LocationPath, QString("path1") } };
-    QVector<QCoapOption> single_ba_option = {
+    QList<QCoapOption> single_string_option = { { QCoapOption::LocationPath, QString("path1") } };
+    QList<QCoapOption> single_ba_option = {
         { QCoapOption::LocationPath, QByteArray("\xAF\x01\xC2") }
     };
-    QVector<QCoapOption> multiple_string_options = {
+    QList<QCoapOption> multiple_string_options = {
         { QCoapOption::LocationPath, QString("str_path2") },
         { QCoapOption::LocationPath, QString("str_path3") }
     };
@@ -147,7 +147,7 @@ void tst_QCoapMessage::addOption_string_data()
 
 void tst_QCoapMessage::addOption_string()
 {
-    QFETCH(QVector<QCoapOption>, options);
+    QFETCH(QList<QCoapOption>, options);
 
     QCoapMessage message;
     for (const auto& option : options)
@@ -190,10 +190,10 @@ void tst_QCoapMessage::addOption_uint()
 
 void tst_QCoapMessage::removeOption_data()
 {
-    QTest::addColumn<QVector<QCoapOption>>("options");
+    QTest::addColumn<QList<QCoapOption>>("options");
 
-    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
-    QVector<QCoapOption> multiple_options = {
+    QList<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
+    QList<QCoapOption> multiple_options = {
         { QCoapOption::LocationPath, QByteArray("path2") },
         { QCoapOption::LocationPath, QByteArray("path3") }
     };
@@ -204,7 +204,7 @@ void tst_QCoapMessage::removeOption_data()
 
 void tst_QCoapMessage::removeOption()
 {
-    QFETCH(QVector<QCoapOption>, options);
+    QFETCH(QList<QCoapOption>, options);
 
     QCoapMessage message;
     for (const auto& option : options)
@@ -224,11 +224,11 @@ void tst_QCoapMessage::removeOption()
 
 void tst_QCoapMessage::removeOptionByName_data()
 {
-    QTest::addColumn<QVector<QCoapOption>>("options");
+    QTest::addColumn<QList<QCoapOption>>("options");
     QTest::addColumn<QCoapOption::OptionName>("name");
 
-    QVector<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
-    QVector<QCoapOption> multiple_options = {
+    QList<QCoapOption> single_option = { { QCoapOption::LocationPath, QByteArray("path1") } };
+    QList<QCoapOption> multiple_options = {
         { QCoapOption::LocationPath, QByteArray("path2") },
         { QCoapOption::LocationPath, QByteArray("path3") }
     };
@@ -239,7 +239,7 @@ void tst_QCoapMessage::removeOptionByName_data()
 
 void tst_QCoapMessage::removeOptionByName()
 {
-    QFETCH(QVector<QCoapOption>, options);
+    QFETCH(QList<QCoapOption>, options);
     QFETCH(QCoapOption::OptionName, name);
 
     QCoapMessage message;

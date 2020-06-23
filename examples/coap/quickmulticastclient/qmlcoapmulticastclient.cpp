@@ -95,7 +95,7 @@ void QmlCoapMulticastClient::discover(QtCoap::MulticastGroup group, int port,
 }
 
 void QmlCoapMulticastClient::onDiscovered(QCoapResourceDiscoveryReply *reply,
-                                          const QVector<QCoapResource> &resources)
+                                          const QList<QCoapResource> &resources)
 {
     Q_UNUSED(reply)
     for (auto resource : resources)

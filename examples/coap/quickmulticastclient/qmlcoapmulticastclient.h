@@ -85,7 +85,7 @@ Q_SIGNALS:
     void finished(int error);
 
 public slots:
-    void onDiscovered(QCoapResourceDiscoveryReply *reply, const QVector<QCoapResource> &resources);
+    void onDiscovered(QCoapResourceDiscoveryReply *reply, const QList<QCoapResource> &resources);
 };
 
 #endif // QMLCOAPMULTICASTCLIENT_H

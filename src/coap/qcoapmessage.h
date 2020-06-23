@@ -34,8 +34,8 @@
 #include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapoption.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qvector.h>
 #include <QtCore/qshareddata.h>
 
 QT_BEGIN_NAMESPACE
@@ -70,13 +70,13 @@ public:
     void setToken(const QByteArray &token);
     void setMessageId(quint16);
     void setPayload(const QByteArray &payload);
-    void setOptions(const QVector<QCoapOption> &options);
+    void setOptions(const QList<QCoapOption> &options);
 
     QCoapOption optionAt(int index) const;
     QCoapOption option(QCoapOption::OptionName name) const;
     bool hasOption(QCoapOption::OptionName name) const;
-    const QVector<QCoapOption> &options() const;
-    QVector<QCoapOption> options(QCoapOption::OptionName name) const;
+    const QList<QCoapOption> &options() const;
+    QList<QCoapOption> options(QCoapOption::OptionName name) const;
     int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     void addOption(const QCoapOption &option);

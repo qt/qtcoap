@@ -68,7 +68,7 @@ public:
     explicit OptionDialog(QWidget *parent = nullptr);
     ~OptionDialog();
 
-    QVector<QCoapOption> options() const;
+    QList<QCoapOption> options() const;
 
 private slots:
     void on_addButton_clicked();
@@ -78,7 +78,7 @@ private:
     void fillOptions();
 
     Ui::OptionDialog *ui;
-    QVector<QCoapOption> m_options;
+    QList<QCoapOption> m_options;
 };
 
 #endif // OPTIONDIALOG_H

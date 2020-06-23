@@ -95,11 +95,11 @@ public:
     void setDefaultCipherString(const QString &cipherString);
     QString defaultCipherString() const;
 
-    void setCaCertificates(const QVector<QSslCertificate> &certificates);
-    QVector<QSslCertificate> caCertificates() const;
+    void setCaCertificates(const QList<QSslCertificate> &certificates);
+    QList<QSslCertificate> caCertificates() const;
 
-    void setLocalCertificateChain(const QVector<QSslCertificate> &localChain);
-    QVector<QSslCertificate> localCertificateChain() const;
+    void setLocalCertificateChain(const QList<QSslCertificate> &localChain);
+    QList<QSslCertificate> localCertificateChain() const;
 
     void setPrivateKey(const QCoapPrivateKey &key);
     QCoapPrivateKey privateKey() const;

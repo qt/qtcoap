@@ -89,7 +89,7 @@ void QCoapResourceDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sende
 
 /*!
     \fn void QCoapResourceDiscoveryReply::discovered(QCoapResourceDiscoveryReply *reply,
-                                             QVector<QCoapResource> resources);
+                                                     QList<QCoapResource> resources);
 
     This signal is emitted whenever a CoAP resource is discovered.
 
@@ -113,7 +113,7 @@ QCoapResourceDiscoveryReply::QCoapResourceDiscoveryReply(const QCoapRequest &req
 /*!
     Returns the list of resources.
 */
-QVector<QCoapResource> QCoapResourceDiscoveryReply::resources() const
+QList<QCoapResource> QCoapResourceDiscoveryReply::resources() const
 {
     Q_D(const QCoapResourceDiscoveryReply);
     return d->resources;
@@ -126,11 +126,11 @@ QVector<QCoapResource> QCoapResourceDiscoveryReply::resources() const
     objects. The \a data byte array contains the frame returned by the
     discovery request.
 */
-QVector<QCoapResource>
+QList<QCoapResource>
 QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(const QHostAddress &sender,
                                                               const QByteArray &data)
 {
-    QVector<QCoapResource> resourceList;
+    QList<QCoapResource> resourceList;
 
     QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');

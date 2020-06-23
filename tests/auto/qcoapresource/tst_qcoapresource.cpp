@@ -146,7 +146,7 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    const QVector<QCoapResource> resourceList =
+    const auto resourceList =
             QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(
                 QHostAddress(senderAddress), coreLinkList);
 

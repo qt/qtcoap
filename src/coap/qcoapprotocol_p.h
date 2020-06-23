@@ -34,7 +34,7 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapresource.h>
-#include <QtCore/qvector.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpointer.h>
 #include <QtCore/qobject.h>
@@ -107,7 +107,7 @@ private:
 struct CoapExchangeData {
     QPointer<QCoapReply> userReply;
     QSharedPointer<QCoapInternalRequest> request;
-    QVector<QSharedPointer<QCoapInternalReply> > replies;
+    QList<QSharedPointer<QCoapInternalReply> > replies;
 };
 
 typedef QMap<QByteArray, CoapExchangeData> CoapExchangeMap;
@@ -144,7 +144,7 @@ public:
 
     QCoapInternalRequest *requestForToken(const QCoapToken &token) const;
     QPointer<QCoapReply> userReplyForToken(const QCoapToken &token) const;
-    QVector<QSharedPointer<QCoapInternalReply>> repliesForToken(const QCoapToken &token) const;
+    QList<QSharedPointer<QCoapInternalReply>> repliesForToken(const QCoapToken &token) const;
     QCoapInternalReply *lastReplyForToken(const QCoapToken &token) const;
     QCoapInternalRequest *findRequestByMessageId(quint16 messageId) const;
     QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply) const;
