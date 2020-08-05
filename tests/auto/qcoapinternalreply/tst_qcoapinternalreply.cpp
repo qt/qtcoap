@@ -160,7 +160,7 @@ void tst_QCoapInternalReply::parseReplyPdu()
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.opaqueValue(), optionsValues.at(i));
     }
-    QCOMPARE(reply->message()->payload(), payload);
+    QCOMPARE(reply->message()->payload(), payload.toUtf8());
 }
 
 void tst_QCoapInternalReply::updateReply_data()

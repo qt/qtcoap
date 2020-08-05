@@ -159,7 +159,7 @@ void tst_QCoapInternalRequest::requestToFrame()
         request.addOption(QCoapOption::Size1, QByteArray("abcdefghijklmnopqrstuvwxyz"));
 
     QByteArray pdu;
-    pdu.append(pduHeader);
+    pdu.append(pduHeader.toUtf8());
     if (!pduPayload.isEmpty())
         pdu.append(pduPayload.toUtf8().toHex());
 
