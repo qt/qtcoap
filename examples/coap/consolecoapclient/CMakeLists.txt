@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Network)
 find_package(Qt6 COMPONENTS Coap)
 
-add_qt_gui_executable(testapp
+qt_add_executable(testapp
     coaphandler.cpp coaphandler.h
     main.cpp
 )

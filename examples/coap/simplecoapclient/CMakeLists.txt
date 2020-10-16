@@ -21,7 +21,7 @@ find_package(Qt6 COMPONENTS Network)
 find_package(Qt6 COMPONENTS Coap)
 find_package(Qt6 COMPONENTS Widgets)
 
-add_qt_gui_executable(simplecoapclient
+qt_add_executable(simplecoapclient
     main.cpp
     mainwindow.cpp mainwindow.h mainwindow.ui
     optiondialog.cpp optiondialog.h optiondialog.ui

@@ -21,7 +21,7 @@ find_package(Qt6 COMPONENTS Qml)
 find_package(Qt6 COMPONENTS Quick)
 find_package(Qt6 COMPONENTS Coap)
 
-add_qt_gui_executable(quickmulticastclient
+qt_add_executable(quickmulticastclient
     main.cpp
     qmlcoapmulticastclient.cpp qmlcoapmulticastclient.h
 )
