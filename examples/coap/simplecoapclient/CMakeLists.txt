@@ -26,6 +26,10 @@ qt_add_executable(simplecoapclient
     mainwindow.cpp mainwindow.h mainwindow.ui
     optiondialog.cpp optiondialog.h optiondialog.ui
 )
+set_target_properties(simplecoapclient PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_compile_definitions(simplecoapclient PUBLIC
     QT_DEPRECATED_WARNINGS
 )

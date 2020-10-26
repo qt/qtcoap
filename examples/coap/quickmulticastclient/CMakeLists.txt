@@ -25,6 +25,10 @@ qt_add_executable(quickmulticastclient
     main.cpp
     qmlcoapmulticastclient.cpp qmlcoapmulticastclient.h
 )
+set_target_properties(quickmulticastclient PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_compile_definitions(quickmulticastclient PUBLIC
     QT_DEPRECATED_WARNINGS
 )

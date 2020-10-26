@@ -25,6 +25,10 @@ qt_add_executable(quicksecureclient
     main.cpp
     qmlcoapsecureclient.cpp qmlcoapsecureclient.h
 )
+set_target_properties(quicksecureclient PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_compile_definitions(quicksecureclient PUBLIC
     QT_DEPRECATED_WARNINGS
 )
