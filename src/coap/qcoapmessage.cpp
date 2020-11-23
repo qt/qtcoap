@@ -141,14 +141,14 @@ void QCoapMessage::addOption(const QCoapOption &option)
 {
     Q_D(QCoapMessage);
 
+    const auto it = std::upper_bound(d->options.begin(), d->options.end(), option,
+                                     [](const QCoapOption &a, const QCoapOption &b) -> bool {
+                                         return a.name() < b.name();
+                                     });
+    const auto idx = std::distance(d->options.begin(), it);
+
     // Sort options by ascending order while inserting
-    d->options.insert(
-                std::upper_bound(d->options.begin(), d->options.end(), option,
-                                 [](const QCoapOption &a, const QCoapOption &b) -> bool {
-                                     return a.name() < b.name();
-                                 }),
-                option
-            );
+    d->options.insert(idx, option);
 }
 
 /*!
