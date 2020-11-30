@@ -37,11 +37,50 @@ class tst_QCoapOption : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void constructAndAssign();
     void constructWithQByteArray();
     void constructWithQString();
     void constructWithInteger();
     void constructWithUtf8Characters();
 };
+
+void tst_QCoapOption::constructAndAssign()
+{
+    QCoapOption option1;
+    QCOMPARE(option1.name(), QCoapOption::Invalid);
+    QCOMPARE(option1.uintValue(), 0);
+    QVERIFY(option1.stringValue().isEmpty());
+    QVERIFY(option1.opaqueValue().isEmpty());
+
+    QCoapOption option2(QCoapOption::Size1, 1);
+    QCOMPARE(option2.name(), QCoapOption::Size1);
+    QCOMPARE(option2.uintValue(), 1);
+
+    // Copy-construction
+    QCoapOption option3(option2);
+    QCOMPARE(option3.name(), QCoapOption::Size1);
+    QCOMPARE(option3.uintValue(), 1);
+
+    // Move-construction
+    QCoapOption option4(std::move(option2));
+    QCOMPARE(option4.name(), QCoapOption::Size1);
+    QCOMPARE(option4.uintValue(), 1);
+
+    // Copy-assignment
+    option4 = option1;
+    QCOMPARE(option4.name(), QCoapOption::Invalid);
+    QCOMPARE(option4.uintValue(), 0);
+
+    // Move-assignment
+    option4 = std::move(option3);
+    QCOMPARE(option4.name(), QCoapOption::Size1);
+    QCOMPARE(option4.uintValue(), 1);
+
+    // Assign to a moved-from
+    option2 = option4;
+    QCOMPARE(option2.name(), QCoapOption::Size1);
+    QCOMPARE(option2.uintValue(), 1);
+}
 
 void tst_QCoapOption::constructWithQByteArray()
 {

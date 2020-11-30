@@ -164,8 +164,8 @@ QCoapOption::~QCoapOption()
  */
 QCoapOption &QCoapOption::operator=(const QCoapOption &other)
 {
-    d_ptr->name = other.d_ptr->name;
-    d_ptr->value = other.d_ptr->value;
+    QCoapOption copy(other);
+    swap(copy);
     return *this;
 }
 
