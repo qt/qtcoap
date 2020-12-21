@@ -4,6 +4,8 @@
 ## qcoapqudpconnection Test:
 #####################################################################
 
+set (QT_TESTSERVER_COMPOSE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../testserver/docker-compose.yml")
+
 qt_add_test(qcoapqudpconnection
     SOURCES
         ../coapnetworksettings.h
@@ -12,6 +14,7 @@ qt_add_test(qcoapqudpconnection
         Qt::Coap
         Qt::CoapPrivate
         Qt::Network
+    QT_TEST_SERVER_LIST "californium"
 )
 
 #### Keys ignored in scope 1:.:.:qcoapqudpconnection.pro:<TRUE>:
