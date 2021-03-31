@@ -170,6 +170,4 @@ public:
 
 QT_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QHostAddress)
-
 #endif // QCOAPPROTOCOL_P_H
