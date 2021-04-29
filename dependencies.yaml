@@ -3,5 +3,5 @@ dependencies:
     ref: c295d9d7984d0129330faace2c75da5700543ba3
     required: true
   ../qttools:
-    ref: 46642191c4a4dc48caa5dfe499c2517f71deda56
+    ref: a072557b2bfcaebd5a61faeb95a224f9d6290af1
     required: true
