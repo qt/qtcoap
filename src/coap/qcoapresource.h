@@ -35,6 +35,10 @@
 #include <QtCore/qshareddata.h>
 #include <QtNetwork/qhostaddress.h>
 
+#ifdef interface
+#  undef interface
+#endif
+
 QT_BEGIN_NAMESPACE
 
 class QCoapResourcePrivate;
