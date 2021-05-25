@@ -4,7 +4,7 @@
 ## qcoapmessage Test:
 #####################################################################
 
-qt_add_test(qcoapmessage
+qt_internal_add_test(qcoapmessage
     SOURCES
         tst_qcoapmessage.cpp
     PUBLIC_LIBRARIES

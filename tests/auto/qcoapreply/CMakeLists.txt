@@ -4,7 +4,7 @@
 ## qcoapreply Test:
 #####################################################################
 
-qt_add_test(qcoapreply
+qt_internal_add_test(qcoapreply
     SOURCES
         tst_qcoapreply.cpp
     PUBLIC_LIBRARIES

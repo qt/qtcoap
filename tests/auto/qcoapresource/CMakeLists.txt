@@ -4,7 +4,7 @@
 ## qcoapresource Test:
 #####################################################################
 
-qt_add_test(qcoapresource
+qt_internal_add_test(qcoapresource
     SOURCES
         tst_qcoapresource.cpp
     PUBLIC_LIBRARIES

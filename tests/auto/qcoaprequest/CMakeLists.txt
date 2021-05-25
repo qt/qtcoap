@@ -4,7 +4,7 @@
 ## qcoaprequest Test:
 #####################################################################
 
-qt_add_test(qcoaprequest
+qt_internal_add_test(qcoaprequest
     SOURCES
         tst_qcoaprequest.cpp
     PUBLIC_LIBRARIES

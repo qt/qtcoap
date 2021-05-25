@@ -4,7 +4,7 @@
 ## qcoapinternalrequest Test:
 #####################################################################
 
-qt_add_test(qcoapinternalrequest
+qt_internal_add_test(qcoapinternalrequest
     SOURCES
         tst_qcoapinternalrequest.cpp
     PUBLIC_LIBRARIES

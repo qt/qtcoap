@@ -4,7 +4,7 @@
 ## qcoapoption Test:
 #####################################################################
 
-qt_add_test(qcoapoption
+qt_internal_add_test(qcoapoption
     SOURCES
         tst_qcoapoption.cpp
     PUBLIC_LIBRARIES

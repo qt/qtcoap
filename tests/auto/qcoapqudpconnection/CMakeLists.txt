@@ -6,7 +6,7 @@
 
 set (QT_TESTSERVER_COMPOSE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../../testserver/docker-compose.yml")
 
-qt_add_test(qcoapqudpconnection
+qt_internal_add_test(qcoapqudpconnection
     SOURCES
         ../coapnetworksettings.h
         tst_qcoapqudpconnection.cpp
@@ -24,7 +24,7 @@ qt_add_test(qcoapqudpconnection
 #####################################################################
 
 # special case begin
-qt_extend_target(qcoapqudpconnection CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
+qt_internal_extend_target(qcoapqudpconnection CONDITION DEFINED ENV{COAP_TEST_SERVER_IP}
     DEFINES
         COAP_TEST_SERVER_IP=\\\"$ENV{COAP_TEST_SERVER_IP}\\\"
 )

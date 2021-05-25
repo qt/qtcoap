@@ -4,7 +4,7 @@
 ## qcoapinternalreply Test:
 #####################################################################
 
-qt_add_test(qcoapinternalreply
+qt_internal_add_test(qcoapinternalreply
     SOURCES
         tst_qcoapinternalreply.cpp
     PUBLIC_LIBRARIES

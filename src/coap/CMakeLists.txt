@@ -4,7 +4,7 @@
 ## Coap Module:
 #####################################################################
 
-qt_add_module(Coap
+qt_internal_add_module(Coap
     SOURCES
         qcoapclient.cpp qcoapclient.h qcoapclient_p.h
         qcoapconnection.cpp qcoapconnection_p.h
@@ -31,7 +31,6 @@ qt_add_module(Coap
         Qt::CorePrivate
         Qt::Network
 )
-qt_add_docs(Coap
+qt_internal_add_docs(Coap
     doc/qtcoap.qdocconf
 )
-
