@@ -1,7 +1,7 @@
 # Generated from consolecoapclient.pro.
 
 cmake_minimum_required(VERSION 3.14)
-project(testapp LANGUAGES CXX)
+project(consolecoapclient LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -19,21 +19,21 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Network)
 find_package(Qt6 COMPONENTS Coap)
 
-qt_add_executable(testapp
+qt_add_executable(consolecoapclient
     coaphandler.cpp coaphandler.h
     main.cpp
 )
-set_target_properties(testapp PROPERTIES
+set_target_properties(consolecoapclient PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
-target_link_libraries(testapp PUBLIC
+target_link_libraries(consolecoapclient PUBLIC
     Qt::Coap
     Qt::Core
     Qt::Network
 )
 
-install(TARGETS testapp
+install(TARGETS consolecoapclient
     RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
     BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}"
     LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}"
