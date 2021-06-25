@@ -596,8 +596,8 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request) con
     ackRequest.setTargetUri(request->targetUri());
 
     auto internalReply = lastReplyForToken(request->token());
-    ackRequest.initForAcknowledgment(internalReply->message()->messageId(),
-                                     internalReply->message()->token());
+    ackRequest.initEmptyMessage(internalReply->message()->messageId(),
+                                QCoapMessage::Type::Acknowledgment);
     ackRequest.setConnection(request->connection());
     sendRequest(&ackRequest);
 }
@@ -618,7 +618,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request) const
     resetRequest.setTargetUri(request->targetUri());
 
     auto lastReply = lastReplyForToken(request->token());
-    resetRequest.initForReset(lastReply->message()->messageId());
+    resetRequest.initEmptyMessage(lastReply->message()->messageId(), QCoapMessage::Type::Reset);
     resetRequest.setConnection(request->connection());
     sendRequest(&resetRequest);
 }
