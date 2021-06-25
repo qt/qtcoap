@@ -54,6 +54,8 @@ private Q_SLOTS:
     void parseBlockOption();
     void createBlockOption_data();
     void createBlockOption();
+    void initEmptyMessage_data();
+    void initEmptyMessage();
 };
 
 void tst_QCoapInternalRequest::requestToFrame_data()
@@ -449,6 +451,35 @@ void tst_QCoapInternalRequest::createBlockOption()
     const auto option = internalRequest.message()->options().back();
     QCOMPARE(option.name(), expectedOption.name());
     QCOMPARE(option.opaqueValue(), expectedOption.opaqueValue());
+}
+
+void tst_QCoapInternalRequest::initEmptyMessage_data()
+{
+    QTest::addColumn<QCoapMessage::Type>("type");
+    QTest::addColumn<QByteArray>("messageHeader");
+    QTest::newRow("acknowledge") << QCoapMessage::Type::Acknowledgment << QByteArray("6000002a");
+    QTest::newRow("reset") << QCoapMessage::Type::Reset << QByteArray("7000002a");
+
+}
+
+void tst_QCoapInternalRequest::initEmptyMessage()
+{
+    QFETCH(QCoapMessage::Type, type);
+    QFETCH(QByteArray, messageHeader);
+
+    // Populate the request with random data
+    QCoapRequest request = QCoapRequestPrivate::createRequest(QCoapRequest("coap://test"),
+                                                              QtCoap::Method::Get);
+    request.setVersion(1);
+    request.setType(QCoapMessage::Type::Confirmable);
+    request.setMessageId(111);
+    request.setToken("token");
+    request.addOption(QCoapOption::ProxyUri);
+    request.setPayload("payload");
+
+    QCoapInternalRequest emptyMessageRequest(request);
+    emptyMessageRequest.initEmptyMessage(42, type);
+    QCOMPARE(emptyMessageRequest.toQByteArray().toHex(), messageHeader);
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapInternalRequest)

@@ -103,34 +103,18 @@ bool QCoapInternalRequest::isValid() const
 /*!
     \internal
     Initialize parameters to transform the QCoapInternalRequest into an
-    acknowledgment message with the message id \a messageId and the given
-    \a token.
+    empty message (RST or ACK) with the message id \a messageId.
+
+    An empty message should contain only the \a messageId.
 */
-void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray &token)
+void QCoapInternalRequest::initEmptyMessage(quint16 messageId, QCoapMessage::Type type)
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Method::Invalid);
-    d->message.setType(QCoapMessage::Type::Acknowledgment);
-    d->message.setMessageId(messageId);
-    d->message.setToken(token);
-    d->message.setPayload(QByteArray());
-    d->message.clearOptions();
-}
-
-/*!
-    \internal
-    Initialize parameters to transform the QCoapInternalRequest into a
-    Reset message (RST) with the message id \a messageId.
-
-    A Reset message should contain only the \a messageId.
-*/
-void QCoapInternalRequest::initForReset(quint16 messageId)
-{
-    Q_D(QCoapInternalRequest);
+    Q_ASSERT(type == QCoapMessage::Type::Acknowledgment || type == QCoapMessage::Type::Reset);
 
     setMethod(QtCoap::Method::Invalid);
-    d->message.setType(QCoapMessage::Type::Reset);
+    d->message.setType(type);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
     d->message.setPayload(QByteArray());
