@@ -65,8 +65,7 @@ public:
 
     bool isValid() const override;
 
-    void initForAcknowledgment(quint16 messageId, const QByteArray &token);
-    void initForReset(quint16 messageId);
+    void initEmptyMessage(quint16 messageId, QCoapMessage::Type type);
 
     QByteArray toQByteArray() const;
     void setMessageId(quint16);
