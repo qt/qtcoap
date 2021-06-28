@@ -33,21 +33,12 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCoap/qtcoapexports.h>
 
 QT_BEGIN_NAMESPACE
 
 typedef QByteArray QCoapToken;
 typedef quint16 QCoapMessageId;
-
-#ifndef QT_STATIC
-#  ifdef QT_BUILD_COAP_LIB
-#    define Q_COAP_EXPORT Q_DECL_EXPORT
-#  else
-#    define Q_COAP_EXPORT Q_DECL_IMPORT
-#  endif
-#else
-#  define Q_COAP_EXPORT
-#endif
 
 QT_END_NAMESPACE
 
