@@ -253,7 +253,7 @@ void tst_QCoapClient::initTestCase()
 
 void tst_QCoapClient::incorrectUrls_data()
 {
-    QWARN("Expect warnings here...");
+    qWarning("Expect warnings here...");
     QTest::addColumn<QUrl>("url");
 
     QTest::newRow("get")        << QUrl("wrong://10.20.30.40:5683/test");
@@ -903,7 +903,7 @@ void tst_QCoapClient::discover()
 
 void tst_QCoapClient::observe_data()
 {
-    QWARN("Observe tests may take some time, don't forget to raise Tests timeout in settings.");
+    qWarning("Observe tests may take some time, don't forget to raise Tests timeout in settings.");
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::Type>("type");
     QTest::addColumn<QtCoap::SecurityMode>("security");
