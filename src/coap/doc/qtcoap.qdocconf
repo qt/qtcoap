@@ -14,10 +14,6 @@ qhp.QtCoap.virtualFolder       = qtcoap
 qhp.QtCoap.indexTitle          = Qt CoAP
 qhp.QtCoap.indexRoot           =
 
-qhp.QtCoap.filterAttributes    = qtcoap $QT_VERSION qtrefdoc
-qhp.QtCoap.customFilters.Qt.name = QtCoap $QT_VERSION
-qhp.QtCoap.customFilters.Qt.filterAttributes = qtcoap $QT_VERSION
-
 qhp.QtCoap.subprojects         = classes examples
 qhp.QtCoap.subprojects.classes.title = C++ Classes
 qhp.QtCoap.subprojects.classes.indexTitle = Qt CoAP C++ Classes
