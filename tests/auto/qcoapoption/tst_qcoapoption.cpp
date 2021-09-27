@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2018 Witekio.
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtCoap module.
@@ -48,38 +48,38 @@ void tst_QCoapOption::constructAndAssign()
 {
     QCoapOption option1;
     QCOMPARE(option1.name(), QCoapOption::Invalid);
-    QCOMPARE(option1.uintValue(), 0);
+    QCOMPARE(option1.uintValue(), 0u);
     QVERIFY(option1.stringValue().isEmpty());
     QVERIFY(option1.opaqueValue().isEmpty());
 
     QCoapOption option2(QCoapOption::Size1, 1);
     QCOMPARE(option2.name(), QCoapOption::Size1);
-    QCOMPARE(option2.uintValue(), 1);
+    QCOMPARE(option2.uintValue(), 1u);
 
     // Copy-construction
     QCoapOption option3(option2);
     QCOMPARE(option3.name(), QCoapOption::Size1);
-    QCOMPARE(option3.uintValue(), 1);
+    QCOMPARE(option3.uintValue(), 1u);
 
     // Move-construction
     QCoapOption option4(std::move(option2));
     QCOMPARE(option4.name(), QCoapOption::Size1);
-    QCOMPARE(option4.uintValue(), 1);
+    QCOMPARE(option4.uintValue(), 1u);
 
     // Copy-assignment
     option4 = option1;
     QCOMPARE(option4.name(), QCoapOption::Invalid);
-    QCOMPARE(option4.uintValue(), 0);
+    QCOMPARE(option4.uintValue(), 0u);
 
     // Move-assignment
     option4 = std::move(option3);
     QCOMPARE(option4.name(), QCoapOption::Size1);
-    QCOMPARE(option4.uintValue(), 1);
+    QCOMPARE(option4.uintValue(), 1u);
 
     // Assign to a moved-from
     option2 = option4;
     QCOMPARE(option2.name(), QCoapOption::Size1);
-    QCOMPARE(option2.uintValue(), 1);
+    QCOMPARE(option2.uintValue(), 1u);
 }
 
 void tst_QCoapOption::constructWithQByteArray()
