@@ -287,8 +287,9 @@ void QCoapQUdpConnection::setSocketOption(QAbstractSocket::SocketOption option, 
 */
 void QCoapQUdpConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
 {
+#if QT_CONFIG(dtls)
     Q_Q(QCoapQUdpConnection);
-
+#endif
     if (!socket()->isWritable()) {
         bool opened = socket()->open(socket()->openMode() | QIODevice::WriteOnly);
         if (!opened) {
