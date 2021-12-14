@@ -1,10 +1,10 @@
 # Generated from coap.pro.
 
-add_subdirectory(consolecoapclient)
+qt_internal_add_example(consolecoapclient)
 if(TARGET Qt::Widgets)
-    add_subdirectory(simplecoapclient)
+    qt_internal_add_example(simplecoapclient)
 endif()
 if(TARGET Qt::Quick)
-    add_subdirectory(quicksecureclient)
-    add_subdirectory(quickmulticastclient)
+    qt_internal_add_example(quicksecureclient)
+    qt_internal_add_example(quickmulticastclient)
 endif()
