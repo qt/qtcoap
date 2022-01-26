@@ -52,19 +52,16 @@
     \li Resource discovery (multicast and single server)
     \endlist
 
-    \note Qt CoAP is part of the Qt for Automation offering and not Qt. For further
-    details please see \l {Qt for Automation}.
-
-    \section1 Getting Started
-
-    To include the definitions of the module's classes, use the following
-    directive:
+    \include module-use.qdocinc using qt module
 
     \code
-    #include <QtCoap/QtCoap>
+    find_package(Qt6 REQUIRED COMPONENTS Coap)
+    target_link_libraries(mytarget PRIVATE Qt6::Coap)
     \endcode
 
-    To link against the module, add this line to your \l qmake \c .pro file:
+    See also the \l {Build with CMake} overview.
+
+    \include module-use.qdocinc building with qmake
 
     \code
     QT += coap
@@ -92,7 +89,7 @@
 
     Qt CoAP is available under commercial licenses from \l{The Qt Company}.
     In addition, it is available under the
-    the \l{GNU General Public License, version 3}.
+    \l{GNU General Public License, version 3}.
 
     \generatelist{groupsbymodule attributions-qtcoap}
 */
