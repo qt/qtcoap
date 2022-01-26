@@ -30,19 +30,9 @@
     \module QtCoap
     \title Qt CoAP C++ Classes
     \ingroup modules
+    \qtcmakepackage Coap
     \qtvariable coap
     \brief Provides classes to use CoAP protocol.
 
-    To use these classes in your application, use the following include
-    statement:
-
-    \code
-    #include <QtCoap/QtCoap>
-    \endcode
-
-    To link against the module, add this line to your \l qmake \c .pro file:
-
-    \code
-    QT += coap
-    \endcode
+    The \l{Qt CoAP} page contains information about how to use the module.
 */
