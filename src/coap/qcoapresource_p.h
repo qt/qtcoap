@@ -34,6 +34,7 @@
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qshareddata.h>
 #include <QtNetwork/qhostaddress.h>
+#include <QtCore/private/qglobal_p.h>
 
 //
 //  W A R N I N G

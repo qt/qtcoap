@@ -31,6 +31,7 @@
 #define QCOAPNAMESPACE_P_H
 
 #include "qcoapnamespace.h"
+#include "private/qglobal_p.h"
 
 //
 //  W A R N I N G
