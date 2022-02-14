@@ -1,35 +1,28 @@
-# Generated from simplecoapclient.pro.
-
 cmake_minimum_required(VERSION 3.16)
 project(simplecoapclient LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
-  set(INSTALL_EXAMPLESDIR "examples")
+    set(INSTALL_EXAMPLESDIR "examples")
 endif()
 
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/coap/simplecoapclient")
 
-find_package(Qt6 COMPONENTS Core)
-find_package(Qt6 COMPONENTS Gui)
-find_package(Qt6 COMPONENTS Network)
-find_package(Qt6 COMPONENTS Coap)
-find_package(Qt6 COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Coap Core Gui Network Widgets)
 
 qt_add_executable(simplecoapclient
     main.cpp
     mainwindow.cpp mainwindow.h mainwindow.ui
     optiondialog.cpp optiondialog.h optiondialog.ui
 )
+
 set_target_properties(simplecoapclient PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
+
 target_compile_definitions(simplecoapclient PUBLIC
     QT_DEPRECATED_WARNINGS
 )

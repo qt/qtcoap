@@ -1,5 +1,3 @@
-# Generated from coap.pro.
-
 qt_internal_add_example(consolecoapclient)
 if(TARGET Qt::Widgets)
     qt_internal_add_example(simplecoapclient)
