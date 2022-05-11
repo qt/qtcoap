@@ -57,7 +57,7 @@ public:
     QCoapPrivateKey &operator=(const QCoapPrivateKey &other);
 
     void swap(QCoapPrivateKey &other) noexcept
-    { qSwap(d, other.d); }
+    { d.swap(other.d); }
 
     bool isNull() const;
 
@@ -84,7 +84,7 @@ public:
     QCoapSecurityConfiguration &operator=(const QCoapSecurityConfiguration &other);
 
     void swap(QCoapSecurityConfiguration &other) noexcept
-    { qSwap(d, other.d); }
+    { d.swap(other.d); }
 
     void setPreSharedKeyIdentity(const QByteArray &preSharedKeyIdentity);
     QByteArray preSharedKeyIdentity() const;
