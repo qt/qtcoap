@@ -406,4 +406,11 @@ QCoapMessagePrivate* QCoapMessage::d_func()
     return d_ptr.data();
 }
 
+/*!
+    \variable QCoapMessage::d_ptr
+    \internal
+
+    Pointer to private data structure.
+*/
+
 QT_END_NAMESPACE
