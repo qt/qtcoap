@@ -10,7 +10,7 @@
 qt_internal_add_test(qcoapoption
     SOURCES
         tst_qcoapoption.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Coap
         Qt::CoapPrivate
 )

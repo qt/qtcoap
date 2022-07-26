@@ -10,7 +10,7 @@
 qt_internal_add_test(qcoapresource
     SOURCES
         tst_qcoapresource.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Coap
         Qt::CoapPrivate
         Qt::Network

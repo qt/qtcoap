@@ -15,7 +15,7 @@ qt_internal_add_test(qcoapclient
     SOURCES
         ../coapnetworksettings.h
         tst_qcoapclient.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Coap
         Qt::CoapPrivate
         Qt::Network

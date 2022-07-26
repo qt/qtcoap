@@ -10,7 +10,7 @@
 qt_internal_add_test(qcoapinternalreply
     SOURCES
         tst_qcoapinternalreply.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Coap
         Qt::CoapPrivate
         Qt::Network
