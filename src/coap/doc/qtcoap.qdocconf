@@ -33,8 +33,6 @@ excludedirs += ../qt4support
 # Add a generic thumbnail to an example that has no \image in its documentation
 manifestmeta.thumbnail.names = "QtCoap/Console CoAP Client Example"
 
-Cpp.ignoretokens += Q_COAP_EXPORT
-
 depends += qtcore qtdoc qtnetwork qmake qtcmake
 
 #add generic thumbnail images for example documentation that does not have an image.
