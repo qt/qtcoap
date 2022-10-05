@@ -73,8 +73,8 @@ void tst_QCoapQUdpConnection::connectToHost()
     // This will trigger connection.bind()
     connection.sendRequest(QByteArray(), QString(), 0);
 
-    QTRY_COMPARE(spySocketStateChanged.count(), 1);
-    QTRY_COMPARE(spyConnectionBound.count(), 1);
+    QTRY_COMPARE(spySocketStateChanged.size(), 1);
+    QTRY_COMPARE(spyConnectionBound.size(), 1);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 }
 
@@ -85,7 +85,7 @@ void tst_QCoapQUdpConnection::reconnect()
     // This will trigger connection.bind()
     QSignalSpy connectionBoundSpy(&connection, SIGNAL(bound()));
     connection.sendRequest(QByteArray(), QString(), 0);
-    QTRY_COMPARE(connectionBoundSpy.count(), 1);
+    QTRY_COMPARE(connectionBoundSpy.size(), 1);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 
     connection.disconnect();
@@ -93,7 +93,7 @@ void tst_QCoapQUdpConnection::reconnect()
 
     // Make sure that we are able to connect again
     connection.sendRequest(QByteArray(), QString(), 0);
-    QTRY_COMPARE(connectionBoundSpy.count(), 2);
+    QTRY_COMPARE(connectionBoundSpy.size(), 2);
     QCOMPARE(connection.state(), QCoapQUdpConnection::ConnectionState::Bound);
 }
 
@@ -171,8 +171,8 @@ void tst_QCoapQUdpConnection::sendRequest()
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);
 
-    QTRY_COMPARE(spySocketReadyRead.count(), 1);
-    QTRY_COMPARE(spyConnectionReadyRead.count(), 1);
+    QTRY_COMPARE(spySocketReadyRead.size(), 1);
+    QTRY_COMPARE(spyConnectionReadyRead.size(), 1);
 
     QByteArray data = spyConnectionReadyRead.first().first().value<QByteArray>();
     QVERIFY(QString(data.toHex()).startsWith(dataHexaHeader));

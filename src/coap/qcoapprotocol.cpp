@@ -150,7 +150,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     // Set block size for blockwise request/replies, if specified
     if (d->blockSize > 0) {
         internalRequest->setToRequestBlock(0, d->blockSize);
-        if (requestMessage->payload().length() > d->blockSize)
+        if (requestMessage->payload().size() > d->blockSize)
             internalRequest->setToSendBlock(0, d->blockSize);
     }
 

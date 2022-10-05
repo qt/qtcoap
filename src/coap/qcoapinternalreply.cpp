@@ -67,7 +67,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     // Parse Options
     int i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
-    while (i != reply.length() && pduData[i] != 0xFF) {
+    while (i != reply.size() && pduData[i] != 0xFF) {
         quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
         quint16 optionLength = (pduData[i] & 0x0F);
 
@@ -97,7 +97,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     }
 
     // Parse Payload
-    if (i < reply.length() && pduData[i] == 0xFF) {
+    if (i < reply.size() && pduData[i] == 0xFF) {
         // -1 because of 0xFF at the beginning
         QByteArray currentPayload = reply.mid(i + 1);
         d->message.setPayload(d->message.payload().append(currentPayload));

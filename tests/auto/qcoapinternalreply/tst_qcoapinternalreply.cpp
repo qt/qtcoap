@@ -127,7 +127,7 @@ void tst_QCoapInternalReply::parseReplyPdu()
     QCOMPARE(reply->responseCode(), responseCode);
     QCOMPARE(reply->message()->messageId(), messageId);
     QCOMPARE(reply->message()->token().toHex(), token);
-    QCOMPARE(reply->message()->optionCount(), optionsNames.count());
+    QCOMPARE(reply->message()->optionCount(), optionsNames.size());
     for (int i = 0; i < reply->message()->optionCount(); ++i) {
         QCoapOption option = reply->message()->optionAt(i);
         QCOMPARE(option.name(), optionsNames.at(i));
@@ -159,7 +159,7 @@ void tst_QCoapInternalReply::updateReply()
                               Q_ARG(QtCoap::ResponseCode, internalReply.responseCode()));
     QMetaObject::invokeMethod(reply.data(), "_q_setFinished", Q_ARG(QtCoap::Error, QtCoap::Error::Ok));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.size(), 1, 1000);
     QCOMPARE(reply->readAll(), data);
 }
 
