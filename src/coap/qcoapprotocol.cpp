@@ -523,7 +523,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request,
 
         QByteArray finalPayload;
         int lastBlockNumber = -1;
-        for (auto reply : qAsConst(replies)) {
+        for (auto reply : std::as_const(replies)) {
             int currentBlock = static_cast<int>(reply->currentBlockNumber());
             QByteArray replyPayload = reply->message()->payload();
             if (replyPayload.isEmpty() || currentBlock <= lastBlockNumber)

@@ -970,7 +970,7 @@ void tst_QCoapClient::observe()
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
     QCOMPARE(spyReplyFinished.size(), 1);
 
-    for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
+    for (QList<QVariant> receivedSignals : std::as_const(spyReplyNotified)) {
         QRegularExpression regexp(QStringLiteral("..:..:.."));
         QByteArray payload = receivedSignals.at(1).value<QCoapMessage>().payload();
         QString error = QString("Invalid payload for 'notified' signal: %1").arg(QString(payload));

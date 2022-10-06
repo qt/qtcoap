@@ -83,7 +83,7 @@ void CoapHandler::onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapRe
 {
     Q_UNUSED(reply)
 
-    for (const QCoapResource &res : qAsConst(resources))
+    for (const QCoapResource &res : std::as_const(resources))
         qCInfo(lcCoapClient) << "Discovered resource:" << res.path() << res.title();
 }
 

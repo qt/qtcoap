@@ -150,7 +150,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
                  }));
 
         quint8 lastOptionNumber = 0;
-        for (const QCoapOption &option : qAsConst(options)) {
+        for (const QCoapOption &option : std::as_const(options)) {
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
             bool isOptionDeltaExtended = false;
