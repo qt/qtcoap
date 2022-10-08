@@ -538,7 +538,7 @@ void tst_QCoapClient::multipleRequests()
     }
 
     for (const auto &signalSpy : signalSpies)
-        QTRY_COMPARE(signalSpy->count(), 1);
+        QTRY_COMPARE(signalSpy->size(), 1);
     QTRY_COMPARE(spyClientFinished.size(), 4);
 
     for (uint8_t i = 0; i < requestCount; ++i) {
