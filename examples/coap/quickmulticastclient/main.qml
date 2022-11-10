@@ -1,12 +1,12 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.13
-import CoapMulticastClient 1.0
-import qtcoap.example.namespace 1.0
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+import QtQuick.Layouts
+import CoapMulticastClient
+import qtcoap.example.namespace
 
 Window {
     visible: true
