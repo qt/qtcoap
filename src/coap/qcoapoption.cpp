@@ -177,7 +177,7 @@ quint32 QCoapOption::uintValue() const
     Q_D(const QCoapOption);
 
     quint32 intValue = 0;
-    for (int i = 0; i < d->value.length(); i++)
+    for (int i = 0; i < d->value.size(); i++)
         intValue |= static_cast<quint8>(d->value.at(i)) << (8 * i);
 
     return intValue;
@@ -198,7 +198,7 @@ QString QCoapOption::stringValue() const
 int QCoapOption::length() const
 {
     Q_D(const QCoapOption);
-    return d->value.length();
+    return d->value.size();
 }
 
 /*!

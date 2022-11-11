@@ -156,7 +156,7 @@ bool waitForHost(const QUrl &url, QtCoap::SecurityMode security = QtCoap::Securi
 
         spyClientFinished.wait(1000);
 
-        if (spyClientFinished.count() == 1)
+        if (spyClientFinished.size() == 1)
             return true;
     }
     return false;

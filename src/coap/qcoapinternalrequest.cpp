@@ -131,7 +131,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     // Insert header
     appendByte(&pdu, (d->message.version()                   << 6)  // CoAP version
                    | (static_cast<quint8>(d->message.type()) << 4)  // Message type
-                   |  d->message.token().length());                 // Token Length
+                   |  d->message.token().size());                 // Token Length
     appendByte(&pdu,  static_cast<quint8>(d->method) & 0xFF);       // Method code
     appendByte(&pdu, (d->message.messageId() >> 8)   & 0xFF);       // Message ID
     appendByte(&pdu,  d->message.messageId()         & 0xFF);
@@ -290,7 +290,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     // M field: whether more blocks are following
     // 1 bit
     if (name == QCoapOption::Block1
-            && static_cast<int>((blockNumber + 1) * blockSize) < d->fullPayload.length()) {
+            && static_cast<int>((blockNumber + 1) * blockSize) < d->fullPayload.size()) {
         optionData |= 8;
     }
 

@@ -71,14 +71,14 @@ void tst_QCoapReply::updateReply()
     QMetaObject::invokeMethod(reply.data(), "_q_setFinished",
                               Q_ARG(QtCoap::Error, error));
 
-    QCOMPARE(spyReplyFinished.count(), 1);
-    QCOMPARE(spyReplyNotified.count(), 0);
-    QCOMPARE(spyReplyAborted.count(), 0);
+    QCOMPARE(spyReplyFinished.size(), 1);
+    QCOMPARE(spyReplyNotified.size(), 0);
+    QCOMPARE(spyReplyAborted.size(), 0);
     if (error != QtCoap::Error::Ok || QtCoap::isError(responseCode)) {
-        QVERIFY(spyReplyError.count() > 0);
+        QVERIFY(spyReplyError.size() > 0);
         QCOMPARE(reply->isSuccessful(), false);
     } else {
-        QCOMPARE(spyReplyError.count(), 0);
+        QCOMPARE(spyReplyError.size(), 0);
         QCOMPARE(reply->isSuccessful(), true);
     }
 
@@ -111,9 +111,9 @@ void tst_QCoapReply::abortRequest()
     QSignalSpy spyFinished(reply.data(), &QCoapReply::finished);
     reply->abortRequest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyAborted.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyAborted.size(), 1, 1000);
     QList<QVariant> arguments = spyAborted.takeFirst();
-    QTRY_COMPARE_WITH_TIMEOUT(spyFinished.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyFinished.size(), 1, 1000);
     QVERIFY(arguments.at(0).toByteArray() == "token");
 }
 

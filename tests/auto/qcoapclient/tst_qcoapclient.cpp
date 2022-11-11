@@ -360,8 +360,8 @@ void tst_QCoapClient::methods()
              QCoapRequestPrivate::adjustedUrl(url, client.isSecure()));
 #endif
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
-    QTRY_COMPARE(spyReplyFinished.count(), 1);
-    QTRY_COMPARE(spyClientFinished.count(), 1);
+    QTRY_COMPARE(spyReplyFinished.size(), 1);
+    QTRY_COMPARE(spyClientFinished.size(), 1);
 
     QByteArray replyData;
     if (!reply.isNull()) {
@@ -397,7 +397,7 @@ void tst_QCoapClient::separateMethod()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
-    QTRY_COMPARE(spyReplyFinished.count(), 1);
+    QTRY_COMPARE(spyReplyFinished.size(), 1);
 
     QByteArray replyData = reply->readAll();
 
@@ -484,7 +484,7 @@ void tst_QCoapClient::requestWithQIODevice()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
-    QTRY_COMPARE(spyReplyFinished.count(), 1);
+    QTRY_COMPARE(spyReplyFinished.size(), 1);
 
     QByteArray replyData = reply->readAll();
 
@@ -538,8 +538,8 @@ void tst_QCoapClient::multipleRequests()
     }
 
     for (const auto &signalSpy : signalSpies)
-        QTRY_COMPARE(signalSpy->count(), 1);
-    QTRY_COMPARE(spyClientFinished.count(), 4);
+        QTRY_COMPARE(signalSpy->size(), 1);
+    QTRY_COMPARE(spyClientFinished.size(), 4);
 
     for (uint8_t i = 0; i < requestCount; ++i) {
         QCOMPARE(replies[i]->responseCode(), QtCoap::ResponseCode::Content);
@@ -565,8 +565,8 @@ void tst_QCoapClient::socketError()
     QScopedPointer<QCoapReply> reply(client.get(url));
     QSignalSpy spyClientError(&client, &QCoapClient::error);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketError.size(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientError.size(), 1, 1000);
     QCOMPARE(qvariant_cast<QtCoap::Error>(spyClientError.first().at(1)),
              QtCoap::Error::AddressInUse);
 #else
@@ -611,7 +611,7 @@ void tst_QCoapClient::timeout()
     uint transmissions = maximumRetransmitCount + 1;
 
     // 10% Precision expected at least, plus timer precision
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, static_cast<int>(
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.size(), 1, static_cast<int>(
                                   1.1 * client.protocol()->maximumTransmitWait() + 20 * transmissions));
 
     // Check timeout lower limit
@@ -626,9 +626,9 @@ void tst_QCoapClient::timeout()
 
     QCOMPARE(qvariant_cast<QtCoap::Error>(spyReplyError.first().at(1)),
              QtCoap::Error::TimeOut);
-    QCOMPARE(spyReplyFinished.count(), 1);
-    QCOMPARE(spyReplyAborted.count(), 0);
-    QCOMPARE(spyClientError.count(), 1);
+    QCOMPARE(spyReplyFinished.size(), 1);
+    QCOMPARE(spyReplyAborted.size(), 0);
+    QCOMPARE(spyClientError.size(), 1);
 #else
     QSKIP("Not an internal build, skipping this test");
 #endif
@@ -653,9 +653,9 @@ void tst_QCoapClient::abort()
     QTimer::singleShot(1000, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
 
-    QCOMPARE(spyReplyAborted.count(), 1);
-    QCOMPARE(spyReplyFinished.count(), 1);
-    QCOMPARE(spyReplyError.count(), 0);
+    QCOMPARE(spyReplyAborted.size(), 1);
+    QCOMPARE(spyReplyFinished.size(), 1);
+    QCOMPARE(spyReplyError.size(), 0);
 }
 
 void tst_QCoapClient::blockwiseReply_data()
@@ -755,8 +755,8 @@ void tst_QCoapClient::blockwiseReply()
     Helper helper;
     connect(reply.data(), &QCoapReply::error, &helper, &Helper::onError);
 
-    QCOMPARE(spyReplyError.count(), 0);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QCOMPARE(spyReplyError.size(), 0);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.size(), 1, 30000);
     QCOMPARE(reply->readAll(), replyData);
 }
 
@@ -822,7 +822,7 @@ void tst_QCoapClient::blockwiseRequest()
     QVERIFY(!reply.isNull());
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.size(), 1, 30000);
 
     QByteArray dataReply = reply->readAll();
     QCOMPARE(dataReply, replyData);
@@ -862,14 +862,14 @@ void tst_QCoapClient::discover()
     QVERIFY(!resourcesReply.isNull());
     QSignalSpy spyReplyFinished(resourcesReply.data(), &QCoapReply::finished);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.size(), 1, 30000);
 
     const auto discoverUrl = QUrl(url.toString() + "/.well-known/core");
 #ifdef QT_BUILD_INTERNAL
     QCOMPARE(resourcesReply->url(),
              QCoapRequestPrivate::adjustedUrl(discoverUrl, client.isSecure()));
 #endif
-    QCOMPARE(resourcesReply->resources().length(), resourceNumber);
+    QCOMPARE(resourcesReply->resources().size(), resourceNumber);
     QCOMPARE(resourcesReply->request().method(), QtCoap::Method::Get);
 
     //! TODO Test discovery content too
@@ -959,7 +959,7 @@ void tst_QCoapClient::observe()
     QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.size(), 3, 30000);
     client.cancelObserve(reply.data());
 #ifdef QT_BUILD_INTERNAL
     QCOMPARE(reply->url(),
@@ -968,7 +968,7 @@ void tst_QCoapClient::observe()
     QCOMPARE(reply->request().method(), QtCoap::Method::Get);
 
     QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
-    QCOMPARE(spyReplyFinished.count(), 1);
+    QCOMPARE(spyReplyFinished.size(), 1);
 
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
         QRegularExpression regexp(QStringLiteral("..:..:.."));
@@ -1002,7 +1002,7 @@ void tst_QCoapClient::multicast()
     emit client.connection()->readyRead("SE\xAD/abc\xC0\xFFReply1", host1);
 
     QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
-    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+    QTRY_COMPARE(spyMulticastResponse.size(), 2);
 
     QCoapMessage message0 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
     QCOMPARE(message0.payload(), "Reply0");
@@ -1037,7 +1037,7 @@ void tst_QCoapClient::multicast_blockwise()
     emit client.connection()->readyRead("SE#~abc\xC0\xB1%\xFFReply4", host1);
 
     QSignalSpy spyMulticastResponse(&client, &QCoapClient::responseToMulticastReceived);
-    QTRY_COMPARE(spyMulticastResponse.count(), 2);
+    QTRY_COMPARE(spyMulticastResponse.size(), 2);
 
     QCoapMessage message0 = qvariant_cast<QCoapMessage>(spyMulticastResponse.at(0).at(1));
     QCOMPARE(message0.payload(), "Reply1Reply2");
@@ -1087,7 +1087,7 @@ void tst_QCoapClient::setMinimumTokenSize()
         QScopedPointer<QCoapReply> reply;
         reply.reset(client.get(QCoapRequest("127.0.0.1")));
 
-        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 300);
+        QTRY_COMPARE_WITH_TIMEOUT(spyClientError.size(), 1, 300);
         QVERIFY(reply->request().tokenLength() >= expectedMinSize);
         QVERIFY(reply->request().tokenLength() <= maxSize);
     }

@@ -198,7 +198,7 @@ QByteArray QCoapMessage::token() const
 quint8 QCoapMessage::tokenLength() const
 {
     Q_D(const QCoapMessage);
-    return static_cast<quint8>(d->token.length());
+    return static_cast<quint8>(d->token.size());
 }
 
 /*!
@@ -299,7 +299,7 @@ QList<QCoapOption> QCoapMessage::options(QCoapOption::OptionName name) const
 int QCoapMessage::optionCount() const
 {
     Q_D(const QCoapMessage);
-    return d->options.length();
+    return d->options.size();
 }
 
 /*!
