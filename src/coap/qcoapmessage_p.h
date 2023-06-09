@@ -26,8 +26,9 @@ class Q_AUTOTEST_EXPORT QCoapMessagePrivate : public QSharedData
 {
 public:
     QCoapMessagePrivate(QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable);
-    QCoapMessagePrivate(const QCoapMessagePrivate &other);
-    ~QCoapMessagePrivate();
+    virtual ~QCoapMessagePrivate();
+
+    virtual QCoapMessagePrivate *clone() const;
 
     QList<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
 
@@ -37,7 +38,18 @@ public:
     QByteArray token;
     QList<QCoapOption> options;
     QByteArray payload;
+
+protected:
+    QCoapMessagePrivate(const QCoapMessagePrivate &other);
 };
+
+// don't use the copy constructor when detaching from a QSharedDataPointer,
+// use virtual clone() call instead.
+template <>
+Q_INLINE_TEMPLATE QCoapMessagePrivate *QSharedDataPointer<QCoapMessagePrivate>::clone()
+{
+    return d->clone();
+}
 
 QT_END_NAMESPACE
 
