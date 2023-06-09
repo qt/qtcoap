@@ -48,6 +48,11 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 {
 }
 
+QCoapMessagePrivate *QCoapMessagePrivate::clone() const
+{
+    return new QCoapMessagePrivate(*this);
+}
+
 /*!
     \class QCoapMessage
     \inmodule QtCoap
