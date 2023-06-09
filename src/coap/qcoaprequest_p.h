@@ -28,8 +28,9 @@ public:
     QCoapRequestPrivate(const QUrl &url = QUrl(),
                         QCoapMessage::Type type = QCoapMessage::Type::NonConfirmable,
                         const QUrl &proxyUrl = QUrl());
-    QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
     ~QCoapRequestPrivate();
+
+    QCoapRequestPrivate *clone() const override;
 
     void setUrl(const QUrl &url);
     void adjustUrl(bool secure);
@@ -42,6 +43,9 @@ public:
     QUrl uri;
     QUrl proxyUri;
     QtCoap::Method method = QtCoap::Method::Invalid;
+
+protected:
+    QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
 };
 
 QT_END_NAMESPACE
