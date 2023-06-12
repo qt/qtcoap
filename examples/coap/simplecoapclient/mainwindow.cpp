@@ -82,7 +82,7 @@ void MainWindow::onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapRes
         return;
 
     QString message;
-    for (const auto &resource : resources) {
+    for (const auto &resource : std::as_const(resources)) {
         ui->resourceComboBox->addItem(resource.path());
         message += "Discovered resource: \"" + resource.title() + "\" on path "
                 + resource.path() + "\n";
@@ -116,7 +116,7 @@ void MainWindow::on_runButton_clicked()
     url.setPath(ui->resourceComboBox->currentText());
 
     QCoapRequest request(url, msgType);
-    for (const auto &option : m_options)
+    for (const auto &option : std::as_const(m_options))
         request.addOption(option);
     m_options.clear();
 
