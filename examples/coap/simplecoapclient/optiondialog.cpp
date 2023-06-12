@@ -9,6 +9,10 @@ OptionDialog::OptionDialog(QWidget *parent) :
     ui(new Ui::OptionDialog)
 {
     ui->setupUi(this);
+    connect(ui->tableWidget, &QTableWidget::itemSelectionChanged, this, [this]() {
+        const auto selection = ui->tableWidget->selectedItems();
+        ui->removeButton->setEnabled(!selection.isEmpty());
+    });
 
     fillOptions();
 
@@ -42,6 +46,15 @@ void OptionDialog::on_addButton_clicked()
     QTableWidgetItem *valueItem = new QTableWidgetItem(ui->optionValueEdit->text());
     valueItem->setFlags(valueItem->flags() ^ Qt::ItemIsEditable);
     ui->tableWidget->setItem(rowCount, 1, valueItem);
+}
+
+void OptionDialog::on_removeButton_clicked()
+{
+    const auto idx = ui->tableWidget->currentRow();
+    if (idx >= 0 && idx < ui->tableWidget->rowCount()) {
+        ui->tableWidget->removeRow(idx);
+        m_options.removeAt(idx);
+    }
 }
 
 void OptionDialog::on_clearButton_clicked()
