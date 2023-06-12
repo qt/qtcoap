@@ -10,6 +10,10 @@ OptionDialog::OptionDialog(const QList<QCoapOption> &options, QWidget *parent) :
     m_options(options)
 {
     ui->setupUi(this);
+    connect(ui->tableWidget, &QTableWidget::itemSelectionChanged, this, [this]() {
+        const auto selection = ui->tableWidget->selectedItems();
+        ui->removeButton->setEnabled(!selection.isEmpty());
+    });
 
     fillOptions();
     applyOptionValues();
@@ -35,6 +39,15 @@ void OptionDialog::on_addButton_clicked()
     m_options.push_back(QCoapOption(option, ui->optionValueEdit->text()));
 
     addTableRow(ui->optionComboBox->currentText(), ui->optionValueEdit->text());
+}
+
+void OptionDialog::on_removeButton_clicked()
+{
+    const auto idx = ui->tableWidget->currentRow();
+    if (idx >= 0 && idx < ui->tableWidget->rowCount()) {
+        ui->tableWidget->removeRow(idx);
+        m_options.removeAt(idx);
+    }
 }
 
 void OptionDialog::on_clearButton_clicked()
