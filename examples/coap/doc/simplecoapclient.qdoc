@@ -3,14 +3,17 @@
 
 /*!
     \example simplecoapclient
-    \title Simple CoAP Client Example
+    \title Simple CoAP Client
+    \examplecategory {Connectivity}
     \ingroup qtcoap-examples
     \brief Creating an application that communicates with a CoAP server.
 
-    \image simplecoapclient.png
+    \image simplecoapclient.webp
 
     \e {Simple CoAP Client} demonstrates how to create a minimalistic CoAP client
     application to send and receive CoAP messages.
+
+    \include examples-run.qdocinc
 
     \section1 Setting Up a CoAP Server
 
@@ -64,6 +67,15 @@
 
     The CoAP test server will be reachable by the retrieved IP address on ports
     \e 5683 (non-secure) and \e 5684 (secure).
+
+    To terminate the docker container after usage, use the following command:
+
+    \badcode
+    docker stop <container_id>
+    \endcode
+
+    The \c {<container_id>} here is the same as retrieved by the \c {docker ps}
+    command.
 
     \section1 Creating a Client
 
