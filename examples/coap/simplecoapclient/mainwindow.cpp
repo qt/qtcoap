@@ -169,7 +169,7 @@ void MainWindow::on_observeButton_clicked()
     connect(observeReply, &QCoapReply::notified, this, &MainWindow::onNotified);
 
     ui->cancelObserveButton->setEnabled(true);
-    connect(ui->cancelObserveButton, &QPushButton::clicked, this, [=]() {
+    connect(ui->cancelObserveButton, &QPushButton::clicked, this, [this, url]() {
         m_client->cancelObserve(url);
         ui->cancelObserveButton->setEnabled(false);
     });
