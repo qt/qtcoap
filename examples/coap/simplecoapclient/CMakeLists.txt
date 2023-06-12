@@ -4,9 +4,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(simplecoapclient LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "examples")
 endif()
@@ -14,6 +11,8 @@ endif()
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/coap/simplecoapclient")
 
 find_package(Qt6 REQUIRED COMPONENTS Coap Core Gui Network Widgets)
+
+qt_standard_project_setup()
 
 qt_add_executable(simplecoapclient
     main.cpp
@@ -26,16 +25,12 @@ set_target_properties(simplecoapclient PROPERTIES
     MACOSX_BUNDLE TRUE
 )
 
-target_compile_definitions(simplecoapclient PUBLIC
-    QT_DEPRECATED_WARNINGS
-)
-
-target_link_libraries(simplecoapclient PUBLIC
-    Qt::Coap
-    Qt::Core
-    Qt::Gui
-    Qt::Network
-    Qt::Widgets
+target_link_libraries(simplecoapclient PRIVATE
+    Qt6::Coap
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Network
+    Qt6::Widgets
 )
 
 install(TARGETS simplecoapclient
