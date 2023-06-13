@@ -18,7 +18,7 @@ class OptionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptionDialog(QWidget *parent = nullptr);
+    explicit OptionDialog(const QList<QCoapOption> &options, QWidget *parent = nullptr);
     ~OptionDialog();
 
     QList<QCoapOption> options() const;
@@ -30,6 +30,8 @@ private slots:
 
 private:
     void fillOptions();
+    void applyOptionValues();
+    void addTableRow(const QString &name, const QString &value);
 
     Ui::OptionDialog *ui;
     QList<QCoapOption> m_options;

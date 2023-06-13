@@ -177,7 +177,7 @@ void MainWindow::on_observeButton_clicked()
 
 void MainWindow::on_addOptionsButton_clicked()
 {
-    OptionDialog dialog;
+    OptionDialog dialog(m_options);
     if (dialog.exec() == QDialog::Accepted)
         m_options = dialog.options();
 }
