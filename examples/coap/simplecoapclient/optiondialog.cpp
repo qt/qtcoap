@@ -4,13 +4,15 @@
 #include "optiondialog.h"
 #include "ui_optiondialog.h"
 
-OptionDialog::OptionDialog(QWidget *parent) :
+OptionDialog::OptionDialog(const QList<QCoapOption> &options, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::OptionDialog)
+    ui(new Ui::OptionDialog),
+    m_options(options)
 {
     ui->setupUi(this);
 
     fillOptions();
+    applyOptionValues();
 
     auto header = ui->tableWidget->horizontalHeader();
     header->setSectionResizeMode(QHeaderView::Stretch);
@@ -32,16 +34,7 @@ void OptionDialog::on_addButton_clicked()
             ui->optionComboBox->currentData(Qt::UserRole).value<QCoapOption::OptionName>();
     m_options.push_back(QCoapOption(option, ui->optionValueEdit->text()));
 
-    const auto rowCount = ui->tableWidget->rowCount();
-    ui->tableWidget->insertRow(rowCount);
-
-    QTableWidgetItem *optionItem = new QTableWidgetItem(ui->optionComboBox->currentText());
-    optionItem->setFlags(optionItem->flags() ^ Qt::ItemIsEditable);
-    ui->tableWidget->setItem(rowCount, 0, optionItem);
-
-    QTableWidgetItem *valueItem = new QTableWidgetItem(ui->optionValueEdit->text());
-    valueItem->setFlags(valueItem->flags() ^ Qt::ItemIsEditable);
-    ui->tableWidget->setItem(rowCount, 1, valueItem);
+    addTableRow(ui->optionComboBox->currentText(), ui->optionValueEdit->text());
 }
 
 void OptionDialog::on_clearButton_clicked()
@@ -71,4 +64,27 @@ void OptionDialog::fillOptions()
     ui->optionComboBox->addItem("Uri-Path", QCoapOption::UriPath);
     ui->optionComboBox->addItem("Uri-Port", QCoapOption::UriPort);
     ui->optionComboBox->addItem("Uri-Query", QCoapOption::UriQuery);
+}
+
+void OptionDialog::applyOptionValues()
+{
+    for (const auto &option : std::as_const(m_options)) {
+        const int optionIndex = ui->optionComboBox->findData(option.name());
+        if (optionIndex != -1)
+            addTableRow(ui->optionComboBox->itemText(optionIndex), option.stringValue());
+    }
+}
+
+void OptionDialog::addTableRow(const QString &name, const QString &value)
+{
+    const auto rowCount = ui->tableWidget->rowCount();
+    ui->tableWidget->insertRow(rowCount);
+
+    QTableWidgetItem *optionItem = new QTableWidgetItem(name);
+    optionItem->setFlags(optionItem->flags() ^ Qt::ItemIsEditable);
+    ui->tableWidget->setItem(rowCount, 0, optionItem);
+
+    QTableWidgetItem *valueItem = new QTableWidgetItem(value);
+    valueItem->setFlags(valueItem->flags() ^ Qt::ItemIsEditable);
+    ui->tableWidget->setItem(rowCount, 1, valueItem);
 }
