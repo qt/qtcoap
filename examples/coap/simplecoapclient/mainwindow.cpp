@@ -5,6 +5,7 @@
 #include "optiondialog.h"
 #include "ui_mainwindow.h"
 
+#include <QCoapClient>
 #include <QCoapResourceDiscoveryReply>
 #include <QCoapReply>
 #include <QDateTime>
