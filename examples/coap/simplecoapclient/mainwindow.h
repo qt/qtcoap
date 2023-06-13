@@ -4,7 +4,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QCoapClient>
+#include <QtCoap/qcoapnamespace.h>
 #include <QCoapOption>
 #include <QCoapResource>
 #include <QMainWindow>
@@ -13,7 +13,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
+class QCoapClient;
+class QCoapResourceDiscoveryReply;
 class QCoapMessage;
+class QCoapReply;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
