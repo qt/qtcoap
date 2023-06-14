@@ -5,8 +5,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
-import CoapMulticastClient
-import qtcoap.example.namespace
+import CoapClientModule
 
 Window {
     visible: true

@@ -3,7 +3,6 @@
 
 #include "qmlcoapmulticastclient.h"
 
-#include <QCoapResourceDiscoveryReply>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
