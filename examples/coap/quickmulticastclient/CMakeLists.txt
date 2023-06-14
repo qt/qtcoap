@@ -4,8 +4,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(quickmulticastclient LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
     set(INSTALL_EXAMPLESDIR "examples")
 endif()
@@ -13,6 +11,8 @@ endif()
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/coap/quickmulticastclient")
 
 find_package(Qt6 REQUIRED COMPONENTS Coap Core Gui Qml Quick)
+
+qt_standard_project_setup()
 
 qt_add_executable(quickmulticastclient
     main.cpp
@@ -24,16 +24,12 @@ set_target_properties(quickmulticastclient PROPERTIES
     MACOSX_BUNDLE TRUE
 )
 
-target_compile_definitions(quickmulticastclient PUBLIC
-    QT_DEPRECATED_WARNINGS
-)
-
-target_link_libraries(quickmulticastclient PUBLIC
-    Qt::Coap
-    Qt::Core
-    Qt::Gui
-    Qt::Qml
-    Qt::Quick
+target_link_libraries(quickmulticastclient PRIVATE
+    Qt6::Coap
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Qml
+    Qt6::Quick
 )
 
 # Resources:
