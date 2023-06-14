@@ -15,6 +15,8 @@
 #include <QMetaEnum>
 #include <QNetworkInterface>
 
+using namespace Qt::StringLiterals;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -25,10 +27,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    ui->methodComboBox->addItem("Get", QVariant::fromValue(QtCoap::Method::Get));
-    ui->methodComboBox->addItem("Put", QVariant::fromValue(QtCoap::Method::Put));
-    ui->methodComboBox->addItem("Post", QVariant::fromValue(QtCoap::Method::Post));
-    ui->methodComboBox->addItem("Delete", QVariant::fromValue(QtCoap::Method::Delete));
+    ui->methodComboBox->addItem(tr("Get"), QVariant::fromValue(QtCoap::Method::Get));
+    ui->methodComboBox->addItem(tr("Put"), QVariant::fromValue(QtCoap::Method::Put));
+    ui->methodComboBox->addItem(tr("Post"), QVariant::fromValue(QtCoap::Method::Post));
+    ui->methodComboBox->addItem(tr("Delete"), QVariant::fromValue(QtCoap::Method::Delete));
 
     fillHostSelector();
     ui->hostComboBox->setFocus();
@@ -49,10 +51,8 @@ void MainWindow::fillHostSelector()
 
 void MainWindow::addMessage(const QString &message, bool isError)
 {
-    const QString content = "--------------- "
-            + QDateTime::currentDateTime().toString()
-            + " ---------------\n"
-            + message + "\n\n";
+    const QString content = "--------------- %1 ---------------\n%2\n\n"_L1
+                                .arg(QDateTime::currentDateTime().toString(), message);
     ui->textEdit->setTextColor(isError ? Qt::red : Qt::black);
     ui->textEdit->insertPlainText(content);
     ui->textEdit->ensureCursorVisible();
@@ -67,7 +67,7 @@ void MainWindow::onFinished(QCoapReply *reply)
 static QString errorMessage(QtCoap::Error errorCode)
 {
     const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(static_cast<int>(errorCode));
-    return QString("Request failed with error: %1\n").arg(error);
+    return MainWindow::tr("Request failed with error: %1\n").arg(error);
 }
 
 void MainWindow::onError(QCoapReply *reply, QtCoap::Error error)
@@ -84,16 +84,18 @@ void MainWindow::onDiscovered(QCoapResourceDiscoveryReply *reply, QList<QCoapRes
     QString message;
     for (const auto &resource : std::as_const(resources)) {
         ui->resourceComboBox->addItem(resource.path());
-        message += "Discovered resource: \"" + resource.title() + "\" on path "
-                + resource.path() + "\n";
+        message += tr("Discovered resource: \"%1\" on path %2\n")
+                        .arg(resource.title(), resource.path());
     }
     addMessage(message);
 }
 
 void MainWindow::onNotified(QCoapReply *reply, const QCoapMessage &message)
 {
-    if (reply->errorReceived() == QtCoap::Error::Ok)
-        addMessage("Received observe notification with payload: " + message.payload());
+    if (reply->errorReceived() == QtCoap::Error::Ok) {
+        addMessage(tr("Received observe notification with payload: %1")
+                        .arg(QString::fromUtf8(message.payload())));
+    }
 }
 
 
@@ -152,7 +154,8 @@ void MainWindow::on_discoverButton_clicked()
         connect(discoverReply, &QCoapResourceDiscoveryReply::discovered,
                 this, &MainWindow::onDiscovered);
     } else {
-        QMessageBox::critical(this, "Error", "Something went wrong, discovery request failed.");
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Something went wrong, discovery request failed."));
     }
 }
 
@@ -165,7 +168,8 @@ void MainWindow::on_observeButton_clicked()
 
     QCoapReply *observeReply = m_client->observe(url);
     if (!observeReply) {
-        QMessageBox::critical(this, "Error", "Something went wrong, observe request failed.");
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Something went wrong, observe request failed."));
         return;
     }
 
@@ -195,7 +199,7 @@ void MainWindow::on_contentButton_clicked()
     const auto fileName = dialog.selectedFiles().back();
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        QMessageBox::critical(this, "Error", QString("Failed to read from file %1").arg(fileName));
+        QMessageBox::critical(this, tr("Error"), tr("Failed to read from file %1").arg(fileName));
         return;
     }
 
