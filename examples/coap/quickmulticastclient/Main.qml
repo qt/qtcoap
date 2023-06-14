@@ -28,9 +28,6 @@ Window {
                     ? qsTr("Finished resource discovery.")
                     : qsTr("Resource discovery failed with error code: %1").arg(error)
         }
-
-        onError:
-            statusLabel.text = qsTr("Resource discovery failed with error code: %1").arg(error)
     }
 
     GridLayout {
