@@ -17,6 +17,11 @@ QmlCoapMulticastClient::QmlCoapMulticastClient(QObject *parent)
                 else
                     qCWarning(lcCoapClient, "Something went wrong, received a null reply");
             });
+
+    connect(this, &QCoapClient::error, this,
+            [this](QCoapReply *, QtCoap::Error err) {
+                emit finished(static_cast<int>(err));
+            });
 }
 
 void QmlCoapMulticastClient::discover(const QString &host, int port, const QString &discoveryPath)
