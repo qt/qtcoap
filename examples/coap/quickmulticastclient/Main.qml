@@ -21,9 +21,9 @@ Window {
 
     CoapMulticastClient {
         id: client
-        onDiscovered: addResource(resource)
+        onDiscovered: (resource) => { addResource(resource) }
 
-        onFinished: {
+        onFinished: (error) => {
             statusLabel.text = (error === QtCoap.Error.Ok)
                     ? qsTr("Finished resource discovery.")
                     : qsTr("Resource discovery failed with error code: %1").arg(error)
