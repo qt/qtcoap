@@ -1,13 +1,16 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
-import CoapClientModule
 
 Window {
+    id: root
+
     visible: true
     width: 480
     height: 480
@@ -21,7 +24,7 @@ Window {
 
     CoapMulticastClient {
         id: client
-        onDiscovered: (resource) => { addResource(resource) }
+        onDiscovered: (resource) => { root.addResource(resource) }
 
         onFinished: (error) => {
             statusLabel.text = (error === QtCoap.Error.Ok)
@@ -71,10 +74,16 @@ Window {
                 }
 
                 delegate: ItemDelegate {
+                    id: entry
+
+                    required property int index
+                    required property string group
+                    required property string address
+
                     width: groupComboBox.width
                     contentItem: Column {
-                        Text { text: group }
-                        Text { text: address }
+                        Text { text: entry.group }
+                        Text { text: entry.address }
                     }
                     highlighted: groupComboBox.highlightedIndex === index
                 }
@@ -147,6 +156,12 @@ Window {
             Layout.fillWidth: true
 
             delegate: Rectangle {
+                id: resourceItem
+
+                required property string host
+                required property string path
+                required property string title
+
                 width: resourceView.width
                 height: 60
                 color: "lightgray"
@@ -156,9 +171,9 @@ Window {
                 Column {
                     topPadding: 5
                     leftPadding: 5
-                    Text { text: qsTr('<b>Host:</b> %1').arg(host) }
-                    Text { text: qsTr('<b>Resource:</b> %1').arg(path) }
-                    Text { text: qsTr('<b>Title:</b> %1').arg(title) }
+                    Text { text: qsTr('<b>Host:</b> %1').arg(resourceItem.host) }
+                    Text { text: qsTr('<b>Resource:</b> %1').arg(resourceItem.path) }
+                    Text { text: qsTr('<b>Title:</b> %1').arg(resourceItem.title) }
                 }
             }
         }
