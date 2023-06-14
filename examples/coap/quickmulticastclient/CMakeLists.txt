@@ -12,11 +12,10 @@ set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/coap/quickmulticastclient")
 
 find_package(Qt6 REQUIRED COMPONENTS Coap Core Gui Qml Quick)
 
-qt_standard_project_setup()
+qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(quickmulticastclient
     main.cpp
-    qmlcoapmulticastclient.cpp qmlcoapmulticastclient.h
 )
 
 set_target_properties(quickmulticastclient PROPERTIES
@@ -32,16 +31,13 @@ target_link_libraries(quickmulticastclient PRIVATE
     Qt6::Quick
 )
 
-# Resources:
-set(qml_resource_files
-    "main.qml"
-)
-
-qt6_add_resources(quickmulticastclient "qml"
-    PREFIX
-        "/"
-    FILES
-        ${qml_resource_files}
+qt_add_qml_module(quickmulticastclient
+    URI CoapClientModule
+    VERSION 1.0
+    SOURCES
+        qmlcoapmulticastclient.cpp qmlcoapmulticastclient.h
+    QML_FILES
+        Main.qml
 )
 
 install(TARGETS quickmulticastclient

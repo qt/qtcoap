@@ -4,8 +4,12 @@
 #ifndef QMLCOAPMULTICASTCLIENT_H
 #define QMLCOAPMULTICASTCLIENT_H
 
+#include <QtCoap/qcoapnamespace.h>
 #include <QCoapClient>
 #include <QCoapResource>
+#include <QCoapResourceDiscoveryReply>
+
+#include <QtQml/qqmlregistration.h>
 
 class QmlCoapResource : public QCoapResource
 {
@@ -14,6 +18,7 @@ class QmlCoapResource : public QCoapResource
     Q_PROPERTY(QString host READ hostStr)
     Q_PROPERTY(QString path READ path)
 
+    QML_ANONYMOUS
 public:
     QmlCoapResource() : QCoapResource() {}
     QmlCoapResource(const QCoapResource &resource)
@@ -27,6 +32,7 @@ class QmlCoapMulticastClient : public QCoapClient
 {
     Q_OBJECT
 
+    QML_NAMED_ELEMENT(CoapMulticastClient)
 public:
     QmlCoapMulticastClient(QObject *parent = nullptr);
 
@@ -40,5 +46,12 @@ Q_SIGNALS:
 public slots:
     void onDiscovered(QCoapResourceDiscoveryReply *reply, const QList<QCoapResource> &resources);
 };
+
+namespace QCoapForeignNamespace
+{
+    Q_NAMESPACE
+    QML_FOREIGN_NAMESPACE(QtCoap)
+    QML_NAMED_ELEMENT(QtCoap)
+}
 
 #endif // QMLCOAPMULTICASTCLIENT_H
