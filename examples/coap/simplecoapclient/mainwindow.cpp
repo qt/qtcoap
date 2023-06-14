@@ -146,11 +146,14 @@ void MainWindow::on_discoverButton_clicked()
     url.setHost(tryToResolveHostName(ui->hostComboBox->currentText()));
     url.setPort(ui->portSpinBox->value());
 
-    QCoapResourceDiscoveryReply *discoverReply = m_client->discover(url, ui->discoveryPathEdit->text());
-    if (discoverReply)
-        connect(discoverReply, &QCoapResourceDiscoveryReply::discovered, this, &MainWindow::onDiscovered);
-    else
+    QCoapResourceDiscoveryReply *discoverReply =
+            m_client->discover(url, ui->discoveryPathEdit->text());
+    if (discoverReply) {
+        connect(discoverReply, &QCoapResourceDiscoveryReply::discovered,
+                this, &MainWindow::onDiscovered);
+    } else {
         QMessageBox::critical(this, "Error", "Something went wrong, discovery request failed.");
+    }
 }
 
 void MainWindow::on_observeButton_clicked()
