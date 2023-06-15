@@ -55,6 +55,6 @@ void QmlCoapMulticastClient::onDiscovered(QCoapResourceDiscoveryReply *reply,
                                           const QList<QCoapResource> &resources)
 {
     Q_UNUSED(reply)
-    for (auto resource : resources)
+    for (const auto &resource : resources)
         emit discovered(resource);
 }
