@@ -10,6 +10,7 @@ QT_BEGIN_NAMESPACE
 
     \inmodule QtCoap
     \brief Contains miscellaneous identifiers used throughout the Qt CoAP module.
+    \keyword {QtCoap Namespace}
 */
 
 /*!
