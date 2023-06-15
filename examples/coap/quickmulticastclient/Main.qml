@@ -176,14 +176,16 @@ Window {
                 required property string title
 
                 width: resourceView.width
-                height: 60
+                height: contentColumn.implicitHeight
                 color: "lightgray"
                 border.color: "darkgray"
                 radius: 5
 
                 Column {
+                    id: contentColumn
                     topPadding: 5
                     leftPadding: 5
+                    bottomPadding: 5
                     Text { text: qsTr('<b>Host:</b> %1').arg(resourceItem.host) }
                     Text { text: qsTr('<b>Resource:</b> %1').arg(resourceItem.path) }
                     Text { text: qsTr('<b>Title:</b> %1').arg(resourceItem.title) }
