@@ -1,23 +1,26 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \example quickmulticastclient
-    \title Quick CoAP Multicast Discovery Example
+    \title Quick CoAP Multicast Discovery
+    \examplecategory {Connectivity}
     \ingroup qtcoap-examples
     \brief Using the CoAP client for a multicast resource discovery with a Qt Quick
     user interface.
 
-    \image quickmulticastclient.png
+    \image quickmulticastclient.webp
 
-    The \e {Quick CoAP Multicast Discovery Example} demonstrates how to register
+    The \e {Quick CoAP Multicast Discovery} example demonstrates how to register
     QCoapClient as a QML type and use it in a Qt Quick application for CoAP multicast
     resource discovery.
 
     \note Qt CoAP does not provide a QML API in its current version. However, you can
     make the C++ classes of the module available to QML as shown in this example.
 
-    \section1 Running the Example
+    \include examples-run.qdocinc
+
+    \section1 Setting Up a CoAP Server
 
     To run the example application, you first need to set up and start at least one CoAP
     server supporting multicast resource discovery. You have the following options:
@@ -46,92 +49,123 @@
     \note You can run more than one multicast CoAP servers (on the same host or other
     hosts in the network) by passing a different \c{--name} to the command above.
 
-    \section1 Creating a Client and Using It with QML
+    To terminate the docker container after usage, first obtain the container's
+    ID by executing the \c {docker ps} command. The output will look like this:
 
-    We create the \c QmlCoapMulticastClient class with the QCoapClient class as a
-    base class:
+    \badcode
+    $ docker ps
+    CONTAINER ID   IMAGE
+    ccaaeae059f1   sokurazy/coap-multicast-test-server:californium.2.0.x
+    \endcode
 
-    \quotefromfile quickmulticastclient/qmlcoapmulticastclient.h
-    \skipto QmlCoapMulticastClient
-    \printuntil };
+    After that, use this ID to stop the container:
 
-    In the main.cpp file, we register the \c QmlCoapMulticastClient class as a QML
-    type:
+    \badcode
+    docker stop <container_id>
+    \endcode
 
-    \quotefromfile quickmulticastclient/main.cpp
-    \skipto qmlRegisterType
-    \printline qmlRegisterType
+    \section1 Exposign C++ Classes to QML
 
-    We also register the QtCoap namespace, to be able to use it in QML code:
+    In this example, you need to expose the \l QCoapResource and \l QCoapClient
+    classes, as well as the \l {QtCoap Namespace}{QtCoap} namespace, to QML.
+    To achieve this, create custom wrapper classes and use the special
+    \l {Defining QML Types from C++}{registration macros}.
 
-    \skipto qmlRegisterUncreatableMetaObject
-    \printto const QUrl
+    Create the \c QmlCoapResource class as a wrapper around \l QCoapResource.
+    Use the \l Q_PROPERTY macro to make several properties accessible from
+    QML. The class does not need to be directly instantiable from QML, so use
+    the \l QML_ANONYMOUS macro to register it.
 
-    Now in the QML code, we can import and use these types:
+    \snippet quickmulticastclient/qmlcoapmulticastclient.h coap_resource
 
-    \quotefromfile quickmulticastclient/main.qml
+    After that, create the \c QmlCoapMulticastClient class with the
+    \l QCoapClient class as a base class. Use the \l Q_PROPERTY macro to
+    expose a custom property, and also create several \l Q_INVOKABLE methods.
+    Both the property and the invokable methods can be accessed from QML.
+    Unlike \c QmlCoapResource, you want to be able to create this class from
+    QML, so use the \l QML_NAMED_ELEMENT macro to register the class in QML.
+
+    \snippet quickmulticastclient/qmlcoapmulticastclient.h coap_client
+
+    Finally, register the \l {QtCoap Namespace}{QtCoap} namespace, so that you
+    can use the enums provided there:
+
+    \snippet quickmulticastclient/qmlcoapmulticastclient.h coap_namespace
+
+    \section1 Adjusting Build Files
+
+    To make the custom types available from QML, update the build system files
+    accordingly.
+
+    \section2 CMake Build
+
+    For a CMake-based build, add the following to the \c {CMakeLists.txt}:
+
+    \quotefromfile quickmulticastclient/CMakeLists.txt
+    \skipto qt_add_qml_module
+    \printuntil )
+
+    \section2 qmake Build
+
+    For a qmake build, modify the \c {quickmulticastclient.pro} file in the
+    following way:
+
+    \quotefromfile quickmulticastclient/quickmulticastclient.pro
+    \skipto CONFIG
+    \printuntil QML_IMPORT_MAJOR_VERSION
     \dots
-    \skipto CoapMulticastClient
-    \printuntil qtcoap.example.namespace
-    \dots
-    \skipto CoapMulticastClient
-    \printto GridLayout
-    \dots
+    \skipto qml_resources.files
+    \printuntil RESOURCES
 
-    The \c {QCoapClient::error()} signal triggers the \c onError signal handler of
-    \c CoapMulticastClient, and the \c {QmlCoapMulticastClient::finished()} signal
-    triggers the \c onFinished signal handler, to show the request's status in the UI.
-    Note that we are not using the \c {QCoapClient::finished()} signal directly,
-    because it takes a \c {QCoapReply} as a parameter (which is not a QML type), and
-    we are interested only in the error code.
+    \section1 Using New QML Types
 
-    In the \c QmlCoapMulticastClient's constructor, we arrange for the
-    \c {QCoapClient::finished()} signal to be forwarded to the
-    \c {QmlCoapMulticastClient::finished()} signal:
+    Now, when the C++ classes are properly exposed to QML, you can use the new
+    types:
 
-    \quotefromfile quickmulticastclient/qmlcoapmulticastclient.cpp
-    \skipto QmlCoapMulticastClient::QmlCoapMulticastClient
-    \printto QmlCoapMulticastClient::discover
+    \snippet quickmulticastclient/Main.qml client
 
-    When the \uicontrol Discover button is pressed, we invoke one of the overloaded
-    \c {discover()} methods, based on the selected multicast group:
+    The \c {QmlCoapMulticastClient::finished()} signal triggers the
+    \c onFinished signal handler, to show the request's status in the UI.
+    Note that the example does not use \l {QCoapClient}'s signals directly,
+    because both \l {QCoapClient::}{error()} and \l {QCoapClient::}{finished()}
+    signals take a \l {QCoapReply} as a parameter (which is not exposed to QML),
+    and the example only requires the error code.
 
-    \quotefromfile quickmulticastclient/main.qml
-    \skipto Button {
-    \dots
-    \printto ListModel {
-    \dots
+    The \c {QmlCoapMulticastClient}'s constructor forwards the
+    \l {QCoapClient}'s signals to \c {QmlCoapMulticastClient::finished()}
+    signal:
+
+    \snippet quickmulticastclient/qmlcoapmulticastclient.cpp ctor
+
+    When the \uicontrol Discover button is pressed, one of the overloaded
+    \c {discover()} methods is invoked, based on the selected multicast group:
+
+    \snippet quickmulticastclient/Main.qml discover_button
 
     This overload is called when a custom multicast group or a host address is selected:
 
-    \quotefromfile quickmulticastclient/qmlcoapmulticastclient.cpp
-    \skipto QmlCoapMulticastClient::discover
-    \printto QmlCoapMulticastClient::discover(QtCoap::MulticastGroup
+    \snippet quickmulticastclient/qmlcoapmulticastclient.cpp discover_custom
 
     And this overload is called when one of the suggested multicast groups is selected
     in the UI:
 
-    \printto void QmlCoapMulticastClient::onDiscovered
+    \snippet quickmulticastclient/qmlcoapmulticastclient.cpp discover_group
 
-    The \c {QCoapClient::discovered()} signal delivers a list of \c {QCoapResources},
-    which is not a QML type. To make the resources available in QML, we forward each
-    resource in the list to the \c {QmlCoapMulticastClient::discovered()} signal, which
-    takes a \c QmlCoapResource instead:
+    The \l {QCoapResourceDiscoveryReply::discovered()} signal delivers a list
+    of \l {QCoapResource}s, which is not a QML type. To make the resources
+    available in QML, forward each resource in the list to the
+    \c {QmlCoapMulticastClient::discovered()} signal, which takes a
+    \c QmlCoapResource instead:
 
-    \printuntil
-
-    \c QmlCoapResource is a wrapper around QCoapResource, to make some of its
-    properties available in QML:
-
-    \quotefromfile quickmulticastclient/qmlcoapmulticastclient.h
-    \skipto class QmlCoapResource
-    \printuntil };
+    \snippet quickmulticastclient/qmlcoapmulticastclient.cpp on_discovered
 
     The discovered resources are added to the \c resourceModel of the list view in the UI:
 
-    \quotefromfile quickmulticastclient/main.qml
-    \skipto addResource
-    \dots
-    \printto CoapMulticastClient {
-    \dots
+    \snippet quickmulticastclient/Main.qml add_resources
+
+    While the discovery is in progress, press the \uicontrol {Stop Discovery}
+    button to stop the discovery. Internally it is done by aborting the current
+    request:
+
+    \snippet quickmulticastclient/qmlcoapmulticastclient.cpp stop_discovery
 */

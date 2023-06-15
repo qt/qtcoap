@@ -14,6 +14,7 @@ QT_BEGIN_NAMESPACE
 class QCoapResourceDiscoveryReply;
 QT_END_NAMESPACE
 
+//! [coap_resource]
 class QmlCoapResource : public QCoapResource
 {
     Q_GADGET
@@ -29,8 +30,10 @@ public:
 
     QString hostStr() const { return host().toString(); }
 };
+//! [coap_resource]
 Q_DECLARE_METATYPE(QmlCoapResource)
 
+//! [coap_client]
 class QmlCoapMulticastClient : public QCoapClient
 {
     Q_OBJECT
@@ -60,12 +63,15 @@ public slots:
 private:
     QCoapResourceDiscoveryReply *m_reply = nullptr;
 };
+//! [coap_client]
 
+//! [coap_namespace]
 namespace QCoapForeignNamespace
 {
     Q_NAMESPACE
     QML_FOREIGN_NAMESPACE(QtCoap)
     QML_NAMED_ELEMENT(QtCoap)
 }
+//! [coap_namespace]
 
 #endif // QMLCOAPMULTICASTCLIENT_H
