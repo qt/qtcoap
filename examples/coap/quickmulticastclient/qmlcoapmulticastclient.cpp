@@ -13,10 +13,10 @@ QmlCoapMulticastClient::QmlCoapMulticastClient(QObject *parent)
 {
     connect(this, &QCoapClient::finished, this,
             [this](QCoapReply *reply) {
-                    if (reply)
-                        emit finished(static_cast<int>(reply->errorReceived()));
-                    else
-                        qCWarning(lcCoapClient, "Something went wrong, received a null reply");
+                if (reply)
+                    emit finished(static_cast<int>(reply->errorReceived()));
+                else
+                    qCWarning(lcCoapClient, "Something went wrong, received a null reply");
             });
 }
 
