@@ -5,8 +5,6 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Window
-import CoapSecureClient
-import qtcoap.example.namespace
 
 Window {
     visible: true
