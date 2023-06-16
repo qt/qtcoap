@@ -3,6 +3,7 @@
 
 #include "qmlcoapsecureclient.h"
 
+#include <QCoapClient>
 #include <QCoapReply>
 #include <QFile>
 #include <QLoggingCategory>

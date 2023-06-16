@@ -12,11 +12,10 @@ set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/coap/quicksecureclient")
 
 find_package(Qt6 REQUIRED COMPONENTS Coap Core Gui Qml Quick)
 
-qt_standard_project_setup()
+qt_standard_project_setup(REQUIRES 6.5)
 
 qt_add_executable(quicksecureclient
     main.cpp
-    qmlcoapsecureclient.cpp qmlcoapsecureclient.h
 )
 
 set_target_properties(quicksecureclient PROPERTIES
@@ -32,17 +31,13 @@ target_link_libraries(quicksecureclient PRIVATE
     Qt6::Quick
 )
 
-# Resources:
-set(qml_resource_files
-    "FilePicker.qml"
-    "main.qml"
-)
-
-qt6_add_resources(quicksecureclient "qml"
-    PREFIX
-        "/"
-    FILES
-        ${qml_resource_files}
+qt_add_qml_module(quicksecureclient
+    URI CoapSecureClientModule
+    SOURCES
+        qmlcoapsecureclient.cpp qmlcoapsecureclient.h
+    QML_FILES
+        FilePicker.qml
+        Main.qml
 )
 
 install(TARGETS quicksecureclient
