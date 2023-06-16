@@ -20,8 +20,6 @@ static QStringList availableHosts()
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setOrganizationName("Qt CoAP Example");
-
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("hostsModel", availableHosts());
