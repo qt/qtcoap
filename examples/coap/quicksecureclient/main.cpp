@@ -20,7 +20,6 @@ static QStringList availableHosts()
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setOrganizationName("Qt CoAP Example");
 
     QGuiApplication app(argc, argv);
