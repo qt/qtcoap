@@ -1,9 +1,6 @@
 TEMPLATE = app
 
 QT += qml quick coap
-CONFIG += c++11
-
-DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
     qmlcoapsecureclient.h
