@@ -17,7 +17,7 @@ Item {
 
     FileDialog {
         id: fileDialog
-        title: qsTr("Please Choose %1").arg(dialogText)
+        title: qsTr("Please Choose %1").arg(filePicker.dialogText)
         currentFolder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
         fileMode: FileDialog.OpenFile
         onAccepted: filePathField.text = fileDialog.selectedFile
@@ -27,7 +27,7 @@ Item {
         anchors.fill: parent
         TextField {
             id: filePathField
-            placeholderText: qsTr("<%1>").arg(dialogText)
+            placeholderText: qsTr("<%1>").arg(filePicker.dialogText)
             inputMethodHints: Qt.ImhUrlCharactersOnly
             selectByMouse: true
             Layout.fillWidth: true
@@ -35,7 +35,7 @@ Item {
 
         Button {
             id: addFileButton
-            text: qsTr("Add %1").arg(dialogText)
+            text: qsTr("Add %1").arg(filePicker.dialogText)
             onClicked: fileDialog.open()
         }
     }

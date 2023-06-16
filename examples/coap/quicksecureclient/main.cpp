@@ -6,6 +6,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+using namespace Qt::StringLiterals;
+
 static QStringList availableHosts()
 {
     QStringList hosts;
@@ -22,7 +24,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("hostsModel", availableHosts());
+    engine.setInitialProperties({{u"hostsModel"_s, availableHosts()}});
 
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
                      &app, []() { QCoreApplication::exit(1); },
