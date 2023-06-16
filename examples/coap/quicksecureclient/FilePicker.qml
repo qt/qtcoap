@@ -1,10 +1,11 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
+import QtCore
 import QtQuick
+import QtQuick.Dialogs
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.platform
 
 Item {
     id: filePicker
@@ -17,9 +18,9 @@ Item {
     FileDialog {
         id: fileDialog
         title: qsTr("Please Choose %1").arg(dialogText)
-        folder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
+        currentFolder: StandardPaths.writableLocation(StandardPaths.HomeLocation)
         fileMode: FileDialog.OpenFile
-        onAccepted: filePathField.text = fileDialog.file
+        onAccepted: filePathField.text = fileDialog.selectedFile
     }
 
     RowLayout {
