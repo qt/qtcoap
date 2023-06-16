@@ -30,7 +30,7 @@ QmlCoapSecureClient::~QmlCoapSecureClient()
 static QString errorMessage(QtCoap::Error errorCode)
 {
     const auto error = QMetaEnum::fromType<QtCoap::Error>().valueToKey(static_cast<int>(errorCode));
-    return QString("Request failed with error: %1\n").arg(error);
+    return QmlCoapSecureClient::tr("Request failed with error: %1\n").arg(error);
 }
 
 void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
@@ -48,7 +48,7 @@ void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
         connect(m_coapClient, &QCoapClient::finished, this,
                 [this](QCoapReply *reply) {
                     if (!reply)
-                        emit finished("Something went wrong, received a null reply");
+                        emit finished(tr("Something went wrong, received a null reply"));
                     else if (reply->errorReceived() != QtCoap::Error::Ok)
                         emit finished(errorMessage(reply->errorReceived()));
                     else

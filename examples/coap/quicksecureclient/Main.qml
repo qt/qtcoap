@@ -108,7 +108,7 @@ Window {
 
         FilePicker {
             id: localCertificatePicker
-            dialogText: "Local Certificate"
+            dialogText: qsTr("Local Certificate")
             enabled: securityModeGroup.checkedButton === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
@@ -116,7 +116,7 @@ Window {
 
         FilePicker {
             id: caCertificatePicker
-            dialogText: "CA Certificate"
+            dialogText: qsTr("CA Certificate")
             enabled: securityModeGroup.checkedButton === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
@@ -124,7 +124,7 @@ Window {
 
         FilePicker {
             id: privateKeyPicker
-            dialogText: "Private Key"
+            dialogText: qsTr("Private Key")
             enabled: securityModeGroup.checkedButton === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
