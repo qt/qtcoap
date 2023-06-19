@@ -16,6 +16,7 @@ Window {
     height: 640
     title: qsTr("Qt Quick Secure CoAP Client")
 
+    //! [client]
     CoapSecureClient {
         id: client
         onFinished: (result) => {
@@ -24,6 +25,7 @@ Window {
             disconnectButton.enabled = true;
         }
     }
+    //! [client]
 
     GridLayout {
         anchors.fill: parent
@@ -65,6 +67,7 @@ Window {
         Label {
             text: qsTr("Security Mode:")
         }
+        //! [security_modes]
         ButtonGroup {
             id: securityModeGroup
             onClicked: {
@@ -74,6 +77,7 @@ Window {
                     client.setSecurityMode(QtCoap.SecurityMode.Certificate);
             }
         }
+        //! [security_modes]
         RowLayout {
             RadioButton {
                 id: preSharedMode
@@ -110,6 +114,7 @@ Window {
             }
         }
 
+        //! [certificate_dialogs]
         FilePicker {
             id: localCertificatePicker
             dialogText: qsTr("Local Certificate")
@@ -133,7 +138,9 @@ Window {
             Layout.columnSpan: 2
             Layout.fillWidth: true
         }
+        //! [certificate_dialogs]
 
+        //! [send_request]
         Button {
             id: requestButton
             text: qsTr("Send Request")
@@ -155,6 +162,7 @@ Window {
                                                                      .arg(resourceField.text);
             }
         }
+        //! [send_request]
 
         Button {
             id: disconnectButton

@@ -7,6 +7,7 @@ import QtQuick.Dialogs
 import QtQuick.Controls
 import QtQuick.Layouts
 
+//! [filepicker]
 Item {
     id: filePicker
 
@@ -40,3 +41,4 @@ Item {
         }
     }
 }
+//! [filepicker]
