@@ -33,6 +33,7 @@ static QString errorMessage(QtCoap::Error errorCode)
     return QmlCoapSecureClient::tr("Request failed with error: %1\n").arg(error);
 }
 
+//! [set_security_mode]
 void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
 {
     // Create a new client, if the security mode has changed
@@ -61,7 +62,9 @@ void QmlCoapSecureClient::setSecurityMode(QtCoap::SecurityMode mode)
                 });
     }
 }
+//! [set_security_mode]
 
+//! [send_get_request]
 void QmlCoapSecureClient::sendGetRequest(const QString &host, const QString &path, int port)
 {
     if (!m_coapClient)
@@ -75,7 +78,9 @@ void QmlCoapSecureClient::sendGetRequest(const QString &host, const QString &pat
     url.setPort(port);
     m_coapClient->get(url);
 }
+//! [send_get_request]
 
+//! [set_configuration_psk]
 void
 QmlCoapSecureClient::setSecurityConfiguration(const QString &preSharedKey, const QString &identity)
 {
@@ -84,7 +89,9 @@ QmlCoapSecureClient::setSecurityConfiguration(const QString &preSharedKey, const
     configuration.setPreSharedKeyIdentity(identity.toUtf8());
     m_configuration = configuration;
 }
+//! [set_configuration_psk]
 
+//! [set_configuration_cert]
 void QmlCoapSecureClient::setSecurityConfiguration(const QString &localCertificatePath,
                                                    const QString &caCertificatePath,
                                                    const QString &privateKeyPath)
@@ -116,9 +123,12 @@ void QmlCoapSecureClient::setSecurityConfiguration(const QString &localCertifica
     }
     m_configuration = configuration;
 }
+//! [set_configuration_cert]
 
+//! [disconnect]
 void QmlCoapSecureClient::disconnect()
 {
     if (m_coapClient)
         m_coapClient->disconnect();
 }
+//! [disconnect]
