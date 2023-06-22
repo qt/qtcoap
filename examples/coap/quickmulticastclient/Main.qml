@@ -16,12 +16,15 @@ Window {
     height: 480
     title: qsTr("Qt Quick CoAP Multicast Discovery")
 
+    //! [add_resources]
     function addResource(resource) {
         resourceModel.insert(0, {"host" : resource.host,
                                  "path" : resource.path,
                                  "title" : resource.title})
     }
+    //! [add_resources]
 
+    //! [client]
     CoapMulticastClient {
         id: client
         onDiscovered: (resource) => { root.addResource(resource) }
@@ -32,6 +35,7 @@ Window {
                     : qsTr("Resource discovery failed with error code: %1").arg(error)
         }
     }
+    //! [client]
 
     GridLayout {
         anchors.fill: parent
@@ -121,6 +125,7 @@ Window {
             Layout.fillWidth: true
         }
 
+        //! [discover_button]
         Button {
             id: discoverButton
             text: client.isDiscovering ? qsTr("Stop Discovery") : qsTr("Discover")
@@ -146,6 +151,7 @@ Window {
                 }
             }
         }
+        //! [discover_button]
 
         Button {
             id: clearButton
