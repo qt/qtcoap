@@ -30,7 +30,7 @@ sourcedirs  += ..
 exampledirs = ../../../examples/coap
 excludedirs += ../qt4support
 
-depends += qtcore qtdoc qtnetwork qmake qtcmake
+depends += qtcore qtdoc qtnetwork qtqml qmake qtcmake
 
 #add generic thumbnail images for example documentation that does not have an image.
 #manifestmeta.thumbnail.names  += "QtCoap/WebSockets MQTT Subscription*"
