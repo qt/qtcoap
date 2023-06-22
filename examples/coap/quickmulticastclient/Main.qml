@@ -123,24 +123,37 @@ Window {
 
         Button {
             id: discoverButton
-            text: qsTr("Discover")
-            Layout.columnSpan: 2
+            text: client.isDiscovering ? qsTr("Stop Discovery") : qsTr("Discover")
+            Layout.preferredWidth: 100
 
             onClicked: {
-                var currentGroup = groupComboBox.model.get(groupComboBox.currentIndex).value;
-
-                var path = "";
-                if (currentGroup !== - 1) {
-                    client.discover(currentGroup, parseInt(portField.text),
-                                    discoveryPathField.text);
-                    path = groupComboBox.currentText;
+                if (client.isDiscovering) {
+                    client.stopDiscovery()
                 } else {
-                    client.discover(customGroupField.text, parseInt(portField.text),
-                                    discoveryPathField.text);
-                    path = customGroupField.text + discoveryPathField.text;
+                    var currentGroup = groupComboBox.model.get(groupComboBox.currentIndex).value;
+
+                    var path = "";
+                    if (currentGroup !== - 1) {
+                        client.discover(currentGroup, parseInt(portField.text),
+                                        discoveryPathField.text);
+                        path = groupComboBox.currentText;
+                    } else {
+                        client.discover(customGroupField.text, parseInt(portField.text),
+                                        discoveryPathField.text);
+                        path = customGroupField.text + discoveryPathField.text;
+                    }
+                    statusLabel.text = qsTr("Discovering resources at %1...").arg(path);
                 }
-                statusLabel.text = qsTr("Discovering resources at %1...").arg(path);
             }
+        }
+
+        Button {
+            id: clearButton
+            text: qsTr("Clear")
+            enabled: resourceModel.count !== 0
+            Layout.preferredWidth: 100
+
+            onClicked: resourceModel.clear()
         }
 
         ListModel {

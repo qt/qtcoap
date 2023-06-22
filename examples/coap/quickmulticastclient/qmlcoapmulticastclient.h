@@ -7,9 +7,12 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QCoapClient>
 #include <QCoapResource>
-#include <QCoapResourceDiscoveryReply>
 
 #include <QtQml/qqmlregistration.h>
+
+QT_BEGIN_NAMESPACE
+class QCoapResourceDiscoveryReply;
+QT_END_NAMESPACE
 
 class QmlCoapResource : public QCoapResource
 {
@@ -32,19 +35,30 @@ class QmlCoapMulticastClient : public QCoapClient
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isDiscovering READ isDiscovering NOTIFY isDiscoveringChanged)
+
     QML_NAMED_ELEMENT(CoapMulticastClient)
 public:
     QmlCoapMulticastClient(QObject *parent = nullptr);
 
     Q_INVOKABLE void discover(const QString &host, int port, const QString &discoveryPath);
     Q_INVOKABLE void discover(QtCoap::MulticastGroup group, int port, const QString &discoveryPath);
+    Q_INVOKABLE void stopDiscovery();
+
+    bool isDiscovering() const;
 
 Q_SIGNALS:
     void discovered(const QmlCoapResource &resource);
     void finished(int error);
+    // The bool parameter is not provided, because the signal is only used by
+    // the QML property system, and it does not use the passed value anyway.
+    void isDiscoveringChanged();
 
 public slots:
     void onDiscovered(QCoapResourceDiscoveryReply *reply, const QList<QCoapResource> &resources);
+
+private:
+    QCoapResourceDiscoveryReply *m_reply = nullptr;
 };
 
 namespace QCoapForeignNamespace
