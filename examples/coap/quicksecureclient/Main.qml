@@ -7,6 +7,10 @@ import QtQuick.Controls
 import QtQuick.Window
 
 Window {
+    id: root
+
+    required property var hostsModel
+
     visible: true
     width: 480
     height: 640
@@ -14,7 +18,7 @@ Window {
 
     CoapSecureClient {
         id: client
-        onFinished: {
+        onFinished: (result) => {
             outputView.text = result;
             statusLabel.text = "";
             disconnectButton.enabled = true;
@@ -32,7 +36,7 @@ Window {
         ComboBox {
             id: hostComboBox
             editable: true
-            model: hostsModel
+            model: root.hostsModel
             Layout.fillWidth: true
         }
 
@@ -64,7 +68,7 @@ Window {
         ButtonGroup {
             id: securityModeGroup
             onClicked: {
-                if (securityModeGroup.checkedButton === preSharedMode)
+                if ((securityModeGroup.checkedButton as RadioButton) === preSharedMode)
                     client.setSecurityMode(QtCoap.SecurityMode.PreSharedKey);
                 else
                     client.setSecurityMode(QtCoap.SecurityMode.Certificate);
@@ -84,7 +88,7 @@ Window {
         }
 
         RowLayout {
-            enabled: securityModeGroup.checkedButton === preSharedMode
+            enabled: (securityModeGroup.checkedButton as RadioButton) === preSharedMode
             Layout.columnSpan: 2
 
             Label {
@@ -109,7 +113,7 @@ Window {
         FilePicker {
             id: localCertificatePicker
             dialogText: qsTr("Local Certificate")
-            enabled: securityModeGroup.checkedButton === certificateMode
+            enabled: (securityModeGroup.checkedButton as RadioButton) === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
         }
@@ -117,7 +121,7 @@ Window {
         FilePicker {
             id: caCertificatePicker
             dialogText: qsTr("CA Certificate")
-            enabled: securityModeGroup.checkedButton === certificateMode
+            enabled: (securityModeGroup.checkedButton as RadioButton) === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
         }
@@ -125,7 +129,7 @@ Window {
         FilePicker {
             id: privateKeyPicker
             dialogText: qsTr("Private Key")
-            enabled: securityModeGroup.checkedButton === certificateMode
+            enabled: (securityModeGroup.checkedButton as RadioButton) === certificateMode
             Layout.columnSpan: 2
             Layout.fillWidth: true
         }
@@ -137,7 +141,7 @@ Window {
 
             onClicked: {
                 outputView.text = "";
-                if (securityModeGroup.checkedButton === preSharedMode)
+                if ((securityModeGroup.checkedButton as RadioButton) === preSharedMode)
                     client.setSecurityConfiguration(pskField.text, identityField.text);
                 else
                     client.setSecurityConfiguration(localCertificatePicker.selectedFile,
