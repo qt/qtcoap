@@ -33,7 +33,7 @@
         discovery features.
         \li Use the ready Docker image available at Docker Hub, which builds and starts
         CoAP server based on Californium's
-        \l {https://github.com/eclipse/californium/tree/2.0.x/demo-apps/cf-helloworld-server}
+        \l {https://github.com/eclipse/californium/tree/2.0.0/demo-apps/cf-helloworld-server}
         {multicast server example}.
     \endlist
 
@@ -43,7 +43,7 @@
     Docker Hub and starts it:
 
     \badcode
-    docker run --name coap-multicast-server -d --rm --net=host sokurazy/coap-multicast-test-server:californium.2.0.x
+    docker run --name coap-multicast-server -d --rm --net=host tqtc/coap-multicast-test-server:californium-2.0.0
     \endcode
 
     \note You can run more than one multicast CoAP servers (on the same host or other
@@ -55,7 +55,7 @@
     \badcode
     $ docker ps
     CONTAINER ID   IMAGE
-    ccaaeae059f1   sokurazy/coap-multicast-test-server:californium.2.0.x
+    8b991fae7789   tqtc/coap-multicast-test-server:californium-2.0.0
     \endcode
 
     After that, use this ID to stop the container:
