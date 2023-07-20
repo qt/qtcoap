@@ -38,7 +38,7 @@
     Hub and starts it:
 
     \badcode
-    docker run --name coap-test-server -d --rm -p 5683:5683/udp -p 5684:5684/udp sokurazy/coap-secure-test-server:californium.1.1.0
+    docker run --name coap-test-server -d --rm -p 5683:5683/udp -p 5684:5684/udp tqtc/coap-californium-test-server:3.8.0
     \endcode
 
     To find out the IP address of the docker container, first retrieve the container ID
@@ -47,7 +47,7 @@
     \badcode
     $ docker ps
     CONTAINER ID        IMAGE
-    5e46502df88f        sonakur/coap-secure-test-server:californium.1.1.0
+    5e46502df88f        tqtc/coap-californium-test-server:3.8.0
     \endcode
 
     Then you can obtain the IP address with the following command:
