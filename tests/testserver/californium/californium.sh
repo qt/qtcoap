@@ -4,4 +4,4 @@
 
 set -ex
 
-java -jar /root/src/californium/demo-apps/run/cf-plugtest-server-1.1.0-SNAPSHOT.jar &
+java -jar /root/src/californium/demo-apps/run/cf-plugtest-server-3.8.0.jar &

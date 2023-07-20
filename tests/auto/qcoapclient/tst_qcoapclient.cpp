@@ -545,7 +545,8 @@ void tst_QCoapClient::multipleRequests()
         QCOMPARE(replies[i]->responseCode(), QtCoap::ResponseCode::Content);
         QByteArray replyData = replies[i]->readAll();
         const auto token = "token" + QByteArray::number(i);
-        QVERIFY(replyData.contains(token.toHex()));
+        // The californium server now returns the hex token in uppercase
+        QVERIFY(replyData.contains(token.toHex().toUpper()));
     }
 }
 
@@ -835,14 +836,14 @@ void tst_QCoapClient::discover_data()
     QTest::addColumn<int>("resourceNumber");
     QTest::addColumn<QtCoap::SecurityMode>("security");
 
-    // Californium test server exposes 29 resources
+    // Californium test server exposes 31 resources
     QTest::newRow("discover")
             << QUrl(testServerHost())
-            << 29
+            << 31
             << QtCoap::SecurityMode::NoSecurity;
     QTest::newRow("discover_secure")
             << QUrl(testServerHost())
-            << 29
+            << 31
             << QtCoap::SecurityMode::PreSharedKey;
 }
 
