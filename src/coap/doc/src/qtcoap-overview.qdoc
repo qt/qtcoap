@@ -5,6 +5,7 @@
     \page qtcoap-overview.html
     \title Qt CoAP Overview
     \brief Provides insight into the CoAP protocol and the Qt CoAP module.
+    \ingroup explanations-networkingandconnectivity
 
     Constrained Application Protocol (CoAP) is an IoT protocol that is specifically
     designed for M2M data exchange between constrained devices (such as microcontrollers)
