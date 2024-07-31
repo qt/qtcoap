@@ -18,7 +18,7 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
+Q_STATIC_LOGGING_CATEGORY(lcCoapClient, "qt.coap.client")
 
 QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection)
     : protocol(protocol)

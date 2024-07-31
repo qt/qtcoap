@@ -11,8 +11,6 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
-
 namespace {
 const auto CoapScheme = QLatin1String("coap");
 const auto CoapSecureScheme = QLatin1String("coaps");

@@ -5,11 +5,15 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qrandom.h>
+#include <QtCore/qloggingcategory.h>
 
 #ifndef QCOAPNAMESPACE_H
 #define QCOAPNAMESPACE_H
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(lcCoapExchange)
+Q_DECLARE_LOGGING_CATEGORY(lcCoapConnection)
 
 #define FOR_EACH_COAP_ERROR(X) \
     X(BadRequest, 0x80) X(Unauthorized, 0x81) X(BadOption, 0x82) X(Forbidden, 0x83)  \

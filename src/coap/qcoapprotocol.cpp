@@ -16,7 +16,7 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
+Q_STATIC_LOGGING_CATEGORY(lcCoapProtocol, "qt.coap.protocol")
 
 /*!
     \internal

@@ -9,7 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_LOGGING_CATEGORY(lcCoapOption, "qt.coap.option")
+Q_STATIC_LOGGING_CATEGORY(lcCoapOption, "qt.coap.option")
 
 /*!
     \class QCoapOption
