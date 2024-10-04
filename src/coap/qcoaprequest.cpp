@@ -56,6 +56,11 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
 {
 }
 
+QCoapRequestPrivate *QCoapRequestPrivate::clone() const
+{
+    return new QCoapRequestPrivate(*this);
+}
+
 /*!
     \internal
 
@@ -133,7 +138,7 @@ QCoapRequest::QCoapRequest(const char *url, Type type) :
 QCoapRequest::QCoapRequest(const QCoapRequest &other) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
-    QCoapMessage(*new QCoapRequestPrivate(*other.d_func()))
+    QCoapMessage(*other.d_func()->clone())
 {
 }
 
