@@ -444,7 +444,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
                                                                   d->connection->isSecure());
     copyRequest.enableObserve();
 
-    return get(copyRequest);
+    return d->sendRequest(copyRequest);
 }
 
 /*!
