@@ -306,7 +306,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 
     Sends the \a request using the POST method and returns a new QCoapReply
     object. Uses \a device content as the payload for this request.
-    A null device is treated as empty content.
+    A null device is treated as empty content, in which case the payload of the
+    \a request will be used.
 
     \note The device has to be open and readable before calling this function.
 
@@ -314,10 +315,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 */
 QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 {
-    if (!device)
-        return nullptr;
-
-    return post(request, device->readAll());
+    return post(request, device ? device->readAll() : QByteArray());
 }
 
 /*!
