@@ -1,6 +1,7 @@
 // Copyright (C) 2017 Witekio.
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial
+// Qt-Security score:critical reason:network-protocol
 
 #include "qcoapinternalmessage_p.h"
 #include "qcoaprequest_p.h"
