@@ -108,12 +108,12 @@ QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(const QHostAddress
 
     QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');
-    for (QByteArray link : links) {
+    for (const QByteArray &link : links) {
         QCoapResource resource;
         resource.setHost(sender);
 
         const QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : parameterList) {
+        for (const QByteArray &parameter : parameterList) {
             QString parameterString = QString::fromUtf8(parameter);
             const qsizetype length = parameterString.size();
             if (parameter.startsWith('<'))
