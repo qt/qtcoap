@@ -258,7 +258,8 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 
     Sends the \a request using the PUT method and returns a new QCoapReply
     object. Uses \a device content as the payload for this request.
-    A null device is treated as empty content.
+    A null device is treated as empty content, in which case the payload of the
+    \a request will be used.
 
     \note The device has to be open and readable before calling this function.
 
