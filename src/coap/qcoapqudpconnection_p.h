@@ -14,6 +14,8 @@
 #include <QtCore/qpointer.h>
 #include <QtCore/qqueue.h>
 
+#include <optional>
+
 //
 //  W A R N I N G
 //  -------------
@@ -78,8 +80,10 @@ public:
 
     void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
 
+    bool datagramMatchesNetworkInterface(const QNetworkDatagram &datagram) const;
+
 #if QT_CONFIG(dtls)
-    QNetworkDatagram receiveDatagramDecrypted() const;
+    std::optional<QNetworkDatagram> receiveDatagramDecrypted() const;
     void handleEncryptedDatagram();
 
     QPointer<QDtls> dtls;

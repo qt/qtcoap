@@ -8,6 +8,7 @@
 
 #include <QtCore/qloggingcategory.h>
 #include <QtNetwork/qnetworkdatagram.h>
+#include <QtNetwork/private/qabstractsocket_p.h>
 
 #if QT_CONFIG(dtls)
 #include <QtNetwork/QDtls>
@@ -159,7 +160,15 @@ QCoapQUdpConnectionPrivate::~QCoapQUdpConnectionPrivate()
 */
 bool QCoapQUdpConnectionPrivate::bind()
 {
+#if QT_CONFIG(networkinterface)
+    // Using the QAbstractSocketPrivate private API to bind to a specific
+    // network interface.
+    auto priv = static_cast<QAbstractSocketPrivate *>(QObjectPrivate::get(socket()));
+    QNetworkInterface *iface = udpNetworkInterface.isValid() ? &udpNetworkInterface : nullptr;
+    return priv->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress, iface);
+#else
     return socket()->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
+#endif
 }
 
 /*!
@@ -196,7 +205,7 @@ void QCoapQUdpConnection::bind(const QString &host, quint16 port)
         if (d->dtls->isConnectionEncrypted()) {
             emit bound();
         } else if (socket()->state() == QAbstractSocket::UnconnectedState) {
-            socket()->bind();
+            d->bind();
             d->dtls->setPeer(QHostAddress(host), port);
             if (!d->dtls->doHandshake(d->socket()))
                 qCWarning(lcCoapConnection) << "Handshake error: " << d->dtls->dtlsErrorString();
@@ -310,7 +319,8 @@ void QCoapQUdpConnectionPrivate::socketReadyRead()
     while (socket()->hasPendingDatagrams()) {
         if (!q->isSecure()) {
             const auto &datagram = socket()->receiveDatagram();
-            emit q->readyRead(datagram.data(), datagram.senderAddress());
+            if (datagramMatchesNetworkInterface(datagram))
+                emit q->readyRead(datagram.data(), datagram.senderAddress());
 #if QT_CONFIG(dtls)
         } else {
             handleEncryptedDatagram();
@@ -375,6 +385,23 @@ void QCoapQUdpConnectionPrivate::setSecurityConfiguration(
 #endif
 }
 
+/*!
+    \internal
+
+    Checks if the datagram was received on a specified network interface
+*/
+bool QCoapQUdpConnectionPrivate::datagramMatchesNetworkInterface(
+        const QNetworkDatagram &datagram) const
+{
+#if QT_CONFIG(networkinterface)
+    return !udpNetworkInterface.isValid()
+            || uint(udpNetworkInterface.index()) == datagram.interfaceIndex();
+#else
+    Q_UNUSED(datagram);
+    return true;
+#endif
+}
+
 #if QT_CONFIG(dtls)
 /*!
     \internal
@@ -409,11 +436,15 @@ void QCoapQUdpConnection::handshakeTimeout()
 /*!
     \internal
 
-    Returns a decrypted datagram received from a UDP socket.
+    Returns a decrypted datagram received from a UDP socket or a std::nullopt
+    if the datagram was received on an incorrect network interface.
 */
-QNetworkDatagram QCoapQUdpConnectionPrivate::receiveDatagramDecrypted() const
+std::optional<QNetworkDatagram> QCoapQUdpConnectionPrivate::receiveDatagramDecrypted() const
 {
     auto datagram = socket()->receiveDatagram();
+    if (!datagramMatchesNetworkInterface(datagram))
+        return std::nullopt;
+
     const QByteArray plainText = dtls->decryptDatagram(socket(), datagram.data());
     datagram.setData(plainText);
     return datagram;
@@ -433,10 +464,15 @@ void QCoapQUdpConnectionPrivate::handleEncryptedDatagram()
     Q_ASSERT(dtls);
 
     if (dtls->isConnectionEncrypted()) {
-        const auto &datagram = receiveDatagramDecrypted();
-        emit q->readyRead(datagram.data(), datagram.senderAddress());
+        const auto datagram = receiveDatagramDecrypted();
+        if (datagram)
+            emit q->readyRead(datagram->data(), datagram->senderAddress());
     } else {
-        if (!dtls->doHandshake(socket(), socket()->receiveDatagram().data())) {
+        const auto datagram = socket()->receiveDatagram();
+        if (!datagramMatchesNetworkInterface(datagram))
+            return;
+
+        if (!dtls->doHandshake(socket(), datagram.data())) {
             qCWarning(lcCoapConnection) << "Handshake error: " << dtls->dtlsErrorString();
             return;
         }

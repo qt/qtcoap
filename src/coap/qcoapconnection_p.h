@@ -11,6 +11,7 @@
 #include <QtCore/qqueue.h>
 #include <QtCore/qobject.h>
 #include <QtNetwork/qabstractsocket.h>
+#include <QtNetwork/qnetworkinterface.h>
 #include <private/qobject_p.h>
 
 //
@@ -47,6 +48,11 @@ public:
 
     Q_INVOKABLE void setSecurityConfiguration(const QCoapSecurityConfiguration &configuration);
     Q_INVOKABLE void disconnect();
+
+#if QT_CONFIG(networkinterface)
+    void setUdpNetworkInterface(const QNetworkInterface &iface);
+    QNetworkInterface udpNetworkInterface() const;
+#endif
 
 Q_SIGNALS:
     void error(QAbstractSocket::SocketError error);
@@ -92,6 +98,9 @@ public:
     QtCoap::SecurityMode securityMode;
     QCoapConnection::ConnectionState state;
     QQueue<CoapFrame> framesToSend;
+#if QT_CONFIG(networkinterface)
+    QNetworkInterface udpNetworkInterface;
+#endif
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };

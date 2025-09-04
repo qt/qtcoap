@@ -270,4 +270,24 @@ void QCoapConnection::disconnect()
     d->state = ConnectionState::Unconnected;
 }
 
+#if QT_CONFIG(networkinterface)
+/*!
+    \internal
+*/
+void QCoapConnection::setUdpNetworkInterface(const QNetworkInterface &iface)
+{
+    Q_D(QCoapConnection);
+    d->udpNetworkInterface = iface;
+}
+
+/*!
+    \internal
+*/
+QNetworkInterface QCoapConnection::udpNetworkInterface() const
+{
+    Q_D(const QCoapConnection);
+    return d->udpNetworkInterface;
+}
+#endif
+
 QT_END_NAMESPACE

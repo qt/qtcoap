@@ -11,6 +11,7 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qobject.h>
 #include <QtNetwork/qabstractsocket.h>
+#include <QtNetwork/qnetworkinterface.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -27,6 +28,10 @@ class QCoapClientPrivate;
 class Q_COAP_EXPORT QCoapClient : public QObject
 {
     Q_OBJECT
+#if QT_CONFIG(networkinterface)
+    Q_PROPERTY(QNetworkInterface bindInterface READ bindInterface WRITE setBindInterface
+                                               NOTIFY bindInterfaceChanged)
+#endif
 public:
     explicit QCoapClient(QtCoap::SecurityMode securityMode = QtCoap::SecurityMode::NoSecurity,
                          QObject *parent = nullptr);
@@ -65,11 +70,20 @@ public:
     void setMaximumRetransmitCount(uint maximumRetransmitCount);
     void setMinimumTokenSize(int tokenSize);
 
+#if QT_CONFIG(networkinterface)
+    void setBindInterface(const QNetworkInterface &iface);
+    QNetworkInterface bindInterface() const;
+#endif
+
 Q_SIGNALS:
     void finished(QCoapReply *reply);
     void responseToMulticastReceived(QCoapReply *reply, const QCoapMessage &message,
                                      const QHostAddress &sender);
     void error(QCoapReply *reply, QtCoap::Error error);
+
+#if QT_CONFIG(networkinterface)
+    void bindInterfaceChanged(const QNetworkInterface &iface);
+#endif
 
 protected:
     Q_DECLARE_PRIVATE(QCoapClient)

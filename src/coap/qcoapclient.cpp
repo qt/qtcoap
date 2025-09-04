@@ -688,4 +688,48 @@ void QCoapClient::setMinimumTokenSize(int tokenSize)
                               Q_ARG(int, tokenSize));
 }
 
+#if QT_CONFIG(networkinterface)
+/*!
+    \property QCoapClient::bindInterface
+    \brief the network interface to be used by the socket
+    \since 6.11
+
+    The default value is an \l {QNetworkInterface::isValid()}{invalid}
+    QNetworkInterface object, meaning that incoming packets will be accepted
+    from all network interfaces. Similarly, all network interfaces can be used
+    to send outgoing packets.
+
+    When a valid network interface is specified, incoming packets will only be
+    accepted from that interface. Similarly, outgoing packets will only be sent
+    using that interface.
+
+    Changing the property only has an effect the next time the client binds to
+    the socket, so make sure to call \l disconnect() if there was any prior
+    communication.
+*/
+void QCoapClient::setBindInterface(const QNetworkInterface &iface)
+{
+    Q_D(QCoapClient);
+    // QNI does not have operator==(). We use index() to distinguish the
+    // interfaces, because this is the value provided by the OS, and it is
+    // unlikely to change.
+    // We also need to check isValid(), because an invalid interface has
+    // index() == 0, which might clash with an existing interface index.
+    if (iface.isValid() == d->interface.isValid()
+        && iface.index() == d->interface.index()) {
+        return;
+    }
+    d->interface = iface;
+    QMetaObject::invokeMethod(d->connection, &QCoapConnection::setUdpNetworkInterface,
+                              Qt::QueuedConnection, iface);
+    Q_EMIT bindInterfaceChanged(iface);
+}
+
+QNetworkInterface QCoapClient::bindInterface() const
+{
+    Q_D(const QCoapClient);
+    return d->interface;
+}
+#endif
+
 QT_END_NAMESPACE

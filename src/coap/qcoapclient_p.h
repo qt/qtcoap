@@ -33,6 +33,9 @@ public:
     QCoapProtocol *protocol = nullptr;
     QCoapConnection *connection = nullptr;
     QThread *workerThread = nullptr;
+#if QT_CONFIG(networkinterface)
+    QNetworkInterface interface;
+#endif
 
     QCoapReply *sendRequest(const QCoapRequest &request);
     QCoapResourceDiscoveryReply *sendDiscovery(const QCoapRequest &request);

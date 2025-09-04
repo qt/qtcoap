@@ -25,12 +25,12 @@ qt_internal_add_module(Coap
         qcoapsecurityconfiguration.cpp qcoapsecurityconfiguration.h
     LIBRARIES
         Qt::CorePrivate
-        Qt::Network
+        Qt::NetworkPrivate
     PUBLIC_LIBRARIES
         Qt::Core
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
-        Qt::Network
+        Qt::NetworkPrivate
 )
 qt_internal_add_docs(Coap
     doc/qtcoap.qdocconf
