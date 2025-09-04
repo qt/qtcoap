@@ -131,10 +131,6 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     The default for \a securityMode is QtCoap::NoSecurity, which
     disables security.
-
-    This connects using a QCoapQUdpConnection; to use a custom transport,
-    sub-class QCoapConnection and pass an instance to one of the other
-    constructors.
 */
 QCoapClient::QCoapClient(QtCoap::SecurityMode securityMode, QObject *parent) :
     QObject(*new QCoapClientPrivate(new QCoapProtocol, new QCoapQUdpConnection(securityMode)),
