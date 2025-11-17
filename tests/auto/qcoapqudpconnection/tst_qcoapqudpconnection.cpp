@@ -50,7 +50,7 @@ public:
 void tst_QCoapQUdpConnection::initTestCase()
 {
 #if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
-    QVERIFY2(waitForHost(testServerHost()), "Failed to connect to Californium plugtest server.");
+    QVERIFY2(waitForHost(QUrl{testServerHost()}), "Failed to connect to Californium plugtest server.");
 #endif
 }
 
@@ -164,7 +164,7 @@ void tst_QCoapQUdpConnection::sendRequest()
     QSignalSpy spyConnectionReadyRead(&connection, &QCoapQUdpConnection::readyRead);
 
     QCoapRequest request =
-            QCoapRequestPrivate::createRequest(QCoapRequest(protocol + host + path), method);
+            QCoapRequestPrivate::createRequest(QCoapRequest(QUrl{protocol + host + path}), method);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
     QVERIFY(connection.socket() != nullptr);

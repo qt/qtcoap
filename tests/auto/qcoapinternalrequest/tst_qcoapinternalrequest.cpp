@@ -235,7 +235,7 @@ void tst_QCoapInternalRequest::urlOptions()
     QFETCH(QString, url);
     QFETCH(QList<QCoapOption>, options);
 
-    const QCoapRequest request(url);
+    const QCoapRequest request(QUrl{url});
     const QCoapInternalRequest internalRequest(request);
 
     auto requestOptions = internalRequest.message()->options();
@@ -264,7 +264,7 @@ void tst_QCoapInternalRequest::invalidUrls_data()
 void tst_QCoapInternalRequest::invalidUrls()
 {
     QFETCH(QString, url);
-    const QCoapRequest request(url);
+    const QCoapRequest request(QUrl{url});
     const QCoapInternalRequest internalRequest(request);
 
     QVERIFY(!internalRequest.isValid());
@@ -288,7 +288,7 @@ void tst_QCoapInternalRequest::isMulticast()
     QFETCH(QString, url);
     QFETCH(bool, result);
 
-    const QCoapRequest request(url);
+    const QCoapRequest request(QUrl{url});
     const QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.isMulticast(), result);
 }

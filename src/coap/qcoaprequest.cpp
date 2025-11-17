@@ -10,6 +10,8 @@
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/QDebug>
 
+using namespace Qt::StringLiterals;
+
 QT_BEGIN_NAMESPACE
 
 namespace {
@@ -259,7 +261,7 @@ QUrl QCoapRequestPrivate::adjustedUrl(const QUrl &url, bool secure)
     if (url.host().isEmpty() && url.isRelative()) {
         // In some cases host address is mistaken for part of the relative path,
         // prepending the scheme fixes this.
-        finalizedUrl = url.toString().prepend(scheme + QLatin1String("://"));
+        finalizedUrl = QUrl{scheme + "://"_L1 + url.toString()};
     } else if (url.scheme().isEmpty()) {
         finalizedUrl.setScheme(scheme);
     }

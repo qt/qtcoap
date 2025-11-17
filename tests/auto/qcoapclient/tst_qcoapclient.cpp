@@ -217,9 +217,9 @@ public slots:
 void tst_QCoapClient::initTestCase()
 {
 #if defined(COAP_TEST_SERVER_IP) || defined(QT_TEST_SERVER)
-    QVERIFY2(waitForHost(testServerHost()), "Failed to connect to Californium plugtest server.");
+    QVERIFY2(waitForHost(QUrl{testServerHost()}), "Failed to connect to Californium plugtest server.");
 #if QT_CONFIG(dtls)
-    QVERIFY2(waitForHost(timeServerUrl(), QtCoap::SecurityMode::Certificate),
+    QVERIFY2(waitForHost(QUrl{timeServerUrl()}, QtCoap::SecurityMode::Certificate),
              "Failed to connect to FreeCoAP sample time server.");
 #endif
 #endif
