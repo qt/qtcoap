@@ -28,6 +28,7 @@ qt_internal_add_module(Coap
         Qt::NetworkPrivate
     PUBLIC_LIBRARIES
         Qt::Core
+        Qt::Network
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
         Qt::NetworkPrivate
