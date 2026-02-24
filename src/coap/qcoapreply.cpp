@@ -186,7 +186,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     message details. The \a reply parameter is the QCoapReply itself for
     convenience.
 
-    \sa QCoapClient::finished(), isFinished(), finished(), notified()
+    \sa QCoapClient::finished(), isFinished(), finished(), aborted()
 */
 
 /*!
