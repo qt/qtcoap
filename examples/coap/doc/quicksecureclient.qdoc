@@ -9,6 +9,7 @@
     \brief Securing the CoAP client and using it with a Qt Quick user interface.
 
     \image quicksecureclient.png
+           {Secure CoAP client with certificate configuration and response}
 
     \e {Quick Secure CoAP Client} demonstrates how to create a secure CoAP client
     and use it in a Qt Quick application.

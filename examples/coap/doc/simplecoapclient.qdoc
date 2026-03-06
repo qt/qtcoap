@@ -9,6 +9,7 @@
     \brief Creating an application that communicates with a CoAP server.
 
     \image simplecoapclient.webp
+           {CoAP client window with Add Options dialog and discovered resources}
 
     \e {Simple CoAP Client} demonstrates how to create a minimalistic CoAP client
     application to send and receive CoAP messages.
