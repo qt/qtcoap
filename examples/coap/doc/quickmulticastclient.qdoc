@@ -10,6 +10,7 @@
     user interface.
 
     \image quickmulticastclient.webp
+           {Multicast discovery window showing discovered CoAP resources}
 
     The \e {Quick CoAP Multicast Discovery} example demonstrates how to register
     QCoapClient as a QML type and use it in a Qt Quick application for CoAP multicast
