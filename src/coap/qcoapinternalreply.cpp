@@ -51,6 +51,10 @@ QCoapInternalReply::QCoapInternalReply(QObject *parent) :
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply, QObject *parent)
 {
+    // A CoAP message is at least 4 bytes long
+    if (reply.size() < 4)
+        return nullptr;
+
     QCoapInternalReply *internalReply = new QCoapInternalReply(parent);
     QCoapInternalReplyPrivate *d = internalReply->d_func();
 
