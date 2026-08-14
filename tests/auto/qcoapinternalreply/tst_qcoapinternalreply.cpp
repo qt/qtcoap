@@ -15,6 +15,8 @@ class tst_QCoapInternalReply : public QObject
 private Q_SLOTS:
     void parseReplyPdu_data();
     void parseReplyPdu();
+    void parseInvalidReplyPdu_data();
+    void parseInvalidReplyPdu();
     void updateReply_data();
     void updateReply();
 };
@@ -136,6 +138,29 @@ void tst_QCoapInternalReply::parseReplyPdu()
     }
     QCOMPARE(reply->message()->payload(), payload.toUtf8());
 }
+
+void tst_QCoapInternalReply::parseInvalidReplyPdu_data()
+{
+    QTest::addColumn<QByteArray>("frame");
+
+    // A CoAP message is at least 4 bytes long (the fixed header). Frames shorter
+    // than that must be rejected before the header is dereferenced;
+    // createFromFrame() signals rejection by returning nullptr.
+    QTest::newRow("empty")       << QByteArray();
+    QTest::newRow("one_byte")    << QByteArray::fromHex("50");
+    QTest::newRow("two_bytes")   << QByteArray::fromHex("5045");
+    QTest::newRow("three_bytes") << QByteArray::fromHex("5045fb");
+}
+
+void tst_QCoapInternalReply::parseInvalidReplyPdu()
+{
+    QFETCH(QByteArray, frame);
+
+    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(frame));
+    QVERIFY2(reply.isNull(),
+             "createFromFrame() must reject a malformed frame by returning nullptr");
+}
+
 
 void tst_QCoapInternalReply::updateReply_data()
 {
