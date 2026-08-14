@@ -28,6 +28,10 @@
     \li Resource discovery (multicast and single server)
     \endlist
 
+    \note Security is opt-in: QCoapClient uses QtCoap::NoSecurity by default and must
+    be constructed with a secure mode to enable DTLS.
+    See \l{Qt CoAP Overview#security}{Security}.
+
     \include module-use.qdocinc using qt module
 
     \code
