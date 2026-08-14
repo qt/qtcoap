@@ -17,9 +17,10 @@
     for addressing. At the same time it provides lightweight reliability mechanisms
     and security.
 
-    Qt CoAP implements the client side of CoAP. By default, the transport layer uses
-    QUdpSocket and QDtls for security. Alternative transports can be used by implementing
-    the QCoapConnection interface.
+    Qt CoAP implements the client side of CoAP. The default transport is built on
+    QUdpSocket, with QDtls providing security only when a secure mode is selected;
+    no security mode is enabled by default (see \l{#security}{Security}). Alternative
+    transports can be used by implementing the QCoapConnection interface.
 
     \section1 Messaging Model
 
@@ -140,6 +141,11 @@
     Since CoAP is designed to be a UDP-based protocol, Qt CoAP module implements security
     based on Datagram TLS (DTLS) over UDP. However, as mentioned above, it is possible to
     provide a custom transport with another security type.
+
+    \warning By default Qt CoAP operates without transport security. Unless a secure
+    mode is selected, requests and responses are sent as plain UDP datagrams. Use the
+    default (\c{QtCoap::NoSecurity}) only on fully trusted networks; on any untrusted
+    network construct QCoapClient with a secure mode.
 
     For securing the CoAP client, one of the supported security modes should be specified
     when creating the client:
