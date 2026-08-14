@@ -324,6 +324,13 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &data, const QHostAd
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     QSharedPointer<QCoapInternalReply> reply(decode(data, sender));
+    if (!reply) {
+        qCDebug(lcCoapProtocol).nospace() << "QtCoap: Discarding malformed frame from "
+                                          << sender << " (" << data.size()
+                                          << " bytes): not a valid CoAP message";
+        return;
+    }
+
     const QCoapMessage *messageReceived = reply->message();
 
     QCoapInternalRequest *request = nullptr;
@@ -691,6 +698,9 @@ QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &data, const Q
 {
     Q_Q(QCoapProtocol);
     QCoapInternalReply *reply = QCoapInternalReply::createFromFrame(data, q);
+    if (!reply)
+        return nullptr;
+
     reply->setSenderAddress(sender);
 
     return reply;
