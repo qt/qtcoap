@@ -6,6 +6,8 @@
 #include "qcoapinternalreply_p.h"
 #include <QtCore/qmath.h>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 
 /*!
@@ -55,7 +57,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     if (reply.size() < 4)
         return nullptr;
 
-    QCoapInternalReply *internalReply = new QCoapInternalReply(parent);
+    auto internalReply = std::make_unique<QCoapInternalReply>(parent);
     QCoapInternalReplyPrivate *d = internalReply->d_func();
 
     const quint8 *pduData = reinterpret_cast<const quint8 *>(reply.data());
@@ -70,29 +72,38 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     d->message.setToken(reply.mid(4, tokenLength));
 
     // Parse Options
-    int i = 4 + tokenLength;
+    qsizetype i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
-    while (i != reply.size() && pduData[i] != 0xFF) {
+    while (i < reply.size() && pduData[i] != 0xFF) {
         quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
         quint16 optionLength = (pduData[i] & 0x0F);
 
         // Delta value > 12 : special values
         if (optionDelta == 13) {
-            ++i;
+            if (++i >= reply.size())
+                return nullptr;
             optionDelta = pduData[i] + 13;
         } else if (optionDelta == 14) {
-            ++i;
+            if (++i >= reply.size())
+                return nullptr;
             optionDelta = pduData[i] + 269;
         }
 
         // Delta length > 12 : special values
         if (optionLength == 13) {
-            ++i;
+            if (++i >= reply.size())
+                return nullptr;
             optionLength = pduData[i] + 13;
         } else if (optionLength == 14) {
-            ++i;
+            if (++i >= reply.size())
+                return nullptr;
             optionLength = pduData[i] + 269;
         }
+
+        // The option value is optionLength bytes following the current byte.
+        // Reject the frame if it would run past the end of the buffer.
+        if (i >= reply.size() - optionLength)
+            return nullptr;
 
         quint16 optionNumber = lastOptionNumber + optionDelta;
         internalReply->addOption(QCoapOption::OptionName(optionNumber),
@@ -108,7 +119,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
         d->message.setPayload(d->message.payload().append(currentPayload));
     }
 
-    return internalReply;
+    return internalReply.release();
 }
 
 /*!
