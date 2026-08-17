@@ -67,6 +67,12 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     d->message.setVersion((pduData[0] >> 6) & 0x03);
     d->message.setType(QCoapMessage::Type((pduData[0] >> 4) & 0x03));
     quint8 tokenLength = (pduData[0]) & 0x0F;
+
+    // RFC 7252 §3: token lengths 9-15 are reserved and must be treated as a
+    // message format error. Also reject a token whose bytes are not all present.
+    if (tokenLength > 8 || 4 + tokenLength > reply.size())
+        return nullptr;
+
     d->responseCode = static_cast<QtCoap::ResponseCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                  | static_cast<quint16>(pduData[3])));
