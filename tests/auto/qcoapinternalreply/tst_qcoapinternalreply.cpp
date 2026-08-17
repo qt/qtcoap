@@ -168,6 +168,13 @@ void tst_QCoapInternalReply::parseInvalidReplyPdu_data()
     // 0xe0 + 0xffff: extended delta 0xffff -> option number 65535 + 269 = 65804,
     // which exceeds the 65535 maximum, so the frame is rejected.
     QTest::newRow("option_number_exceeds_max") << QByteArray::fromHex("50450001" "e0" "ffff");
+
+    // Token-length cases.
+    // TKL 9 is reserved (RFC 7252 §3) and must be rejected even when the 9 token
+    // bytes are present, so this frame includes them.
+    QTest::newRow("reserved_token_length") << QByteArray::fromHex("59450001" "aabbccddeeff001122");
+    // TKL 4 is valid, but no token bytes follow the 4-byte header.
+    QTest::newRow("truncated_token")       << QByteArray::fromHex("54450001");
 }
 
 void tst_QCoapInternalReply::parseInvalidReplyPdu()
