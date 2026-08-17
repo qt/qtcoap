@@ -18,6 +18,8 @@ private Q_SLOTS:
     void parseInvalidReplyPdu_data();
     void parseInvalidReplyPdu();
     void parseExtendedOption();
+    void parseEmptyBlockOption();
+    void nextBlockToSendWithEmptyBlock1();
     void updateReply_data();
     void updateReply();
 };
@@ -208,6 +210,37 @@ void tst_QCoapInternalReply::parseExtendedOption()
     const QCoapOption option = reply->message()->options().constFirst();
     QCOMPARE(static_cast<int>(option.name()), 527);
     QCOMPARE(option.opaqueValue(), value);
+}
+
+void tst_QCoapInternalReply::parseEmptyBlockOption()
+{
+    // RFC 7959 §2.2: a zero-length Block option is valid and encodes
+    // NUM=0, M=0, SZX=0. Frame: 4-byte header (no token), then a Block2
+    // option (number 23) carrying an empty value.
+    //   0xd0 -> option delta nibble 13 (extended), length nibble 0
+    //   0x0a -> extended delta byte, giving option number 13 + 10 = 23 (Block2)
+    const QByteArray frame = QByteArray::fromHex("50450001" "d0" "0a");
+    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(frame));
+
+    QVERIFY(!reply.isNull());
+    QCOMPARE(reply->currentBlockNumber(), 0u);
+    QVERIFY(!reply->hasMoreBlocksToReceive());
+    QCOMPARE(reply->blockSize(), 16u);
+}
+
+void tst_QCoapInternalReply::nextBlockToSendWithEmptyBlock1()
+{
+    // A zero-length Block1 option is valid (RFC 7959 §2.2), encoding M=0, so
+    // there is no next block to send. nextBlockToSend() must return -1 rather
+    // than read optionData[-1]. Frame: 4-byte header, then a Block1 option
+    // (number 27) with an empty value.
+    //   0xd0 -> option delta nibble 13 (extended), length nibble 0
+    //   0x0e -> extended delta byte, giving option number 13 + 14 = 27 (Block1)
+    const QByteArray frame = QByteArray::fromHex("50450001" "d0" "0e");
+    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(frame));
+
+    QVERIFY(!reply.isNull());
+    QCOMPARE(reply->nextBlockToSend(), -1);
 }
 
 void tst_QCoapInternalReply::updateReply_data()
