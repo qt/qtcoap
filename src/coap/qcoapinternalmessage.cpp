@@ -90,7 +90,11 @@ void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &opti
 
     const auto value = option.opaqueValue();
     const quint8 *optionData = reinterpret_cast<const quint8 *>(value.data());
-    const quint8 lastByte = optionData[option.length() - 1];
+
+    // A zero-length block option is valid and encodes NUM=0, M=0, SZX=0
+    // (RFC 7959 §2.2). Treat the absent last byte as 0 instead of reading
+    // optionData[-1]; the loop below is then skipped and every field resolves to 0.
+    const quint8 lastByte = option.length() > 0 ? optionData[option.length() - 1] : 0;
     quint32 blockNumber = 0;
 
     for (int i = 0; i < option.length() - 1; ++i)
