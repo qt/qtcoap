@@ -190,7 +190,8 @@ int QCoapInternalReply::nextBlockToSend() const
 
     const auto value = option.opaqueValue();
     const quint8 *optionData = reinterpret_cast<const quint8 *>(value.data());
-    const quint8 lastByte = optionData[option.length() - 1];
+    // Zero-length block option => M=0 (no further block); avoid optionData[-1].
+    const quint8 lastByte = option.length() > 0 ? optionData[option.length() - 1] : 0;
 
     // M field
     bool hasNextBlock = ((lastByte & 0x8) == 0x8);
