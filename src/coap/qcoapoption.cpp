@@ -172,14 +172,21 @@ QByteArray QCoapOption::opaqueValue() const
 
 /*!
     Returns the integer value of the option.
+
+    \note A uint option holds at most 4 bytes. If the option value is longer,
+    only its low 4 bytes are used to compute the result; use \l length() to
+    detect an over-long value.
  */
 quint32 QCoapOption::uintValue() const
 {
     Q_D(const QCoapOption);
 
     quint32 intValue = 0;
-    for (int i = 0; i < d->value.size(); i++)
-        intValue |= static_cast<quint8>(d->value.at(i)) << (8 * i);
+    // A uint option holds at most 4 bytes (32 bits). Stop at 4 so the shift can
+    // never reach 32 bits (undefined behaviour), and cast to the result type
+    // before shifting to avoid signed overflow on the top byte.
+    for (int i = 0; i < d->value.size() && i < 4; ++i)
+        intValue |= static_cast<quint32>(static_cast<quint8>(d->value.at(i))) << (8 * i);
 
     return intValue;
 }
