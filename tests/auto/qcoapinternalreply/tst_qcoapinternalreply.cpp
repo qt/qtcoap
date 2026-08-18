@@ -185,6 +185,12 @@ void tst_QCoapInternalReply::parseInvalidReplyPdu_data()
     QTest::newRow("reserved_block2_szx7") << QByteArray::fromHex("50450001" "d10a" "07");
     // Block1 (number 27): extended delta byte 0x0e -> 14 + 13 = 27.
     QTest::newRow("reserved_block1_szx7") << QByteArray::fromHex("50450001" "d10e" "07");
+
+    // RFC 7959 §2.2: a block option value is 0-3 bytes; a 4-byte value is rejected
+    // (it would overflow the 20-bit block number). Option header 0xd4 = delta 13
+    // (extended), length 4; 0x0a -> Block2 (23); last byte 0x04 has a valid SZX, so
+    // this exercises the length check rather than the SZX check.
+    QTest::newRow("oversized_block2_value") << QByteArray::fromHex("50450001" "d40a" "01020304");
 }
 
 void tst_QCoapInternalReply::parseInvalidReplyPdu()
