@@ -125,8 +125,18 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
         if (optionNumber > 65535)
             return nullptr;
 
-        internalReply->addOption(QCoapOption::OptionName(optionNumber),
-                                 reply.sliced(i + 1, optionLength));
+        const QByteArray optionValue = reply.sliced(i + 1, optionLength);
+
+        // RFC 7959 §2.2: SZX value 7 (block size 2048) is reserved. The SZX field
+        // is the low 3 bits of a block option's last byte. Accepting it yields a
+        // block size of 2048, which is illegal
+        if ((optionNumber == QCoapOption::Block1 || optionNumber == QCoapOption::Block2)
+            && !optionValue.isEmpty()
+            && (static_cast<quint8>(optionValue.back()) & 0x7) == 0x7) {
+            return nullptr;
+        }
+
+        internalReply->addOption(QCoapOption::OptionName(optionNumber), optionValue);
         lastOptionNumber = optionNumber;
         i += 1 + optionLength;
     }

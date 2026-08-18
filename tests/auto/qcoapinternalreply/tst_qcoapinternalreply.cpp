@@ -177,6 +177,14 @@ void tst_QCoapInternalReply::parseInvalidReplyPdu_data()
     QTest::newRow("reserved_token_length") << QByteArray::fromHex("59450001" "aabbccddeeff001122");
     // TKL 4 is valid, but no token bytes follow the 4-byte header.
     QTest::newRow("truncated_token")       << QByteArray::fromHex("54450001");
+
+    // RFC 7959 §2.2: SZX value 7 (block size 2048) is reserved. Reject a block
+    // option whose last byte has SZX 7 (low 3 bits set). Value byte 0x07 encodes
+    // NUM=0, M=0, SZX=7. Option header 0xd1 = delta 13 (extended), length 1.
+    // Block2 (number 23): extended delta byte 0x0a -> 10 + 13 = 23.
+    QTest::newRow("reserved_block2_szx7") << QByteArray::fromHex("50450001" "d10a" "07");
+    // Block1 (number 27): extended delta byte 0x0e -> 14 + 13 = 27.
+    QTest::newRow("reserved_block1_szx7") << QByteArray::fromHex("50450001" "d10e" "07");
 }
 
 void tst_QCoapInternalReply::parseInvalidReplyPdu()
