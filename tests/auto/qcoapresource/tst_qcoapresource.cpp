@@ -104,6 +104,21 @@ void tst_QCoapResource::parseCoreLink_data()
                            << maximumSizeList
                            << observableList
                            << coreLinks;
+
+    // A link that opens with '<' but has no closing '>' is malformed (RFC 6690).
+    // It must be dropped without disturbing the valid entries around it: here
+    // "</malformed" is discarded and only "</valid>" yields a resource.
+    QTest::newRow("malformed_unterminated_link")
+            << 1
+            << QString("10.20.30.40")
+            << QList<QString>{ QStringLiteral("/valid") }
+            << QList<QString>{ QString() }
+            << QList<QString>{ QString() }
+            << QList<uint>{ 0u }
+            << QList<QString>{ QString() }
+            << QList<int>{ -1 }
+            << QList<bool>{ false }
+            << QByteArray("</valid>,</malformed");
 }
 
 void tst_QCoapResource::parseCoreLink()

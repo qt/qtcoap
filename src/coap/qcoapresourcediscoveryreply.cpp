@@ -117,7 +117,7 @@ QCoapResourceDiscoveryReplyPrivate::resourcesFromCoreLinkList(const QHostAddress
         for (const QByteArray &parameter : parameterList) {
             QString parameterString = QString::fromUtf8(parameter);
             const qsizetype length = parameterString.size();
-            if (parameter.startsWith('<'))
+            if (parameter.startsWith('<') && parameter.endsWith('>'))
                 resource.setPath(parameterString.mid(1, length - 2));
             else if (parameter.startsWith("title="))
                 resource.setTitle(parameterString.mid(6).remove(quote));
