@@ -15,6 +15,8 @@ private Q_SLOTS:
     void constructWithQByteArray();
     void constructWithQString();
     void constructWithInteger();
+    void uintValueIgnoresExcessBytes();
+    void uintValueHandlesHighBitBytes();
     void constructWithUtf8Characters();
 };
 
@@ -78,6 +80,30 @@ void tst_QCoapOption::constructWithInteger()
     QCoapOption option(QCoapOption::Size1, value);
 
     QCOMPARE(option.uintValue(), value);
+}
+
+void tst_QCoapOption::uintValueIgnoresExcessBytes()
+{
+    // A uint option holds at most 4 bytes. uintValue() must not shift past 32
+    // bits when the value is longer; only the low 4 bytes are used (little-endian).
+    // Size2 has no per-option size check in setValue(), so all 6 bytes are stored.
+    const QByteArray value = QByteArray::fromHex("010203040506");
+    QCoapOption option(QCoapOption::Size2, value);
+
+    QCOMPARE(option.uintValue(), 0x04030201u);
+}
+
+void tst_QCoapOption::uintValueHandlesHighBitBytes()
+{
+    // A byte with the high bit set must be zero-extended, not sign-extended:
+    QCOMPARE(QCoapOption(QCoapOption::Size2, QByteArray::fromHex("ff")).uintValue(),
+             0xffu);
+
+    // All four bytes have the high bit set: the top byte exercises the byte<<24
+    // path (signed-overflow avoidance), and the result confirms every byte is
+    // zero-extended rather than sign-extended.
+    QCOMPARE(QCoapOption(QCoapOption::Size2, QByteArray::fromHex("deadbeef")).uintValue(),
+             0xefbeaddeu);
 }
 
 void tst_QCoapOption::constructWithUtf8Characters()
