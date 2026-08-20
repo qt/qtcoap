@@ -99,6 +99,21 @@ QCoapClientPrivate::~QCoapClientPrivate()
     block-wise exchanges only with trusted servers, and preferably on a trusted or
     isolated network.
 
+    \section2 Multicast
+
+    DTLS protects a connection between two endpoints and therefore cannot apply to
+    multicast, where more than 2 endpoints may be present. Because of this, a
+    multicast request and its replies are neither encrypted nor authenticated.
+
+    Every host in the group may answer a multicast request. In CoAP these hosts
+    are all legitimate owners of the resource and are expected to serve
+    equivalent replies. When a reply is sent block by block, the remaining
+    blocks are retrieved by unicast from whichever host answered.
+
+    CoAP multicast is designed with the assumption that the network is secured
+    and every node in the group is trusted. Use multicast only in scenarios that
+    fulfill this assumption.
+
     \sa QCoapRequest, QCoapReply, QCoapResourceDiscoveryReply
 */
 
@@ -122,6 +137,9 @@ QCoapClientPrivate::~QCoapClientPrivate()
     arrives. The \a reply parameter contains a pointer to the reply that has just
     been received, \a message contains the payload and the message details,
     and \a sender contains the sender address.
+
+    \note Multicast requests are unauthenticated; see \l {Multicast}
+    {multicast security considerations} for the trust model this relies on.
 
     \sa error(), QCoapReply::finished(), QCoapReply::error()
 */
