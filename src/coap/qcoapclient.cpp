@@ -88,6 +88,17 @@ QCoapClientPrivate::~QCoapClientPrivate()
     It can be used the same way as a QCoapReply but contains also a list of
     resources.
 
+    \section1 Security Considerations
+
+    During a block-wise transfer, the response payload is accumulated
+    in memory until the transfer completes, and QtCoap does not impose an upper
+    bound on the accumulated size. A malicious or malfunctioning server that
+    keeps sending blocks without ever signalling the final one can therefore
+    drive the client to exhaust memory. The accumulated size is not observable while
+    the transfer is in progress, so an application cannot bound it directly. Perform
+    block-wise exchanges only with trusted servers, and preferably on a trusted or
+    isolated network.
+
     \sa QCoapRequest, QCoapReply, QCoapResourceDiscoveryReply
 */
 
