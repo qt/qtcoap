@@ -120,7 +120,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
             return nullptr;
 
         internalReply->addOption(QCoapOption::OptionName(optionNumber),
-                                 reply.mid(i + 1, optionLength));
+                                 reply.sliced(i + 1, optionLength));
         lastOptionNumber = optionNumber;
         i += 1 + optionLength;
     }
