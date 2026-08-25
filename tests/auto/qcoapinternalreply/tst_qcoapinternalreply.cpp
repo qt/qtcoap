@@ -17,6 +17,7 @@ private Q_SLOTS:
     void parseReplyPdu();
     void parseInvalidReplyPdu_data();
     void parseInvalidReplyPdu();
+    void parseExtendedOption();
     void updateReply_data();
     void updateReply();
 };
@@ -164,6 +165,9 @@ void tst_QCoapInternalReply::parseInvalidReplyPdu_data()
     QTest::newRow("missing_option_length_ext_byte") << QByteArray::fromHex("50450001" "0d");
     // 0x0d + 0xff: extended length yields optionLength 268, far past the buffer.
     QTest::newRow("extended_option_length_overruns") << QByteArray::fromHex("50450001" "0d" "ff");
+    // 0xe0 + 0xffff: extended delta 0xffff -> option number 65535 + 269 = 65804,
+    // which exceeds the 65535 maximum, so the frame is rejected.
+    QTest::newRow("option_number_exceeds_max") << QByteArray::fromHex("50450001" "e0" "ffff");
 }
 
 void tst_QCoapInternalReply::parseInvalidReplyPdu()
@@ -175,6 +179,29 @@ void tst_QCoapInternalReply::parseInvalidReplyPdu()
              "createFromFrame() must reject a malformed frame by returning nullptr");
 }
 
+void tst_QCoapInternalReply::parseExtendedOption()
+{
+    // RFC 7252 §3.1: a delta/length nibble of 14 is followed by a 16-bit
+    // unsigned integer in network byte order (the value minus 269). Build one
+    // option that uses the 16-bit form for BOTH its delta and its length, with
+    // distinct first/second bytes so the test also verifies the byte order:
+    //   0xee       -> delta nibble 14, length nibble 14
+    //   0x01 0x02  -> extended delta  = 0x0102 = 258 -> option number 258 + 269 = 527
+    //   0x00 0x03  -> extended length = 0x0003 =   3 -> value length     3 + 269 = 272
+    //   272 value bytes
+    // A decoder that read one byte instead of two, or used the wrong byte order,
+    // would compute different numbers and misalign the rest of the frame.
+    const QByteArray value(272, 'x');
+    const QByteArray frame = QByteArray::fromHex("50450001" "ee" "0102" "0003") + value;
+
+    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(frame));
+
+    QVERIFY(!reply.isNull());
+    QCOMPARE(reply->message()->optionCount(), 1);
+    const QCoapOption option = reply->message()->options().constFirst();
+    QCOMPARE(static_cast<int>(option.name()), 527);
+    QCOMPARE(option.opaqueValue(), value);
+}
 
 void tst_QCoapInternalReply::updateReply_data()
 {

@@ -4,6 +4,7 @@
 // Qt-Security score:critical reason:network-protocol
 
 #include "qcoapinternalreply_p.h"
+#include <QtCore/qendian.h>
 #include <QtCore/qmath.h>
 
 #include <memory>
@@ -73,10 +74,10 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
 
     // Parse Options
     qsizetype i = 4 + tokenLength;
-    quint16 lastOptionNumber = 0;
+    quint32 lastOptionNumber = 0;
     while (i < reply.size() && pduData[i] != 0xFF) {
-        quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
-        quint16 optionLength = (pduData[i] & 0x0F);
+        quint32 optionDelta = ((pduData[i] >> 4) & 0x0F);
+        quint32 optionLength = (pduData[i] & 0x0F);
 
         // Delta value > 12 : special values
         if (optionDelta == 13) {
@@ -84,9 +85,12 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
                 return nullptr;
             optionDelta = pduData[i] + 13;
         } else if (optionDelta == 14) {
-            if (++i >= reply.size())
+            // RFC 7252 §3.1: nibble 14 is a 16-bit unsigned integer in network
+            // byte order, giving the value minus 269.
+            if (i >= reply.size() - 2)
                 return nullptr;
-            optionDelta = pduData[i] + 269;
+            optionDelta = qFromBigEndian<quint16>(pduData + i + 1) + 269;
+            i += 2;
         }
 
         // Delta length > 12 : special values
@@ -95,17 +99,26 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
                 return nullptr;
             optionLength = pduData[i] + 13;
         } else if (optionLength == 14) {
-            if (++i >= reply.size())
+            // RFC 7252 §3.1: nibble 14 is a 16-bit unsigned integer in network
+            // byte order, giving the value minus 269.
+            if (i >= reply.size() - 2)
                 return nullptr;
-            optionLength = pduData[i] + 269;
+            optionLength = qFromBigEndian<quint16>(pduData + i + 1) + 269;
+            i += 2;
         }
 
         // The option value is optionLength bytes following the current byte.
         // Reject the frame if it would run past the end of the buffer.
-        if (i >= reply.size() - optionLength)
+        if (i >= reply.size() - static_cast<qsizetype>(optionLength))
             return nullptr;
 
-        quint16 optionNumber = lastOptionNumber + optionDelta;
+        quint32 optionNumber = lastOptionNumber + optionDelta;
+        // RFC 7252: option numbers do not exceed 65535. A larger cumulative
+        // number means a malformed frame; every following option would be out of
+        // range too, so reject the whole reply.
+        if (optionNumber > 65535)
+            return nullptr;
+
         internalReply->addOption(QCoapOption::OptionName(optionNumber),
                                  reply.mid(i + 1, optionLength));
         lastOptionNumber = optionNumber;
