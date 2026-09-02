@@ -33,11 +33,14 @@ QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection 
 
 QCoapClientPrivate::~QCoapClientPrivate()
 {
+    // protocol and connection (and their children, such as the retransmission
+    // timers and the UDP socket) live in workerThread. They must be destroyed in
+    // that thread, not here.
+    protocol->deleteLater();
+    connection->deleteLater();
     workerThread->quit();
     workerThread->wait();
     delete workerThread;
-    delete protocol;
-    delete connection;
 }
 
 /*!
