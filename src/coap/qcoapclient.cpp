@@ -192,7 +192,11 @@ void QCoapClientPrivate::setConnection(QCoapConnection *customConnection)
 {
     Q_Q(QCoapClient);
 
-    delete connection;
+    if (connection) {
+        // The connection lives in workerThread, let that thread delete it.
+        connection->disconnect();
+        connection->deleteLater();
+    }
     connection = customConnection;
 
     q->connect(connection, &QCoapConnection::readyRead, protocol,
