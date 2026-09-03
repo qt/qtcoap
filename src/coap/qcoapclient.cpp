@@ -504,8 +504,9 @@ QCoapReply *QCoapClient::observe(const QUrl &url)
 void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
+    using P = QPointer<QCoapReply>;
+    QMetaObject::invokeMethod(d->protocol, qOverload<P>(&QCoapProtocol::cancelObserve),
+                              Qt::QueuedConnection, P(notifiedReply));
 }
 
 /*!
@@ -519,7 +520,8 @@ void QCoapClient::cancelObserve(const QUrl &url)
 {
     Q_D(QCoapClient);
     const auto adjustedUrl = QCoapRequestPrivate::adjustedUrl(url, d->connection->isSecure());
-    QMetaObject::invokeMethod(d->protocol, "cancelObserve", Q_ARG(QUrl, adjustedUrl));
+    QMetaObject::invokeMethod(d->protocol, qOverload<const QUrl &>(&QCoapProtocol::cancelObserve),
+                              Qt::QueuedConnection, adjustedUrl);
 }
 
 /*!
@@ -533,7 +535,7 @@ void QCoapClient::cancelObserve(const QUrl &url)
 void QCoapClient::disconnect()
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->connection, "disconnect", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(d->connection, &QCoapConnection::disconnect, Qt::QueuedConnection);
 }
 
 /*!
@@ -605,9 +607,8 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
-                              Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
-                              Q_ARG(QCoapConnection *, connection));
+    QMetaObject::invokeMethod(protocol, &QCoapProtocol::sendRequest, Qt::QueuedConnection,
+                              QPointer<QCoapReply>(reply), connection);
 
     return true;
 }
@@ -626,8 +627,8 @@ void QCoapClient::setSecurityConfiguration(const QCoapSecurityConfiguration &con
 {
     Q_D(QCoapClient);
 
-    QMetaObject::invokeMethod(d->connection, "setSecurityConfiguration", Qt::QueuedConnection,
-                              Q_ARG(QCoapSecurityConfiguration, configuration));
+    QMetaObject::invokeMethod(d->connection, &QCoapConnection::setSecurityConfiguration,
+                              Qt::QueuedConnection, configuration);
 }
 
 /*!
@@ -639,8 +640,8 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
 
-    QMetaObject::invokeMethod(d->protocol, "setBlockSize", Qt::QueuedConnection,
-                              Q_ARG(quint16, blockSize));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setBlockSize, Qt::QueuedConnection,
+                              blockSize);
 }
 
 /*!
@@ -650,9 +651,11 @@ void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QV
 {
     Q_D(QCoapClient);
 
-    QMetaObject::invokeMethod(d->connection, "setSocketOption", Qt::QueuedConnection,
-                              Q_ARG(QAbstractSocket::SocketOption, option),
-                              Q_ARG(QVariant, value));
+    auto conn = qobject_cast<QCoapQUdpConnection *>(d->connection);
+    if (!conn)
+        return;
+    QMetaObject::invokeMethod(conn, &QCoapQUdpConnection::setSocketOption, Qt::QueuedConnection,
+                              option, value);
 }
 
 /*!
@@ -665,8 +668,8 @@ void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QV
 void QCoapClient::setMaximumServerResponseDelay(uint responseDelay)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaximumServerResponseDelay", Qt::QueuedConnection,
-                              Q_ARG(uint, responseDelay));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setMaximumServerResponseDelay,
+                              Qt::QueuedConnection, responseDelay);
 }
 
 /*!
@@ -682,8 +685,8 @@ void QCoapClient::setMaximumServerResponseDelay(uint responseDelay)
 void QCoapClient::setAckTimeout(uint ackTimeout)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setAckTimeout", Qt::QueuedConnection,
-                              Q_ARG(uint, ackTimeout));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setAckTimeout,
+                              Qt::QueuedConnection, ackTimeout);
 }
 
 /*!
@@ -696,8 +699,8 @@ void QCoapClient::setAckTimeout(uint ackTimeout)
 void QCoapClient::setAckRandomFactor(double ackRandomFactor)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setAckRandomFactor", Qt::QueuedConnection,
-                              Q_ARG(double, ackRandomFactor));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setAckRandomFactor,
+                              Qt::QueuedConnection, ackRandomFactor);
 }
 
 /*!
@@ -708,8 +711,8 @@ void QCoapClient::setAckRandomFactor(double ackRandomFactor)
 void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMaximumRetransmitCount", Qt::QueuedConnection,
-                              Q_ARG(uint, maximumRetransmitCount));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setMaximumRetransmitCount,
+                              Qt::QueuedConnection, maximumRetransmitCount);
 }
 
 /*!
@@ -720,8 +723,8 @@ void QCoapClient::setMaximumRetransmitCount(uint maximumRetransmitCount)
 void QCoapClient::setMinimumTokenSize(int tokenSize)
 {
     Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "setMinimumTokenSize", Qt::QueuedConnection,
-                              Q_ARG(int, tokenSize));
+    QMetaObject::invokeMethod(d->protocol, &QCoapProtocol::setMinimumTokenSize,
+                              Qt::QueuedConnection, tokenSize);
 }
 
 #if QT_CONFIG(networkinterface)
