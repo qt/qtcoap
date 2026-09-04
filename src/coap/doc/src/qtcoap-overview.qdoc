@@ -142,6 +142,12 @@
     based on Datagram TLS (DTLS) over UDP. However, as mentioned above, it is possible to
     provide a custom transport with another security type.
 
+    \note When you provide a custom transport, the DTLS protection described here no longer
+    applies. Securing the exchange then becomes the responsibility of that transport, which
+    must provide encryption, peer authentication, and message framing appropriate to the
+    protocol it is built on. A transport that omits any of these leaves requests and
+    responses unprotected, and the loss is not visible to the rest of the application.
+
     \warning By default Qt CoAP operates without transport security. Unless a secure
     mode is selected, requests and responses are sent as plain UDP datagrams. Use the
     default (\c{QtCoap::NoSecurity}) only on fully trusted networks; on any untrusted

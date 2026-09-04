@@ -21,6 +21,13 @@ Q_LOGGING_CATEGORY(lcCoapConnection, "qt.coap.connection")
 
     It isolates CoAP clients from the transport in use, so that any
     client can be used with any supported transport.
+
+    \note A subclass that implements a transport is responsible for the security
+    of the connection it establishes. Unless the transport itself provides
+    encryption, peer authentication, and correct message framing, the
+    confidentiality, integrity, and authenticity guarantees that DTLS provides
+    over the default transport no longer hold. See the security discussion in the
+    \l(Qt CoAP Overview#Security){Qt CoAP Overview}.
 */
 
 /*!
