@@ -42,6 +42,22 @@ public:
     A QCoapPrivateKey packages a private key used in negotiating CoAP connections
     securely. It holds the information required for authentication using
     \c pre-shared keys and X.509 certificates.
+
+    \section1 Security Considerations
+
+    QCoapPrivateKey stores the private key and its passphrase internally using
+    general-purpose data types (QByteArray) that do not guarantee secure erasure
+    of their contents from memory on destruction. This material may persist in
+    freed heap pages, core dumps, swap files, or process memory after a
+    QCoapPrivateKey object is destroyed or cleared. Because QByteArray is
+    implicitly shared, copies of the key or passphrase may exist in several
+    locations and cannot be wiped deterministically.
+
+    Where the security back-end supports it, constructing the key from a native
+    handle (the \c{Qt::HANDLE} overload) keeps the key material outside Qt's
+    general-purpose containers. Applications with strict requirements for
+    credential hygiene should take this into account when deciding how and where
+    to use QCoapPrivateKey.
 */
 
 /*!
@@ -180,6 +196,24 @@ QByteArray QCoapPrivateKey::passPhrase() const
 
     It holds information such as client identity, pre shared key, information
     about certificates, and so on.
+
+    \section1 Security Considerations
+
+    QCoapSecurityConfiguration stores sensitive credential material, such as the
+    pre-shared key, the pre-shared key identity, and the private key, internally
+    using general-purpose data types (QByteArray, QString) that do not guarantee
+    secure erasure of their contents from memory on destruction. This material
+    may persist in freed heap pages, core dumps, swap files, or process memory
+    after a QCoapSecurityConfiguration object is destroyed or cleared. Because
+    these types are implicitly shared, copies of the same secret may exist in
+    several locations and cannot be wiped deterministically.
+
+    Provisioning, rotation, and storage of credential material are the
+    responsibility of the application. Applications with strict requirements for
+    credential hygiene should take this into account when deciding how and where
+    to use QCoapSecurityConfiguration.
+
+    \sa QCoapPrivateKey
 */
 
 
