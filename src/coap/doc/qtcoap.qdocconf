@@ -23,7 +23,7 @@ qhp.QtCoap.subprojects.examples.sortPages     = true
 
 qhp.QtCoap.subprojects.classes.title = C++ Classes
 qhp.QtCoap.subprojects.classes.indexTitle = Qt CoAP C++ Classes
-qhp.QtCoap.subprojects.classes.selectors = class fake:headerfile
+qhp.QtCoap.subprojects.classes.selectors = class namespace headerfile
 qhp.QtCoap.subprojects.classes.sortPages = true
 
 qhp.QtCoap.subprojects.overview.title         = Overview
